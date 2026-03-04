@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Engine - AI 内容生产系统</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --bg-dark: #000000;
+            --text-light: #f5f5f7;
+            --accent-gold: #c5a059;
+            --text-secondary: #86868b;
+            --title-size: clamp(2.5rem, 6vw, 5rem);
+            --subtitle-size: clamp(1.1rem, 2.8vw, 1.8rem);
+            --body-size: clamp(0.85rem, 1.5vw, 1.1rem);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif;
+            background: var(--bg-dark); color: var(--text-light);
+            overflow: hidden; -webkit-font-smoothing: antialiased;
+        }
+        #particles-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; opacity: 0.4;
+        }
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 2px;
+            background: var(--accent-gold); width: 0%; z-index: 1000;
+            transition: width 0.3s ease;
+        }
+        .edit-hotzone { position: fixed; top: 0; left: 0; width: 80px; height: 80px; z-index: 999; }
+        #editToggle {
+            position: fixed; top: 20px; left: 20px; padding: 8px 16px; font-size: 13px;
+            background: rgba(197,160,89,0.1); border: 1px solid rgba(197,160,89,0.3);
+            color: var(--accent-gold); cursor: pointer; border-radius: 20px;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: all 0.3s ease; font-weight: 500;
+        }
+        #editToggle.show { opacity: 1; pointer-events: auto; }
+        #editToggle:hover { background: rgba(197,160,89,0.2); }
+        #editToggle.active { background: var(--accent-gold); color: #000; opacity: 1; pointer-events: auto; }
+        #exportBtn {
+            position: fixed; top: 20px; left: 120px; padding: 8px 16px; font-size: 13px;
+            background: rgba(197,160,89,0.1); border: 1px solid rgba(197,160,89,0.3);
+            color: var(--accent-gold); cursor: pointer; border-radius: 20px;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: all 0.3s ease; font-weight: 500;
+        }
+        #exportBtn.show { opacity: 1; pointer-events: auto; }
+        #exportBtn:hover { background: rgba(197,160,89,0.2); }
+
+        .slides-container {
+            position: relative; z-index: 1; height: 100vh;
+            overflow-y: scroll; scroll-snap-type: y mandatory;
+            scroll-behavior: smooth; scrollbar-width: none;
+        }
+        .slides-container::-webkit-scrollbar { display: none; }
+        .slide {
+            width: 100vw; height: 100vh; height: 100dvh;
+            overflow: hidden; scroll-snap-align: start;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: clamp(2rem, 5vw, 6rem); text-align: center; position: relative;
+        }
+        .slide-background {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; overflow: hidden;
+        }
+        .slide-content { position: relative; z-index: 1; max-width: 1100px; width: 100%; }
+        .slide h1 {
+            font-size: var(--title-size); font-weight: 700; margin-bottom: 0.5rem;
+            line-height: 1.05; letter-spacing: -0.015em;
+        }
+        .slide h2 {
+            font-size: var(--subtitle-size); font-weight: 600; color: var(--accent-gold);
+            margin-bottom: 0.8rem; line-height: 1.3; letter-spacing: -0.01em;
+        }
+        .slide p {
+            font-size: var(--body-size); line-height: 1.5; max-width: 800px;
+            color: var(--text-secondary); font-weight: 400; margin: 0 auto;
+        }
+        .nav-dots {
+            position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
+            z-index: 100; display: flex; flex-direction: column; gap: 8px;
+        }
+        .nav-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(197,160,89,0.3); cursor: pointer; transition: all 0.3s ease;
+        }
+        .nav-dot.active { background: var(--accent-gold); transform: scale(1.4); }
+        .nav-dot:hover { background: var(--accent-gold); }
+        [contenteditable="true"] { outline: 2px dashed var(--accent-gold); outline-offset: 4px; cursor: text; }
+
+        /* Animations */
+        .animate-in {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1);
+        }
+        .slide-active .animate-in { opacity: 1; transform: translateY(0); }
+        .slide-active .animate-in:nth-child(1) { transition-delay: 0.1s; }
+        .slide-active .animate-in:nth-child(2) { transition-delay: 0.3s; }
+        .slide-active .animate-in:nth-child(3) { transition-delay: 0.5s; }
+        .slide-active .animate-in:nth-child(4) { transition-delay: 0.7s; }
+        .slide-active .animate-in:nth-child(5) { transition-delay: 0.9s; }
+
+        /* Video grid */
+        .video-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; width: 100%; max-width: 1100px; margin: 2.5rem auto 0;
+        }
+        .video-card {
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .video-card:hover { transform: translateY(-4px); border-color: rgba(197,160,89,0.4); }
+        .video-card video { width: 100%; display: block; aspect-ratio: 9/16; object-fit: cover; }
+
+        /* SKU label */
+        .sku-label {
+            display: inline-block; padding: 6px 18px;
+            border: 1.5px solid rgba(197,160,89,0.4); border-radius: 20px;
+            font-size: 0.85rem; color: var(--accent-gold);
+            font-weight: 600; letter-spacing: 0.03em; margin-bottom: 0.8rem;
+        }
+
+        /* SKU slides: smaller titles to fit with videos */
+        .slide-sku h1 { font-size: clamp(1.5rem, 3.5vw, 2.8rem); margin-bottom: 0.3rem; }
+        .slide-sku h2 { font-size: clamp(0.9rem, 2vw, 1.3rem); margin-bottom: 0.5rem; }
+        .slide-sku p { margin-bottom: 0.5rem; }
+
+        /* Ripple */
+        .ripple-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; height: 100%; }
+        .ripple { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); border: 1.5px solid var(--accent-gold); border-radius: 50%; animation: rippleExpand 4s ease-out infinite; }
+        .ripple:nth-child(2) { animation-delay: 1.3s; }
+        .ripple:nth-child(3) { animation-delay: 2.6s; }
+        @keyframes rippleExpand { 0% { width: 60px; height: 60px; opacity: 0.7; } 100% { width: 700px; height: 700px; opacity: 0; } }
+
+        /* Summary */
+        .arch-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin: 2.5rem auto; max-width: 900px; }
+        .arch-block { padding: 36px 30px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; text-align: left; transition: border-color 0.4s ease; }
+        .arch-block:hover { border-color: rgba(197,160,89,0.3); }
+        .arch-block h3 { font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-bottom: 0.6rem; }
+        .arch-block p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .arch-context { display: flex; gap: 16px; justify-content: center; margin-top: 1.5rem; }
+        .arch-tag { padding: 6px 16px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* ===== Slide 3: Interactive brainstorm → AI burst ===== */
+        .idea-stage {
+            width: 100%; max-width: 1200px; height: 400px;
+            position: relative; margin: 1.5rem auto 0; overflow: visible;
+        }
+        .people-group {
+            position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 36px;
+            transition: all 1s cubic-bezier(0.16,1,0.3,1);
+            cursor: pointer;
+        }
+        .people-group-hint {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7rem; color: rgba(255,255,255,0.25); letter-spacing: 0.05em;
+            transition: opacity 0.5s ease;
+        }
+        .person {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
+            position: relative; transform: translateY(10px);
+        }
+        .person-emoji { font-size: 3rem; line-height: 1; }
+        .person-role { font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; }
+        .thought-emoji {
+            position: absolute; font-size: 1.3rem; opacity: 0; pointer-events: none;
+        }
+        @keyframes thoughtRise {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: translateY(-10px) scale(1); }
+            80% { opacity: 1; transform: translateY(-40px) scale(1); }
+            100% { opacity: 0; transform: translateY(-55px) scale(0.7); }
+        }
+        .idea-stage[data-phase="before"] .people-group { opacity: 1; transform: scale(1); }
+        .idea-stage[data-phase="after"] .people-group { opacity: 0; transform: scale(0.7); filter: blur(3px); pointer-events: none; }
+
+        .ai-btn-wrap {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(0.5);
+            z-index: 10; opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        .idea-stage[data-phase="after"] .ai-btn-wrap {
+            opacity: 1; pointer-events: auto; transform: translate(-50%,-50%) scale(1);
+        }
+        .ai-btn {
+            width: 96px; height: 96px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), #e8d5a3);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem; font-weight: 700; color: #000;
+            box-shadow: 0 0 60px rgba(197,160,89,0.3);
+            transition: all 0.15s ease; position: relative;
+        }
+        .ai-btn:hover { transform: scale(1.1); box-shadow: 0 0 80px rgba(197,160,89,0.5); }
+        .ai-btn:active { transform: scale(0.95); }
+        .ai-btn::before {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            border-radius: 50%; border: 2px solid var(--accent-gold);
+            animation: btnPulse 2s ease-out infinite;
+        }
+        @keyframes btnPulse { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(2.2); opacity: 0; } }
+        .ai-btn-hint {
+            position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+            font-size: 0.7rem; color: rgba(197,160,89,0.5); white-space: nowrap;
+        }
+        .burst-ring {
+            position: absolute; left: 50%; top: 50%; width: 10px; height: 10px;
+            border-radius: 50%; border: 2px solid var(--accent-gold);
+            transform: translate(-50%,-50%); pointer-events: none; z-index: 8;
+            animation: burstRingExpand 0.6s ease-out forwards;
+        }
+        @keyframes burstRingExpand { 0% { width: 10px; height: 10px; opacity: 1; } 100% { width: 300px; height: 300px; opacity: 0; } }
+        .idea-chip {
+            position: absolute; padding: 10px 20px; border-radius: 24px;
+            font-size: 0.85rem; font-weight: 500; white-space: nowrap;
+            opacity: 0; z-index: 5; cursor: default;
+            background: rgba(197,160,89,0.1); border: 1.5px solid rgba(197,160,89,0.3);
+            color: var(--accent-gold); display: flex; align-items: center; gap: 6px;
+        }
+        .idea-chip .chip-emoji { font-size: 1rem; }
+        @keyframes chipFloatA { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
+        @keyframes chipFloatB { 0% { transform: translateY(0); } 100% { transform: translateY(8px); } }
+        @keyframes chipFloatC { 0% { transform: translateY(-4px) rotate(-1deg); } 100% { transform: translateY(6px) rotate(1deg); } }
+
+        /* Demo cards */
+        .demo-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 24px; width: 100%; max-width: 1100px; margin: 2.5rem auto 0;
+        }
+        .demo-card {
+            border-radius: 16px; overflow: hidden;
+            border: 1px solid rgba(197,160,89,0.2); background: rgba(255,255,255,0.02);
+            cursor: pointer; transition: transform 0.3s ease, border-color 0.3s ease;
+            display: flex; flex-direction: column;
+        }
+        .demo-card:hover { transform: translateY(-4px); border-color: rgba(197,160,89,0.5); }
+        .demo-card-visual {
+            width: 100%; aspect-ratio: 9/12;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .demo-card-info { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .demo-card-info h4 { font-size: 1rem; font-weight: 600; color: var(--text-light); margin-bottom: 4px; }
+        .demo-card-info p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+        .morph-label {
+            font-size: 0.9rem; color: var(--accent-gold); font-weight: 500;
+            letter-spacing: 0.05em; margin-bottom: 16px;
+        }
+
+        /* Demo 1: morph */
+        .demo-morph { background: linear-gradient(135deg, #1a1a2e, #0d0d1a); }
+        .morph-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), #8b7355);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin-bottom: 20px;
+            animation: morphPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 40px rgba(197,160,89,0.3);
+        }
+        @keyframes morphPulse {
+            0%,100% { border-radius: 50%; transform: scale(1); }
+            33% { border-radius: 30% 70% 70% 30%/30% 30% 70% 70%; transform: scale(1.05); }
+            66% { border-radius: 70% 30% 30% 70%/70% 70% 30% 30%; transform: scale(0.95); }
+        }
+        .morph-arrow { font-size: 1.5rem; color: rgba(197,160,89,0.5); margin: 12px 0; animation: arrowBounce 1.5s ease-in-out infinite; }
+        @keyframes arrowBounce { 0%,100% { transform: translateY(0); opacity: 0.5; } 50% { transform: translateY(8px); opacity: 1; } }
+        .morph-result {
+            width: 100px; height: 100px; border-radius: 16px;
+            background: linear-gradient(135deg, #c5a059, #e8d5a3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; animation: resultGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes resultGlow { 0% { box-shadow: 0 0 20px rgba(197,160,89,0.2); } 100% { box-shadow: 0 0 40px rgba(197,160,89,0.5); } }
+
+        /* Demo 2: mbti */
+        .demo-mbti { background: linear-gradient(135deg, #1a0d2e, #0d0d1a); }
+        .mbti-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
+        .mbti-cell {
+            width: 60px; height: 60px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; animation: mbtiFlip 4s ease-in-out infinite;
+        }
+        .mbti-cell:nth-child(1) { background: rgba(99,102,241,0.3); color: #818cf8; animation-delay: 0s; }
+        .mbti-cell:nth-child(2) { background: rgba(244,114,182,0.3); color: #f472b6; animation-delay: 0.5s; }
+        .mbti-cell:nth-child(3) { background: rgba(52,211,153,0.3); color: #34d399; animation-delay: 1s; }
+        .mbti-cell:nth-child(4) { background: rgba(251,191,36,0.3); color: #fbbf24; animation-delay: 1.5s; }
+        @keyframes mbtiFlip { 0%,80%,100% { transform: rotateY(0); } 40% { transform: rotateY(180deg); } }
+        .mbti-result-text {
+            font-size: 2rem; font-weight: 700;
+            background: linear-gradient(135deg, #818cf8, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .mbti-sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; }
+
+        /* Demo 3: video gen */
+        .demo-video-gen { background: linear-gradient(135deg, #0d1a1a, #0d0d1a); }
+        .gen-prompt {
+            width: 80%; padding: 12px 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(197,160,89,0.3); border-radius: 12px;
+            font-size: 0.8rem; color: var(--text-secondary); text-align: left;
+            margin-bottom: 16px; position: relative; overflow: hidden;
+        }
+        .gen-prompt::after {
+            content: ''; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            width: 2px; height: 16px; background: var(--accent-gold);
+            animation: cursorBlink 1s step-end infinite;
+        }
+        @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+        .gen-frames { display: flex; gap: 8px; margin-bottom: 16px; }
+        .gen-frame {
+            width: 50px; height: 50px; border-radius: 8px;
+            background: linear-gradient(135deg, rgba(197,160,89,0.2), rgba(197,160,89,0.05));
+            border: 1px solid rgba(197,160,89,0.2); animation: frameLoad 2s ease-in-out infinite;
+        }
+        .gen-frame:nth-child(1) { animation-delay: 0s; }
+        .gen-frame:nth-child(2) { animation-delay: 0.3s; }
+        .gen-frame:nth-child(3) { animation-delay: 0.6s; }
+        .gen-frame:nth-child(4) { animation-delay: 0.9s; }
+        @keyframes frameLoad { 0%,100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } }
+        .gen-play {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: rgba(197,160,89,0.2); border: 2px solid var(--accent-gold);
+            display: flex; align-items: center; justify-content: center;
+            animation: playPulse 2s ease-in-out infinite;
+        }
+        .gen-play::after {
+            content: ''; width: 0; height: 0;
+            border-left: 18px solid var(--accent-gold); border-top: 11px solid transparent;
+            border-bottom: 11px solid transparent; margin-left: 4px;
+        }
+        @keyframes playPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(197,160,89,0.3); } 50% { box-shadow: 0 0 0 15px rgba(197,160,89,0); } }
+
+        @media (max-width: 768px) {
+            .video-grid, .demo-grid { grid-template-columns: 1fr; }
+            .arch-row { grid-template-columns: 1fr; }
+            .people-group { gap: 16px; flex-wrap: wrap; }
+            .person-emoji { font-size: 2.2rem; }
+            .idea-stage { height: 340px; }
+        }
+        @media (max-height: 700px) {
+            .slide { padding: clamp(1.5rem, 4vw, 3rem); }
+            :root { --title-size: clamp(2rem, 6vw, 4rem); --subtitle-size: clamp(1rem, 2.2vw, 1.4rem); --body-size: clamp(0.9rem, 1.5vw, 1.1rem); }
+        }
+        @media (max-height: 600px) { .nav-dots { display: none; } #particles-canvas { opacity: 0.2; } }
+        @media (prefers-reduced-motion: reduce) { .animate-in, .ripple { transition: none; animation: none; } }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div id="progress-bar"></div>
+    <div class="edit-hotzone"></div>
+    <button id="editToggle">编辑模式</button>
+    <button id="exportBtn">导出文件</button>
+    <div class="nav-dots" id="navDots"></div>
+    <div class="slides-container" id="slidesContainer">
+        <!-- Slide 1: Cover -->
+        <section class="slide">
+            <div class="slide-background">
+                <div class="ripple-container" style="opacity:0.1;">
+                    <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+                </div>
+            </div>
+            <div class="slide-content">
+                <h2 class="animate-in">AI Content Engine</h2>
+                <h1 class="animate-in">AI 内容生产系统</h1>
+                <p class="animate-in">让好内容更容易被探索</p>
+            </div>
+        </section>
+
+        <!-- Slide 2: Great content is expensive -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="animate-in">Great Content Is Expensive</h2>
+                <h1 class="animate-in">好内容很贵</h1>
+                <p class="animate-in">好内容一直是高成本产出<br>一个创意往往需要完整制作团队</p>
+            </div>
+        </section>
+
+        <!-- Slide 3: Idea exploration (INTERACTIVE) -->
+        <section class="slide" id="slide3">
+            <div class="slide-content">
+                <h2 class="animate-in">Idea Exploration Is Expensive</h2>
+                <h1 class="animate-in">创意探索很贵</h1>
+                <div class="idea-stage" data-phase="before" id="ideaStage">
+                    <div class="people-group" id="peopleGroup">
+                        <!-- Will be populated by JS -->
+                    </div>
+                    <div class="people-group-hint">点击人物开始</div>
+                    <div class="ai-btn-wrap">
+                        <button class="ai-btn" id="aiBtn">✨ AI</button>
+                        <div class="ai-btn-hint">点击生成创意</div>
+                    </div>
+                </div>
+                <p class="animate-in">AI 出现后，内容探索空间被放大</p>
+            </div>
+        </section>
+
+        <!-- Slide 4: Transition -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="animate-in">AI Enables New Forms Of Content</h2>
+                <h1 class="animate-in">AI 让更多内容表达<br>成为可能</h1>
+                <p class="animate-in">过去很难实现的内容表达<br>现在变得更容易探索</p>
+            </div>
+        </section>
+
+        <!-- Slide 5: SKU 1 - Hook Content -->
+        <section class="slide slide-sku">
+            <div class="slide-content">
+                <div class="animate-in"><span class="sku-label">SKU 1</span></div>
+                <h1 class="animate-in">吸睛短视频</h1>
+                <h2 class="animate-in">Hook Content</h2>
+                <p class="animate-in">在信息流中抓住用户注意力的创意视频</p>
+                <div class="video-grid animate-in">
+                    <div class="video-card">
+                        <video src="视频案例/hook/品牌1.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/hook/001.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/hook/品牌3.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: SKU 2 - Platform Content -->
+        <section class="slide slide-sku">
+            <div class="slide-content">
+                <div class="animate-in"><span class="sku-label">SKU 2</span></div>
+                <h1 class="animate-in">平台内容短视频</h1>
+                <h2 class="animate-in">Platform Content</h2>
+                <p class="animate-in">适合平台传播的日常品牌内容</p>
+                <div class="video-grid animate-in" style="grid-template-columns: repeat(6, 1fr); gap: 12px;">
+                    <div class="video-card">
+                        <video src="视频案例/idea/压岁钱.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/idea/保险科普口播.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/idea/保险科普轻剧情.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/idea/庙会.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/idea/开工.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/idea/春运.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: SKU 3 - AI Story -->
+        <section class="slide slide-sku">
+            <div class="slide-content">
+                <div class="animate-in"><span class="sku-label">SKU 3</span></div>
+                <h1 class="animate-in">品牌故事短剧</h1>
+                <h2 class="animate-in">AI Story</h2>
+                <p class="animate-in">用短剧形式表达品牌故事和产品信息</p>
+                <div class="video-grid animate-in" style="grid-template-columns: repeat(2, 1fr); max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <div class="video-card">
+                        <video src="视频案例/ai 短剧/品牌2.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/12;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/ai 短剧/短剧1.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/12;"></video>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: SKU 4 - AI UGC Campaign -->
+        <section class="slide slide-sku">
+            <div class="slide-content">
+                <div class="animate-in"><span class="sku-label">SKU 4</span></div>
+                <h1 class="animate-in">AI互动营销</h1>
+                <h2 class="animate-in">AI UGC Campaign</h2>
+                <p class="animate-in">让用户参与创作的 AI 营销活动</p>
+                <div class="demo-grid animate-in">
+                    <div class="demo-card">
+                        <div class="demo-card-visual demo-morph">
+                            <div class="morph-label">AI 做同款</div>
+                            <div class="morph-circle">📸</div>
+                            <div class="morph-arrow">↓</div>
+                            <div class="morph-result">🎨</div>
+                        </div>
+                        <div class="demo-card-info">
+                            <h4>AI 做同款</h4>
+                            <p>上传照片，生成品牌同款风格</p>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-card-visual demo-mbti">
+                            <div class="morph-label">AI 测 MBTI</div>
+                            <div class="mbti-grid">
+                                <div class="mbti-cell">I</div>
+                                <div class="mbti-cell">N</div>
+                                <div class="mbti-cell">F</div>
+                                <div class="mbti-cell">P</div>
+                            </div>
+                            <div class="mbti-result-text">INFP</div>
+                            <div class="mbti-sub">你的品牌人格是...</div>
+                        </div>
+                        <div class="demo-card-info">
+                            <h4>AI 测 MBTI</h4>
+                            <p>AI 生成品牌人格测试互动</p>
+                        </div>
+                    </div>
+                    <div class="demo-card">
+                        <div class="demo-card-visual demo-video-gen">
+                            <div class="morph-label">AI 生成视频</div>
+                            <div class="gen-prompt">输入品牌关键词...</div>
+                            <div class="gen-frames">
+                                <div class="gen-frame"></div>
+                                <div class="gen-frame"></div>
+                                <div class="gen-frame"></div>
+                                <div class="gen-frame"></div>
+                            </div>
+                            <div class="gen-play"></div>
+                        </div>
+                        <div class="demo-card-info">
+                            <h4>AI 生成视频</h4>
+                            <p>用户输入关键词，AI 生成短视频</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Summary -->
+        <section class="slide">
+            <div class="slide-content">
+                <h1 class="animate-in">AI内容生产系统</h1>
+                <h2 class="animate-in">AI Content Engine</h2>
+                <p class="animate-in">让品牌内容持续生长</p>
+                <div class="arch-row animate-in">
+                    <div class="arch-block">
+                        <h3>保持内容表达前沿</h3>
+                        <p>持续接入最新AI模型，让品牌能够尝试新的视觉表达方式</p>
+                    </div>
+                    <div class="arch-block">
+                        <h3>丰富品牌内容表达</h3>
+                        <p>图像、视频、动画等多种生成能力组合，让内容形式更加多样</p>
+                    </div>
+                    <div class="arch-block">
+                        <h3>稳定的内容生产体系</h3>
+                        <p>通过AI工作流建立可复用的内容生产流程</p>
+                    </div>
+                    <div class="arch-block">
+                        <h3>沉淀品牌内容资产</h3>
+                        <p>持续积累品牌视觉、品牌故事与内容体系</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Particles
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const particles = [];
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 0.3 - 0.15; this.speedY = Math.random() * 0.3 - 0.15;
+                this.opacity = Math.random() * 0.4 + 0.1;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(197,160,89,${this.opacity})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        for (let i = 0; i < 40; i++) particles.push(new Particle());
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        // Navigation
+        const slidesContainer = document.getElementById('slidesContainer');
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const navDotsContainer = document.getElementById('navDots');
+        let currentSlide = 0;
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot'; if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(i));
+            navDotsContainer.appendChild(dot);
+        });
+        const navDots = document.querySelectorAll('.nav-dot');
+        function updateProgress() {
+            progressBar.style.width = `${(currentSlide / (slides.length - 1)) * 100}%`;
+            navDots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+        }
+        function goToSlide(i) {
+            if (i < 0 || i >= slides.length) return;
+            currentSlide = i; slides[i].scrollIntoView({ behavior: 'smooth' }); updateProgress();
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goToSlide(currentSlide + 1); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); goToSlide(currentSlide - 1); }
+            else if (e.key === 'e' || e.key === 'E') { e.preventDefault(); toggleEditMode(); }
+        });
+        let scrollTimeout;
+        slidesContainer.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                currentSlide = Math.round(slidesContainer.scrollTop / window.innerHeight); updateProgress();
+            }, 100);
+        });
+
+        // Intersection Observer
+        const slideObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const slide = entry.target;
+                if (entry.isIntersecting) {
+                    slide.classList.add('slide-active');
+                    slide.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+                    // Reset slide 3 when entering
+                    if (slide.id === 'slide3') resetIdeaStage();
+                } else {
+                    slide.classList.remove('slide-active');
+                    slide.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
+                }
+            });
+        }, { root: slidesContainer, threshold: 0.5 });
+        slides.forEach(s => slideObserver.observe(s));
+        if (slides.length > 0) slides[0].classList.add('slide-active');
+
+        // ===== Slide 3: Interactive brainstorm → AI burst =====
+        const PEOPLE = [
+            { emoji: '👩🏻‍💼', role: '策划' },
+            { emoji: '👨🏿‍🎨', role: '创意' },
+            { emoji: '👩🏽‍💻', role: '设计' },
+            { emoji: '👨🏻‍🎬', role: '导演' },
+            { emoji: '🧑🏾‍💼', role: '客户' },
+            { emoji: '👩🏼‍🔬', role: '分析' },
+        ];
+        const THOUGHT_EMOJIS = ['🤔','💭','🧠','💡','❓','🤯','😤','😵‍💫','📝','🗣️','☕','⏰','😩','🤷','💬','😮‍💨'];
+        const IDEAS = [
+            { text: '视觉奇观', emoji: '👁️' }, { text: '隐喻', emoji: '🪞' },
+            { text: '反转', emoji: '🔄' }, { text: '悬念', emoji: '🎭' },
+            { text: '共鸣', emoji: '💗' }, { text: '对比', emoji: '⚖️' },
+            { text: '节奏', emoji: '🥁' }, { text: '冲突', emoji: '⚡' },
+            { text: '符号', emoji: '🔮' }, { text: '情绪', emoji: '🌊' },
+            { text: '场景', emoji: '🏙️' }, { text: '叙事', emoji: '📖' },
+            { text: '幽默', emoji: '😄' }, { text: '仪式感', emoji: '✨' },
+            { text: '沉浸', emoji: '🌀' }, { text: '互动', emoji: '🤝' },
+            { text: '超现实', emoji: '🦋' }, { text: '极简', emoji: '◻️' },
+            { text: '怀旧', emoji: '📻' }, { text: '未来感', emoji: '🚀' },
+            { text: '温暖', emoji: '🕯️' }, { text: '力量', emoji: '💪' },
+        ];
+        let ideaIdx = 0;
+
+        const ideaStage = document.getElementById('ideaStage');
+        const peopleGroup = document.getElementById('peopleGroup');
+        const aiBtn = document.getElementById('aiBtn');
+        let thoughtInterval = null;
+
+        // Build people
+        PEOPLE.forEach(p => {
+            const person = document.createElement('div');
+            person.className = 'person';
+            person.innerHTML = `<div class="person-emoji">${p.emoji}</div><div class="person-role">${p.role}</div>`;
+            peopleGroup.appendChild(person);
+        });
+
+        function spawnThought(person) {
+            const el = document.createElement('div');
+            el.className = 'thought-emoji';
+            el.textContent = THOUGHT_EMOJIS[Math.floor(Math.random() * THOUGHT_EMOJIS.length)];
+            el.style.left = (Math.random() * 30 - 15) + 'px';
+            el.style.top = '-20px';
+            el.style.animation = `thoughtRise ${1.2 + Math.random() * 0.4}s ease forwards`;
+            person.appendChild(el);
+            setTimeout(() => el.remove(), 1700);
+        }
+
+        function startThoughts() {
+            const persons = peopleGroup.querySelectorAll('.person');
+            thoughtInterval = setInterval(() => {
+                const p = persons[Math.floor(Math.random() * persons.length)];
+                spawnThought(p);
+            }, 280);
+        }
+
+        function stopThoughts() {
+            if (thoughtInterval) { clearInterval(thoughtInterval); thoughtInterval = null; }
+        }
+
+        // Click people group → transition to AI button
+        peopleGroup.addEventListener('click', () => {
+            if (ideaStage.dataset.phase !== 'before') return;
+            stopThoughts();
+            ideaStage.dataset.phase = 'after';
+            ideaStage.querySelector('.people-group-hint').style.opacity = '0';
+        });
+
+        // AI button → burst ideas (repeatable)
+        aiBtn.addEventListener('click', () => {
+            // Burst ring
+            const ring = document.createElement('div');
+            ring.className = 'burst-ring';
+            aiBtn.parentElement.appendChild(ring);
+            setTimeout(() => ring.remove(), 700);
+
+            // Burst mixed ideas
+            const cx = ideaStage.offsetWidth / 2;
+            const cy = ideaStage.offsetHeight / 2;
+            const maxR = Math.min(ideaStage.offsetWidth * 0.48, ideaStage.offsetHeight * 0.46);
+            const count = 8;
+
+            for (let i = 0; i < count; i++) {
+                const idea = IDEAS[ideaIdx % IDEAS.length];
+                ideaIdx++;
+                const chip = document.createElement('div');
+                chip.className = 'idea-chip';
+                chip.innerHTML = `<span class="chip-emoji">${idea.emoji}</span>${idea.text}`;
+                chip.style.left = cx + 'px';
+                chip.style.top = cy + 'px';
+                ideaStage.appendChild(chip);
+
+                let tx, ty;
+                if (i % 2 === 0) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const r = maxR * (0.4 + Math.random() * 0.6);
+                    tx = cx + Math.cos(angle) * r - 50;
+                    ty = cy + Math.sin(angle) * r - 18;
+                } else {
+                    tx = cx + (Math.random() - 0.5) * ideaStage.offsetWidth * 0.85;
+                    ty = 15 + Math.random() * cy * 0.85;
+                }
+
+                setTimeout(() => {
+                    chip.style.transition = 'all 0.7s cubic-bezier(0.16,1,0.3,1)';
+                    chip.style.opacity = '1';
+                    chip.style.left = tx + 'px';
+                    chip.style.top = ty + 'px';
+                }, i * 40);
+
+                setTimeout(() => {
+                    const anim = ['chipFloatA','chipFloatB','chipFloatC'][i % 3];
+                    chip.style.animation = `${anim} ${2 + Math.random() * 1.5}s ease-in-out infinite alternate`;
+                }, 750 + i * 40);
+            }
+        });
+
+        function resetIdeaStage() {
+            stopThoughts();
+            ideaStage.querySelectorAll('.idea-chip').forEach(c => c.remove());
+            ideaStage.querySelectorAll('.burst-ring').forEach(r => r.remove());
+            ideaStage.dataset.phase = 'before';
+            ideaStage.querySelector('.people-group-hint').style.opacity = '1';
+            ideaIdx = 0;
+            const persons = peopleGroup.querySelectorAll('.person');
+            persons.forEach(p => { p.style.opacity = '0'; p.style.transform = 'translateY(10px)'; });
+            // Animate people in
+            setTimeout(() => {
+                persons.forEach((p, i) => {
+                    setTimeout(() => { p.style.opacity = '1'; p.style.transform = 'translateY(0)'; }, i * 150);
+                });
+                setTimeout(startThoughts, 600);
+            }, 300);
+        }
+
+        // Edit mode
+        const editToggle = document.getElementById('editToggle');
+        const exportBtn = document.getElementById('exportBtn');
+        const hotzone = document.querySelector('.edit-hotzone');
+        let isEditMode = false, hideTimeout = null;
+        hotzone.addEventListener('mouseenter', () => { clearTimeout(hideTimeout); editToggle.classList.add('show'); if (isEditMode) exportBtn.classList.add('show'); });
+        hotzone.addEventListener('mouseleave', () => { hideTimeout = setTimeout(() => { if (!isEditMode) { editToggle.classList.remove('show'); exportBtn.classList.remove('show'); } }, 400); });
+        editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+        exportBtn.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+        function toggleEditMode() {
+            isEditMode = !isEditMode; editToggle.classList.toggle('active', isEditMode);
+            if (isEditMode) { editToggle.textContent = '退出编辑'; exportBtn.classList.add('show'); enableEditing(); }
+            else { editToggle.textContent = '编辑模式'; exportBtn.classList.remove('show'); disableEditing(); }
+        }
+        function enableEditing() {
+            slides.forEach(s => s.querySelectorAll('h1,h2,p,h3,h4').forEach(el => { el.contentEditable = 'true'; el.addEventListener('input', saveEdits); }));
+            loadEdits();
+        }
+        function disableEditing() {
+            slides.forEach(s => s.querySelectorAll('h1,h2,p,h3,h4').forEach(el => { el.contentEditable = 'false'; el.removeEventListener('input', saveEdits); }));
+        }
+        function saveEdits() {
+            const edits = {};
+            slides.forEach((s, i) => { edits[i] = {}; s.querySelectorAll('h1,h2,p,h3,h4').forEach((el, j) => { edits[i][j] = el.innerHTML; }); });
+            localStorage.setItem('ai-content-engine-v3-edits', JSON.stringify(edits));
+        }
+        function loadEdits() {
+            const edits = JSON.parse(localStorage.getItem('ai-content-engine-v3-edits') || '{}');
+            slides.forEach((s, i) => { if (edits[i]) s.querySelectorAll('h1,h2,p,h3,h4').forEach((el, j) => { if (edits[i][j]) el.innerHTML = edits[i][j]; }); });
+        }
+        function exportHTML() {
+            const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob); const a = document.createElement('a');
+            a.href = url; a.download = 'ai-content-engine-v3-edited.html'; a.click(); URL.revokeObjectURL(url);
+        }
+        editToggle.addEventListener('click', toggleEditMode);
+        exportBtn.addEventListener('click', exportHTML);
+        window.addEventListener('load', () => { if (localStorage.getItem('ai-content-engine-v3-edits')) loadEdits(); });
+    </script>
+</body>
+</html>

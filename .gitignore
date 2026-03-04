@@ -1,0 +1,23 @@
+# Ignore everything
+*
+
+# Allow presentation files
+!.gitignore
+!ai-content-engine-v3.html
+
+# Allow video cases
+!视频案例/
+!视频案例/hook/
+!视频案例/hook/*.mp4
+!视频案例/idea/
+!视频案例/idea/*.mp4
+!视频案例/ai 短剧/
+!视频案例/ai 短剧/*.mp4
+
+# Exclude large videos
+视频案例/idea/315消保.mp4
+视频案例/idea/开工.mp4
+
+# Exclude non-mp4
+*.mov
+*.DS_Store
