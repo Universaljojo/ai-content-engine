@@ -1,8 +1,12 @@
 # Ignore everything
 *
 
-# Allow presentation files
+# Allow git and github
 !.gitignore
+!.github/
+!.github/**
+
+# Allow presentation
 !ai-content-engine-v3.html
 
 # Allow video cases
