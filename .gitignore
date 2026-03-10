@@ -6,24 +6,35 @@
 !.github/
 !.github/**
 
-# Allow presentation
+# Allow presentations
 !ai-content-engine-v3.html
-
-# Allow MBTI demo
 !积分兑换AI测MBTI_demo.html
 
-# Allow video cases
+# Allow client folders
+!壹钱包×兑吧/
+!壹钱包×兑吧/*.html
+!平安银行信用卡/
+!平安银行信用卡/*.html
+
+# Allow compressed videos (for GitHub Pages)
 !视频案例/
-!视频案例/hook/
-!视频案例/hook/*.mp4
-!视频案例/idea/
-!视频案例/idea/*.mp4
-!视频案例/ai 短剧/
-!视频案例/ai 短剧/*.mp4
+!视频案例/compressed/
+!视频案例/compressed/hook/
+!视频案例/compressed/hook/*.mp4
+!视频案例/compressed/idea/
+!视频案例/compressed/idea/*.mp4
+!视频案例/compressed/kos/
+!视频案例/compressed/kos/*.mp4
+!视频案例/compressed/ai 短剧/
+!视频案例/compressed/ai 短剧/*.mp4
+!视频案例/compressed/video wall/
+!视频案例/compressed/video wall/trimmed/
+!视频案例/compressed/video wall/trimmed/*.mp4
 
-# Exclude large videos
-视频案例/idea/315消保.mp4
+# Allow portrait images (used by demo modals)
+!视频案例/portrait/
+!视频案例/portrait/*.png
 
-# Exclude non-mp4
+# Exclude non-media junk
 *.mov
 *.DS_Store
