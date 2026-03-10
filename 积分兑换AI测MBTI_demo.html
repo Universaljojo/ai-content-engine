@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 看照片测 MBTI × 积分兑换</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e5e5e5; min-height: 100vh; }
+.container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+.header { text-align: center; padding: 24px 0 16px; }
+.header h1 { font-size: 21px; font-weight: 700; background: linear-gradient(to right, #fff, #67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.header p { font-size: 13px; color: #6b7280; }
+.header .sell { display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px; background: rgba(34,211,238,0.1); color: #67e8f9; font-size: 12px; border: 1px solid rgba(34,211,238,0.2); }
+
+.points-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+.points-bar .label { font-size: 14px; color: #9ca3af; }
+.points-bar .value { font-size: 20px; font-weight: 700; color: #fbbf24; }
+
+/* Upload */
+.upload-area { border: 2px dashed rgba(255,255,255,0.1); border-radius: 16px; padding: 36px 16px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+.upload-area:hover { border-color: rgba(34,211,238,0.3); background: rgba(34,211,238,0.03); }
+.upload-area.has-photo { border-style: solid; border-color: rgba(34,211,238,0.3); padding: 12px; }
+.upload-icon { font-size: 44px; margin-bottom: 10px; }
+.upload-text { font-size: 15px; color: #d1d5db; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: #4b5563; }
+.upload-preview { width: 100%; max-height: 240px; object-fit: cover; border-radius: 12px; }
+.upload-change { display: inline-block; margin-top: 8px; font-size: 12px; color: #22d3ee; cursor: pointer; }
+
+.btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(to right, #06b6d4, #8b5cf6); color: #fff; }
+.btn-primary:hover { background: linear-gradient(to right, #0891b2, #7c3aed); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #d1d5db; }
+.btn-outline:hover { background: rgba(255,255,255,0.05); }
+.btn-row { display: flex; gap: 12px; }
+.btn-row .btn { flex: 1; }
+
+/* Analysis progress */
+.analysis { text-align: center; padding: 40px 20px; animation: fadeIn 0.3s; }
+.analysis .eye { font-size: 56px; margin-bottom: 16px; animation: pulse 1.5s ease-in-out infinite; }
+.analysis .status { font-size: 14px; color: #d1d5db; margin-bottom: 4px; }
+.analysis .sub { font-size: 12px; color: #6b7280; }
+.progress-bar-bg { width: 220px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 14px auto 0; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(to right, #06b6d4, #8b5cf6); border-radius: 2px; transition: width 0.4s; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+/* MBTI Result Card */
+.result-card { border-radius: 20px; overflow: hidden; margin: 20px 0; animation: zoomIn 0.5s ease; }
+.result-top { position: relative; padding: 28px 20px 20px; text-align: center; }
+.result-top .photo-thumb { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255,255,255,0.3); margin: 0 auto 12px; display: block; }
+.result-top .mbti-type { font-size: 40px; font-weight: 800; color: #fff; letter-spacing: 4px; margin-bottom: 4px; }
+.result-top .mbti-name { font-size: 16px; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 2px; }
+.result-top .mbti-tag { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+.result-body { background: rgba(255,255,255,0.05); padding: 20px; }
+.result-section { margin-bottom: 16px; }
+.result-section:last-child { margin-bottom: 0; }
+.result-section .sec-title { font-size: 12px; font-weight: 600; color: #22d3ee; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.result-section .sec-text { font-size: 13px; color: #d1d5db; line-height: 1.7; }
+
+/* Dimension bars */
+.dim-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dim-label { font-size: 11px; color: #9ca3af; width: 24px; text-align: center; font-weight: 600; }
+.dim-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.dim-pct { font-size: 11px; color: #9ca3af; width: 32px; text-align: right; }
+
+/* Traits */
+.traits { display: flex; flex-wrap: wrap; gap: 6px; }
+.trait { padding: 4px 12px; border-radius: 20px; font-size: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #d1d5db; }
+
+.result-footer { background: rgba(255,255,255,0.03); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); }
+.result-footer .brand { font-size: 10px; color: rgba(255,255,255,0.3); }
+.result-footer .cost-tag { font-size: 11px; color: #fbbf24; }
+
+.success-header { text-align: center; margin-bottom: 4px; animation: zoomIn 0.4s ease; }
+.success-header .emoji { font-size: 20px; display: inline; margin-right: 6px; }
+.success-header h2 { font-size: 18px; font-weight: 700; color: #fff; display: inline; }
+
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; animation: slideDown 0.3s ease; pointer-events: none; max-width: 90%; }
+.toast.success { background: rgba(34,197,94,0.9); color: #fff; }
+.toast.error { background: rgba(239,68,68,0.9); color: #fff; }
+.toast.hide { animation: slideUp 0.3s ease forwards; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+.modal { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; width: 90%; max-width: 360px; text-align: center; animation: zoomIn 0.3s ease; }
+.modal h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+.modal .btn { margin-bottom: 10px; }
+.modal .close-btn { font-size: 13px; color: #6b7280; cursor: pointer; background: none; border: none; padding: 8px; }
+
+.hidden { display: none !important; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes slideUp { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>AI 看照片测 MBTI</h1>
+    <p>平安银行信用卡 · 积分兑换活动</p>
+    <span class="sell">不做选择题，AI 直接看穿你</span>
+  </div>
+
+  <div class="points-bar">
+    <span class="label">积分余额</span>
+    <span class="value" id="pointsDisplay">10,000 分</span>
+  </div>
+
+  <!-- Upload -->
+  <div id="uploadSection">
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">🔮</div>
+        <p class="upload-text">上传一张照片，AI 看穿你的 MBTI</p>
+        <p class="upload-hint">风景、食物、自拍、宠物……什么都行</p>
+      </div>
+      <div id="uploadPreviewWrap" class="hidden">
+        <img id="uploadPreviewImg" class="upload-preview" />
+        <span class="upload-change">更换照片</span>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+    <button class="btn btn-primary" id="analyzeBtn" onclick="handleAnalyze()" disabled>消耗 100 积分 · AI 读心开始</button>
+    <p style="text-align:center;font-size:11px;color:#4b5563;margin-top:8px;">AI 将从构图、色调、拍摄视角推理你的人格类型</p>
+  </div>
+
+  <!-- Analyzing -->
+  <div id="analysisSection" class="hidden">
+    <div class="analysis">
+      <div class="eye">🧿</div>
+      <p class="status" id="analysisStatus">正在读取照片...</p>
+      <p class="sub" id="analysisSub">AI 正在分析你的拍摄习惯</p>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="analysisBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div id="resultSection" class="hidden">
+    <div class="success-header">
+      <span class="emoji">🧿</span>
+      <h2>AI 已看穿你</h2>
+    </div>
+    <div id="resultCard"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="showShareModal()">分享到朋友圈</button>
+      <button class="btn btn-outline" onclick="handleReset()">换张照片再测</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareModal" class="modal-overlay hidden" onclick="closeShareModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>分享你的 MBTI 报告</h3>
+    <button class="btn btn-primary" onclick="doShare('save')">保存报告图片</button>
+    <button class="btn btn-outline" onclick="doShare('moments')">发朋友圈</button>
+    <button class="btn btn-outline" onclick="doShare('friend')">发送给好友</button>
+    <button class="close-btn" onclick="closeShareModal()">关闭</button>
+  </div>
+</div>
+
+<script>
+const COST = 100;
+
+const MBTI_DATA = [
+  {
+    type: "INFP", name: "调停者", tag: "表面岁月静好，内心戏比电影还多",
+    gradient: "linear-gradient(135deg, #7c3aed, #2563eb)",
+    dims: [
+      { left: "I", right: "E", value: 78, color: "#818cf8" },
+      { left: "N", right: "S", value: 85, color: "#a78bfa" },
+      { left: "F", right: "T", value: 72, color: "#c084fc" },
+      { left: "P", right: "J", value: 68, color: "#e879f9" },
+    ],
+    analysis: "大面积留白、远景、冷柔色调——你拍照的方式暴露了你：永远站在世界外面看世界。没有摆拍，没有滤镜堆叠，你对「假」过敏。但你镜头里那些安静的角落，藏着你没说出口的一整个宇宙。",
+    traits: ["精神世界比现实大三倍", "共情到自伤", "拒绝无意义社交", "拖延但完美主义", "为一首歌哭过"],
+  },
+  {
+    type: "ENTJ", name: "指挥官", tag: "拍照都像在下达作战指令",
+    gradient: "linear-gradient(135deg, #dc2626, #ea580c)",
+    dims: [
+      { left: "E", right: "I", value: 82, color: "#f87171" },
+      { left: "N", right: "S", value: 74, color: "#fb923c" },
+      { left: "T", right: "F", value: 88, color: "#fbbf24" },
+      { left: "J", right: "P", value: 80, color: "#f97316" },
+    ],
+    analysis: "主体居中、构图有压迫感、饱和度拉满——你的照片像PPT一样有「重点」。俯拍角度出卖了你：你习惯站在高处看全局。别人拍照是记录生活，你拍照是宣示主权。",
+    traits: ["效率是信仰", "天生老板命", "不接受「差不多」", "开会最怕没结论", "朋友圈从不发废话"],
+  },
+  {
+    type: "ISFJ", name: "守卫者", tag: "全世界最不会拒绝别人的人",
+    gradient: "linear-gradient(135deg, #059669, #0d9488)",
+    dims: [
+      { left: "I", right: "E", value: 65, color: "#34d399" },
+      { left: "S", right: "N", value: 78, color: "#2dd4bf" },
+      { left: "F", right: "T", value: 82, color: "#5eead4" },
+      { left: "J", right: "P", value: 75, color: "#6ee7b7" },
+    ],
+    analysis: "暖色调、生活感、拍的全是身边人——你的相册就是一部「我在乎的人」合集。构图工整但不死板，像你这个人：靠谱，但不无聊。唯一的问题是，你镜头里从来没有你自己。",
+    traits: ["操心命", "记得所有人的生日", "嘴上说没事心里记一辈子", "冰箱永远有存货", "被夸会脸红"],
+  },
+  {
+    type: "ENTP", name: "辩论家", tag: "杠精本精，但杠得你心服口服",
+    gradient: "linear-gradient(135deg, #d946ef, #ec4899)",
+    dims: [
+      { left: "E", right: "I", value: 76, color: "#f0abfc" },
+      { left: "N", right: "S", value: 90, color: "#e879f9" },
+      { left: "T", right: "F", value: 70, color: "#d946ef" },
+      { left: "P", right: "J", value: 85, color: "#c084fc" },
+    ],
+    analysis: "角度刁钻、别人拍正面你拍背面、色彩对比拉到极致——你的照片就像你说话：永远不走寻常路。你拍的不是照片，是「你们都没注意到吧」的优越感。承认吧，你拍之前想的是发出来的文案。",
+    traits: ["脑子转得比嘴快", "兴趣保质期三天", "最怕无聊", "抬杠是表达爱的方式", "凌晨三点还在想新点子"],
+  },
+  {
+    type: "ISTJ", name: "物流师", tag: "你的靠谱已经让人害怕了",
+    gradient: "linear-gradient(135deg, #1e40af, #1d4ed8)",
+    dims: [
+      { left: "I", right: "E", value: 72, color: "#60a5fa" },
+      { left: "S", right: "N", value: 85, color: "#3b82f6" },
+      { left: "T", right: "F", value: 80, color: "#2563eb" },
+      { left: "J", right: "P", value: 88, color: "#1d4ed8" },
+    ],
+    analysis: "水平线端正、色调统一、构图像用了网格线——你拍照的方式和你做Excel一样严谨。你的相册翻十页色调都不会跳，因为你连发朋友圈都有质量标准。混乱是你的天敌，计划是你的安全感。",
+    traits: ["说到做到", "日程表精确到分钟", "讨厌迟到的人", "衣柜按颜色排列", "嘴硬心软"],
+  },
+  {
+    type: "ENFP", name: "竞选者", tag: "人间小太阳，但电量经常不足",
+    gradient: "linear-gradient(135deg, #f59e0b, #ef4444)",
+    dims: [
+      { left: "E", right: "I", value: 88, color: "#fbbf24" },
+      { left: "N", right: "S", value: 82, color: "#f59e0b" },
+      { left: "F", right: "T", value: 76, color: "#fb923c" },
+      { left: "P", right: "J", value: 84, color: "#f97316" },
+    ],
+    analysis: "高饱和、多角度、画面里全是人——你的照片和你的微信列表一样热闹。拍照随手一按就是大片，因为你的快乐是真的，镜头骗不了人。但翻到最后几张一定是深夜emo的天空或路灯。",
+    traits: ["社交充电宝", "想法比行动多十倍", "感染力max", "突然安静就是在崩溃", "永远在开始新爱好"],
+  },
+];
+
+const ANALYSIS_STEPS = [
+  { text: "正在读取照片...", sub: "扫描图像信息", pct: 10 },
+  { text: "分析构图特征...", sub: "识别画面结构与留白比例", pct: 25 },
+  { text: "解读色调倾向...", sub: "冷暖色比、饱和度、明暗对比", pct: 45 },
+  { text: "推理拍摄视角...", sub: "俯视/仰视/平视 → 性格映射", pct: 60 },
+  { text: "匹配人格模型...", sub: "交叉比对 16 型人格特征库", pct: 80 },
+  { text: "生成解读报告...", sub: "输出你的专属 MBTI 报告", pct: 100 },
+];
+
+let points = 10000;
+let userPhotoUrl = null;
+let currentResult = null;
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { showToast("请上传图片文件", "error"); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    userPhotoUrl = ev.target.result;
+    document.getElementById("uploadPreviewImg").src = userPhotoUrl;
+    document.getElementById("uploadPlaceholder").classList.add("hidden");
+    document.getElementById("uploadPreviewWrap").classList.remove("hidden");
+    document.getElementById("uploadArea").classList.add("has-photo");
+    document.getElementById("analyzeBtn").disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleAnalyze() {
+  if (!userPhotoUrl) { showToast("请先上传照片", "error"); return; }
+  if (points < COST) { showToast("积分不足", "error"); return; }
+
+  points -= COST;
+  updatePointsDisplay();
+
+  // Show analysis
+  document.getElementById("uploadSection").classList.add("hidden");
+  document.getElementById("analysisSection").classList.remove("hidden");
+
+  for (let i = 0; i < ANALYSIS_STEPS.length; i++) {
+    const s = ANALYSIS_STEPS[i];
+    document.getElementById("analysisStatus").textContent = s.text;
+    document.getElementById("analysisSub").textContent = s.sub;
+    document.getElementById("analysisBar").style.width = s.pct + "%";
+    await delay(500 + Math.random() * 500);
+  }
+
+  await delay(400);
+
+  // Pick a "random" MBTI based on photo data length for variety
+  const idx = (userPhotoUrl.length + Date.now()) % MBTI_DATA.length;
+  currentResult = MBTI_DATA[idx];
+
+  renderResult();
+  document.getElementById("analysisSection").classList.add("hidden");
+  document.getElementById("resultSection").classList.remove("hidden");
+}
+
+function renderResult() {
+  const r = currentResult;
+  let dimsHtml = "";
+  r.dims.forEach(d => {
+    dimsHtml += `
+      <div class="dim-row">
+        <span class="dim-label">${d.left}</span>
+        <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:${d.value}%;background:${d.color}"></div></div>
+        <span class="dim-pct">${d.value}%</span>
+        <span class="dim-label" style="color:#4b5563">${d.right}</span>
+      </div>`;
+  });
+
+  let traitsHtml = r.traits.map(t => `<span class="trait">${t}</span>`).join("");
+
+  document.getElementById("resultCard").innerHTML = `
+    <div class="result-card">
+      <div class="result-top" style="background:${r.gradient}">
+        <img class="photo-thumb" src="${userPhotoUrl}" />
+        <div class="mbti-type">${r.type}</div>
+        <div class="mbti-name">${r.name}</div>
+        <div class="mbti-tag">${r.tag}</div>
+      </div>
+      <div class="result-body">
+        <div class="result-section">
+          <div class="sec-title">📊 四维分析</div>
+          ${dimsHtml}
+        </div>
+        <div class="result-section">
+          <div class="sec-title">🔍 AI 读图解析</div>
+          <div class="sec-text">${r.analysis}</div>
+        </div>
+        <div class="result-section">
+          <div class="sec-title">🏷️ 性格标签</div>
+          <div class="traits">${traitsHtml}</div>
+        </div>
+      </div>
+      <div class="result-footer">
+        <span class="brand">平安银行信用卡 × AI 读心</span>
+        <span class="cost-tag">消耗 100 积分</span>
+      </div>
+    </div>
+  `;
+}
+
+function handleReset() {
+  userPhotoUrl = null;
+  currentResult = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("uploadPlaceholder").classList.remove("hidden");
+  document.getElementById("uploadPreviewWrap").classList.add("hidden");
+  document.getElementById("uploadArea").classList.remove("has-photo");
+  document.getElementById("analyzeBtn").disabled = true;
+  document.getElementById("resultSection").classList.add("hidden");
+  document.getElementById("uploadSection").classList.remove("hidden");
+  updateAnalyzeBtn();
+}
+
+function updatePointsDisplay() {
+  document.getElementById("pointsDisplay").textContent = points.toLocaleString() + " 分";
+  updateAnalyzeBtn();
+}
+
+function updateAnalyzeBtn() {
+  const btn = document.getElementById("analyzeBtn");
+  if (points < COST) { btn.disabled = true; btn.textContent = "积分不足"; }
+  else { btn.textContent = "消耗 100 积分 · AI 读心开始"; }
+}
+
+function showShareModal() { document.getElementById("shareModal").classList.remove("hidden"); }
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById("shareModal"))
+    document.getElementById("shareModal").classList.add("hidden");
+}
+function doShare(type) {
+  closeShareModal();
+  const msgs = { save: "报告已保存", moments: "正在打开朋友圈...", friend: "已发送给好友" };
+  showToast(msgs[type] || "操作成功", "success");
+}
+
+function showToast(msg, type = "success") {
+  const t = document.createElement("div");
+  t.className = "toast " + type; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 2000);
+  setTimeout(() => t.remove(), 2300);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>

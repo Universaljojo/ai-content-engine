@@ -9,6 +9,9 @@
 # Allow presentation
 !ai-content-engine-v3.html
 
+# Allow MBTI demo
+!积分兑换AI测MBTI_demo.html
+
 # Allow video cases
 !视频案例/
 !视频案例/hook/
@@ -20,7 +23,6 @@
 
 # Exclude large videos
 视频案例/idea/315消保.mp4
-视频案例/idea/开工.mp4
 
 # Exclude non-mp4
 *.mov
