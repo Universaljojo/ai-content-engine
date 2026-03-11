@@ -1350,7 +1350,7 @@
                 <h1 class="animate-in">吸睛短视频</h1>
                 <h2 class="animate-in">Hook Content</h2>
                 <p class="animate-in">在信息流中抓住用户注意力的创意视频</p>
-                <div class="video-grid animate-in">
+                <div class="video-grid animate-in" style="grid-template-columns: repeat(5, 1fr); gap: 14px;">
                     <div class="video-card">
                         <video src="视频案例/compressed/hook/品牌1.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
                     </div>
@@ -1359,6 +1359,12 @@
                     </div>
                     <div class="video-card">
                         <video src="视频案例/compressed/hook/品牌3.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/compressed/hook/007.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
+                    </div>
+                    <div class="video-card">
+                        <video src="视频案例/compressed/hook/008.mp4" muted playsinline autoplay loop preload="auto" style="aspect-ratio:9/14;"></video>
                     </div>
                 </div>
             </div>
@@ -3127,6 +3133,28 @@
 <!-- Video hover: unmute + progress bar -->
 <script>
 (function() {
+    let audioUnlocked = false;
+
+    // User must interact with page once to unlock audio (browser autoplay policy)
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        audioUnlocked = true;
+        // Create and play a silent audio context to unlock
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            ctx.resume();
+        } catch(e) {}
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('touchstart', unlockAudio);
+    }
+    document.addEventListener('click', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio);
+
     // Inject progress bar into every video-card
     document.querySelectorAll('.video-card').forEach(card => {
         const bar = document.createElement('div');
@@ -3147,8 +3175,10 @@
         }
 
         card.addEventListener('mouseenter', () => {
-            video.muted = false;
             video.currentTime = 0;
+            if (audioUnlocked) {
+                video.muted = false;
+            }
             video.play().catch(() => {
                 video.muted = true;
                 video.play().catch(() => {});
@@ -3161,6 +3191,17 @@
             video.currentTime = 0;
             fill.style.width = '0%';
             if (raf) { cancelAnimationFrame(raf); raf = null; }
+        });
+
+        // Click on card also unmutes immediately
+        card.addEventListener('click', (e) => {
+            e.stopPropagation();
+            unlockAudio();
+            if (video.muted) {
+                video.muted = false;
+                video.currentTime = 0;
+                video.play().catch(() => {});
+            }
         });
     });
 })();
