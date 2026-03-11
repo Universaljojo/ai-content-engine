@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 定制本月壁纸 × 积分兑换</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e5e5e5; min-height: 100vh; }
+.container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+.header { text-align: center; padding: 24px 0 16px; }
+.header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(to right, #fff, #a5b4fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.header p { font-size: 13px; color: #6b7280; }
+.header .month-tag { display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px; background: rgba(139,92,246,0.15); color: #c4b5fd; font-size: 12px; font-weight: 500; border: 1px solid rgba(139,92,246,0.2); }
+
+.points-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+.points-bar .label { font-size: 14px; color: #9ca3af; }
+.points-bar .value { font-size: 20px; font-weight: 700; color: #fbbf24; }
+
+.steps { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 12px; }
+.step { padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #6b7280; transition: all 0.3s; }
+.step.active { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+.step-arrow { color: #374151; }
+
+.section-title { font-size: 14px; color: #9ca3af; margin-bottom: 12px; }
+
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.theme-card { padding: 16px 8px; border-radius: 14px; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.03); transition: all 0.2s; }
+.theme-card:hover { background: rgba(255,255,255,0.08); }
+.theme-card.selected { border-width: 2px; }
+.theme-card .icon { font-size: 32px; display: block; margin-bottom: 6px; }
+.theme-card .name { font-size: 12px; font-weight: 500; color: #9ca3af; }
+.theme-card.selected .name { color: #fff; }
+
+.text-section { margin-bottom: 20px; animation: fadeIn 0.3s ease; }
+.preset-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.preset-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.03); color: #9ca3af; cursor: pointer; transition: all 0.2s; }
+.preset-btn:hover { background: rgba(255,255,255,0.08); }
+.preset-btn.selected { background: rgba(139,92,246,0.2); color: #c4b5fd; border-color: rgba(139,92,246,0.3); }
+.text-input { width: 100%; padding: 12px 16px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s; }
+.text-input::placeholder { color: #4b5563; }
+.text-input:focus { border-color: rgba(139,92,246,0.5); }
+
+.btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(to right, #8b5cf6, #6366f1); color: #fff; }
+.btn-primary:hover { background: linear-gradient(to right, #7c3aed, #4f46e5); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-redeem { background: linear-gradient(to right, #8b5cf6, #6366f1); color: #fff; }
+.btn-redeem:hover { background: linear-gradient(to right, #7c3aed, #4f46e5); }
+.btn-redeem:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #d1d5db; }
+.btn-outline:hover { background: rgba(255,255,255,0.05); }
+.btn-row { display: flex; gap: 12px; }
+.btn-row .btn { flex: 1; }
+
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 8px; }
+
+.skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 20px; }
+
+/* Wallpaper preview - 9:19.5 phone ratio */
+.wallpaper-wrapper { display: flex; justify-content: center; margin: 20px 0; }
+.phone-frame { position: relative; width: 200px; aspect-ratio: 9/19.5; border-radius: 28px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 3px solid rgba(255,255,255,0.15); }
+.phone-frame .bg { position: absolute; inset: 0; }
+.phone-frame .glow1 { position: absolute; top: 10%; left: 10%; width: 40%; height: 30%; border-radius: 50%; background: rgba(255,255,255,0.08); filter: blur(30px); }
+.phone-frame .glow2 { position: absolute; bottom: 15%; right: 5%; width: 50%; height: 25%; border-radius: 50%; background: rgba(255,255,255,0.06); filter: blur(30px); }
+.phone-frame .main-visual { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.phone-frame .main-icon { font-size: 56px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+.phone-frame .theme-label { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 500; letter-spacing: 2px; margin-top: 6px; }
+.phone-frame .text-area { position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 16px 24px; background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); z-index: 2; }
+.phone-frame .text-content { font-size: 13px; color: #fff; font-weight: 500; text-align: center; line-height: 1.6; }
+.phone-frame .month-label { position: absolute; top: 16px; left: 0; right: 0; text-align: center; z-index: 2; font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 1px; }
+.phone-frame .brand-area { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; z-index: 3; }
+.phone-frame .brand-text { font-size: 9px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+.phone-frame .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40%; height: 22px; background: rgba(0,0,0,0.6); border-radius: 0 0 14px 14px; z-index: 4; }
+
+.redeem-info { display: flex; align-items: center; justify-content: space-between; padding: 0 8px; margin-bottom: 12px; }
+.redeem-info .label { font-size: 14px; color: #9ca3af; }
+.redeem-info .cost { font-size: 14px; font-weight: 700; color: #fbbf24; }
+
+.success-header { text-align: center; margin-bottom: 20px; animation: zoomIn 0.4s ease; }
+.success-header .emoji { font-size: 48px; display: block; margin-bottom: 8px; }
+.success-header h2 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.success-header p { font-size: 13px; color: #6b7280; }
+
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; animation: slideDown 0.3s ease; pointer-events: none; }
+.toast.success { background: rgba(34,197,94,0.9); color: #fff; }
+.toast.error { background: rgba(239,68,68,0.9); color: #fff; }
+.toast.info { background: rgba(99,102,241,0.9); color: #fff; }
+.toast.hide { animation: slideUp 0.3s ease forwards; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+.modal { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; width: 90%; max-width: 360px; text-align: center; animation: zoomIn 0.3s ease; }
+.modal h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+.modal .btn { margin-bottom: 10px; }
+.modal .close-btn { font-size: 13px; color: #6b7280; cursor: pointer; background: none; border: none; padding: 8px; }
+
+.hidden { display: none !important; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes slideUp { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>AI 定制本月壁纸 × 积分兑换</h1>
+    <p>平安银行信用卡 · 积分运营 Demo</p>
+    <span class="month-tag">2026 年 3 月刊</span>
+  </div>
+
+  <div class="points-bar">
+    <span class="label">积分余额</span>
+    <span class="value" id="pointsDisplay">10,000 分</span>
+  </div>
+
+  <div class="steps" id="stepsBar">
+    <span class="step active" id="step1">① 选风格</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step2">② 写文案</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step3">③ 兑换</span>
+  </div>
+
+  <div id="themeSection">
+    <p class="section-title">选择壁纸风格</p>
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+
+  <div id="textSection" class="text-section hidden">
+    <p class="section-title">写一句本月心情（或选择预设）</p>
+    <div class="preset-list" id="presetList"></div>
+    <input type="text" class="text-input" id="textInput" placeholder="写下你的本月心情..." maxlength="20">
+    <div style="height:12px"></div>
+    <button class="btn btn-primary" id="generateBtn" onclick="handleGenerate()">AI 生成专属壁纸</button>
+  </div>
+
+  <div id="loadingSkeleton" class="hidden">
+    <div class="wallpaper-wrapper">
+      <div class="skeleton" style="width:200px;aspect-ratio:9/19.5;border-radius:28px;"></div>
+    </div>
+  </div>
+
+  <div id="previewSection" class="hidden">
+    <div class="wallpaper-wrapper" id="wallpaperPreview"></div>
+    <div class="redeem-info">
+      <span class="label">兑换所需</span>
+      <span class="cost">2,000 积分</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="handleRegenerate()">换一个</button>
+      <button class="btn btn-redeem" id="redeemBtn" onclick="handleRedeem()">2,000 积分兑换</button>
+    </div>
+  </div>
+
+  <div id="successSection" class="hidden">
+    <div class="success-header">
+      <span class="emoji">🎉</span>
+      <h2>兑换成功</h2>
+      <p>壁纸已保存，长按可设为手机壁纸</p>
+    </div>
+    <div class="wallpaper-wrapper" id="successWallpaper"></div>
+    <div style="height:16px"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="showShareModal()">分享给好友</button>
+      <button class="btn btn-outline" onclick="handleReset()">再做一个</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareModal" class="modal-overlay hidden" onclick="closeShareModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>分享你的专属壁纸</h3>
+    <button class="btn btn-primary" onclick="doShare('save')">保存到相册</button>
+    <button class="btn btn-outline" onclick="doShare('share')">发送给好友</button>
+    <button class="close-btn" onclick="closeShareModal()">关闭</button>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+const THEMES = [
+  { name: "春日花语", icon: "🌸", gradient: "linear-gradient(135deg, #ec4899, #f97316)", accent: "#ec4899", ring: "#f472b6" },
+  { name: "山海远行", icon: "🏔️", gradient: "linear-gradient(135deg, #0ea5e9, #06b6d4)", accent: "#0ea5e9", ring: "#38bdf8" },
+  { name: "城市霓虹", icon: "🌃", gradient: "linear-gradient(135deg, #6366f1, #8b5cf6)", accent: "#818cf8", ring: "#a78bfa" },
+  { name: "星空物语", icon: "🌌", gradient: "linear-gradient(135deg, #1e1b4b, #4f46e5)", accent: "#6366f1", ring: "#818cf8" },
+  { name: "森林秘境", icon: "🌿", gradient: "linear-gradient(135deg, #059669, #10b981)", accent: "#10b981", ring: "#34d399" },
+  { name: "日落海岸", icon: "🌅", gradient: "linear-gradient(135deg, #f59e0b, #ef4444)", accent: "#f59e0b", ring: "#fbbf24" },
+];
+
+const CAPTIONS = {
+  "春日花语": ["三月春风，不负好时光", "花开有时，一切刚刚好", "愿所有美好如期而至"],
+  "山海远行": ["山高路远，看世界也找自己", "心之所向，素履以往", "翻过这座山，就是新风景"],
+  "城市霓虹": ["城市很大，但总有一盏灯为你亮", "夜色温柔，生活滚烫", "每一盏灯火，都是有人在等"],
+  "星空物语": ["仰望星空，脚踏实地", "星辰大海，永远在路上", "今晚月色真美"],
+  "森林秘境": ["慢下来，听风穿过树叶", "在自然里，找回呼吸的节奏", "每棵树都在安静地生长"],
+  "日落海岸": ["日落归山海，山海藏深意", "追一场日落，赴一场浪漫", "海风吹过的都是好消息"],
+};
+
+let points = 10000;
+let selectedTheme = null;
+let caption = "";
+let generatedCaption = "";
+
+function init() {
+  const grid = document.getElementById("themeGrid");
+  THEMES.forEach((t, i) => {
+    const card = document.createElement("div");
+    card.className = "theme-card";
+    card.innerHTML = `<span class="icon">${t.icon}</span><span class="name">${t.name}</span>`;
+    card.onclick = () => selectTheme(i);
+    grid.appendChild(card);
+  });
+}
+
+function selectTheme(index) {
+  selectedTheme = THEMES[index];
+  caption = "";
+  document.getElementById("textInput").value = "";
+
+  document.querySelectorAll(".theme-card").forEach((c, i) => {
+    if (i === index) {
+      c.classList.add("selected");
+      c.style.borderColor = selectedTheme.ring;
+      c.style.background = `rgba(${hexToRgb(selectedTheme.accent)}, 0.1)`;
+      c.querySelector(".name").style.color = "#fff";
+    } else {
+      c.classList.remove("selected");
+      c.style.borderColor = "";
+      c.style.background = "";
+      c.querySelector(".name").style.color = "#9ca3af";
+    }
+  });
+
+  showPhase("text");
+  renderPresets();
+}
+
+function renderPresets() {
+  const list = document.getElementById("presetList");
+  list.innerHTML = "";
+  (CAPTIONS[selectedTheme.name] || []).forEach(b => {
+    const btn = document.createElement("button");
+    btn.className = "preset-btn" + (caption === b ? " selected" : "");
+    btn.textContent = b;
+    btn.onclick = () => {
+      caption = b;
+      document.getElementById("textInput").value = b;
+      renderPresets();
+    };
+    list.appendChild(btn);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  init();
+  document.getElementById("textInput").addEventListener("input", (e) => {
+    caption = e.target.value;
+    renderPresets();
+  });
+});
+
+async function handleGenerate() {
+  if (!selectedTheme) return;
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>AI 生成中...';
+
+  document.getElementById("previewSection").classList.add("hidden");
+  document.getElementById("loadingSkeleton").classList.remove("hidden");
+
+  await delay(800 + Math.random() * 600);
+
+  const presets = CAPTIONS[selectedTheme.name];
+  generatedCaption = caption || presets[Math.floor(Math.random() * presets.length)];
+
+  document.getElementById("loadingSkeleton").classList.add("hidden");
+  renderWallpaper("wallpaperPreview");
+  updateRedeemBtn();
+  showPhase("preview");
+
+  btn.disabled = false;
+  btn.textContent = "AI 生成专属壁纸";
+}
+
+function handleRegenerate() {
+  showPhase("text");
+}
+
+function handleRedeem() {
+  if (points < 2000) {
+    showToast("积分不足，无法兑换", "error");
+    return;
+  }
+  points -= 2000;
+  updatePointsDisplay();
+  renderWallpaper("successWallpaper");
+  showPhase("success");
+  showToast("兑换成功！壁纸已保存", "success");
+}
+
+function handleReset() {
+  selectedTheme = null;
+  caption = "";
+  generatedCaption = "";
+  document.getElementById("textInput").value = "";
+  document.querySelectorAll(".theme-card").forEach(c => {
+    c.classList.remove("selected");
+    c.style.borderColor = "";
+    c.style.background = "";
+    c.querySelector(".name").style.color = "#9ca3af";
+  });
+  showPhase("theme");
+}
+
+function renderWallpaper(containerId) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = `
+    <div class="phone-frame">
+      <div class="bg" style="background:${selectedTheme.gradient}"></div>
+      <div class="notch"></div>
+      <div class="glow1"></div>
+      <div class="glow2"></div>
+      <div class="month-label">2026 · 三月</div>
+      <div class="main-visual">
+        <div style="text-align:center">
+          <span class="main-icon">${selectedTheme.icon}</span>
+          <p class="theme-label">${selectedTheme.name}</p>
+        </div>
+      </div>
+      <div class="text-area">
+        <p class="text-content">${generatedCaption}</p>
+      </div>
+      <div class="brand-area"><span class="brand-text">平安银行信用卡</span></div>
+    </div>
+  `;
+}
+
+function updateRedeemBtn() {
+  const btn = document.getElementById("redeemBtn");
+  if (points < 2000) {
+    btn.disabled = true;
+    btn.textContent = "积分不足";
+  } else {
+    btn.disabled = false;
+    btn.textContent = "2,000 积分兑换";
+  }
+}
+
+function updatePointsDisplay() {
+  document.getElementById("pointsDisplay").textContent = points.toLocaleString() + " 分";
+}
+
+function showPhase(phase) {
+  const sections = {
+    themeSection: true,
+    textSection: phase === "text",
+    loadingSkeleton: false,
+    previewSection: phase === "preview",
+    successSection: phase === "success",
+  };
+  const stepsBar = document.getElementById("stepsBar");
+
+  Object.entries(sections).forEach(([id, show]) => {
+    document.getElementById(id).classList.toggle("hidden", !show);
+  });
+
+  if (phase === "success") {
+    document.getElementById("themeSection").classList.add("hidden");
+    stepsBar.classList.add("hidden");
+  } else {
+    stepsBar.classList.remove("hidden");
+  }
+
+  const stepMap = { theme: 1, text: 2, preview: 3, success: 3 };
+  [1, 2, 3].forEach(i => {
+    document.getElementById("step" + i).classList.toggle("active", i === stepMap[phase]);
+  });
+}
+
+function showShareModal() { document.getElementById("shareModal").classList.remove("hidden"); }
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById("shareModal"))
+    document.getElementById("shareModal").classList.add("hidden");
+}
+function doShare(type) {
+  closeShareModal();
+  showToast(type === "save" ? "已保存到相册" : "已发送给好友", "success");
+}
+
+function showToast(msg, type = "info") {
+  const t = document.createElement("div");
+  t.className = "toast " + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 2000);
+  setTimeout(() => t.remove(), 2300);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function hexToRgb(hex) {
+  const m = { "#ec4899":"236,72,153", "#0ea5e9":"14,165,233", "#818cf8":"129,140,248", "#6366f1":"99,102,241", "#10b981":"16,185,129", "#f59e0b":"245,158,11" };
+  return m[hex] || "139,92,246";
+}
+</script>
+</body>
+</html>

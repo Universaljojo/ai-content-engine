@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 节日写真 × 积分兑换</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e5e5e5; min-height: 100vh; }
+.container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+.header { text-align: center; padding: 24px 0 16px; }
+.header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(to right, #fff, #f0abfc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.header p { font-size: 13px; color: #6b7280; }
+.header .sell { display: inline-block; margin-top: 8px; padding: 4px 14px; border-radius: 20px; background: rgba(244,114,182,0.12); color: #f9a8d4; font-size: 12px; border: 1px solid rgba(244,114,182,0.2); }
+
+.points-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+.points-bar .label { font-size: 14px; color: #9ca3af; }
+.points-bar .value { font-size: 20px; font-weight: 700; color: #fbbf24; }
+
+.steps { display: flex; align-items: center; gap: 6px; margin-bottom: 20px; font-size: 12px; flex-wrap: wrap; }
+.step { padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.05); color: #6b7280; transition: all 0.3s; white-space: nowrap; }
+.step.active { background: rgba(244,114,182,0.2); color: #f9a8d4; }
+.step-arrow { color: #374151; }
+
+.section-title { font-size: 14px; color: #9ca3af; margin-bottom: 12px; }
+
+/* Template grid */
+.tpl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+.tpl-card { position: relative; border-radius: 14px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; aspect-ratio: 3/4; }
+.tpl-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tpl-card:hover { border-color: rgba(244,114,182,0.3); }
+.tpl-card.selected { border-color: #f472b6; box-shadow: 0 0 20px rgba(244,114,182,0.2); }
+.tpl-card .check { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: #f472b6; color: #fff; font-size: 14px; display: none; align-items: center; justify-content: center; }
+.tpl-card.selected .check { display: flex; }
+.tpl-card .tpl-label { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 8px 6px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); font-size: 11px; color: rgba(255,255,255,0.9); text-align: center; font-weight: 500; }
+
+/* Upload area */
+.upload-area { border: 2px dashed rgba(255,255,255,0.1); border-radius: 16px; padding: 32px 16px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+.upload-area:hover { border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.03); }
+.upload-area.has-photo { border-style: solid; border-color: rgba(244,114,182,0.3); padding: 12px; }
+.upload-icon { font-size: 40px; margin-bottom: 8px; }
+.upload-text { font-size: 14px; color: #9ca3af; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: #4b5563; }
+.upload-preview { width: 100%; max-height: 220px; object-fit: cover; border-radius: 12px; }
+.upload-change { display: inline-block; margin-top: 8px; font-size: 12px; color: #f472b6; cursor: pointer; }
+
+.btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: linear-gradient(to right, #ec4899, #8b5cf6); color: #fff; }
+.btn-primary:hover { background: linear-gradient(to right, #db2777, #7c3aed); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #d1d5db; }
+.btn-outline:hover { background: rgba(255,255,255,0.05); }
+.btn-row { display: flex; gap: 12px; }
+.btn-row .btn { flex: 1; }
+
+/* Generation progress */
+.gen-progress { text-align: center; padding: 40px 20px; animation: fadeIn 0.3s; }
+.gen-progress .spinner-lg { width: 48px; height: 48px; border: 3px solid rgba(244,114,182,0.2); border-top-color: #f472b6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+.gen-progress .status { font-size: 14px; color: #d1d5db; margin-bottom: 4px; }
+.gen-progress .sub { font-size: 12px; color: #6b7280; }
+.progress-bar-bg { width: 200px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 12px auto 0; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(to right, #ec4899, #8b5cf6); border-radius: 2px; transition: width 0.3s; }
+
+/* Result */
+.result-wrapper { display: flex; justify-content: center; margin: 20px 0; }
+.result-frame { position: relative; width: 280px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.result-frame .photo-bg { width: 100%; aspect-ratio: 3/4; display: block; object-fit: cover; }
+.result-frame .overlay { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: 0.5; }
+.result-frame .user-inset { position: absolute; bottom: 50px; right: 14px; width: 72px; height: 72px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.8); box-shadow: 0 4px 16px rgba(0,0,0,0.4); z-index: 2; }
+.result-frame .user-inset img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.result-frame .deco-top { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: flex-start; z-index: 2; }
+.result-frame .style-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: #fff; backdrop-filter: blur(8px); }
+.result-frame .deco-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 32px 16px 14px; background: linear-gradient(to top, rgba(0,0,0,0.6), transparent); z-index: 2; }
+.result-frame .greeting { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.result-frame .sub-text { font-size: 11px; color: rgba(255,255,255,0.6); }
+.result-frame .watermark { position: absolute; bottom: 6px; right: 10px; font-size: 8px; color: rgba(255,255,255,0.25); z-index: 3; letter-spacing: 0.5px; }
+.result-frame .sparkles { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.sparkle { position: absolute; width: 6px; height: 6px; background: rgba(255,255,255,0.6); border-radius: 50%; animation: sparkle-float 3s ease-in-out infinite; }
+@keyframes sparkle-float { 0%,100% { opacity: 0.3; transform: translateY(0) scale(1); } 50% { opacity: 1; transform: translateY(-10px) scale(1.3); } }
+
+.redeem-info { display: flex; align-items: center; justify-content: space-between; padding: 0 8px; margin-bottom: 12px; }
+.redeem-info .label { font-size: 14px; color: #9ca3af; }
+.redeem-info .cost { font-size: 14px; font-weight: 700; color: #fbbf24; }
+
+.success-header { text-align: center; margin-bottom: 20px; animation: zoomIn 0.4s ease; }
+.success-header .emoji { font-size: 48px; display: block; margin-bottom: 8px; }
+.success-header h2 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.success-header p { font-size: 13px; color: #6b7280; }
+
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; animation: slideDown 0.3s ease; pointer-events: none; max-width: 90%; }
+.toast.success { background: rgba(34,197,94,0.9); color: #fff; }
+.toast.error { background: rgba(239,68,68,0.9); color: #fff; }
+.toast.info { background: rgba(99,102,241,0.9); color: #fff; }
+.toast.hide { animation: slideUp 0.3s ease forwards; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+.modal { background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; width: 90%; max-width: 360px; text-align: center; animation: zoomIn 0.3s ease; }
+.modal h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 20px; }
+.modal .btn { margin-bottom: 10px; }
+.modal .close-btn { font-size: 13px; color: #6b7280; cursor: pointer; background: none; border: none; padding: 8px; }
+
+.hidden { display: none !important; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideDown { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes slideUp { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-20px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>AI 节日写真 × 积分兑换</h1>
+    <p>平安银行信用卡 · 积分运营 Demo</p>
+    <span class="sell">每张都不同，适合发朋友圈</span>
+  </div>
+
+  <div class="points-bar">
+    <span class="label">积分余额</span>
+    <span class="value" id="pointsDisplay">10,000 分</span>
+  </div>
+
+  <div class="steps" id="stepsBar">
+    <span class="step active" id="step1">① 选模板</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step2">② 传照片</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step3">③ AI 合成</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step4">④ 兑换</span>
+  </div>
+
+  <!-- Step 1: Template -->
+  <div id="tplSection">
+    <p class="section-title">选择写真风格模板</p>
+    <div class="tpl-grid" id="tplGrid"></div>
+  </div>
+
+  <!-- Step 2: Upload -->
+  <div id="uploadSection" class="hidden">
+    <p class="section-title">上传你的照片</p>
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <div id="uploadPlaceholder">
+        <div class="upload-icon">📸</div>
+        <p class="upload-text">点击上传照片</p>
+        <p class="upload-hint">自拍、宠物、全家福均可</p>
+      </div>
+      <div id="uploadPreviewWrap" class="hidden">
+        <img id="uploadPreviewImg" class="upload-preview" />
+        <span class="upload-change">更换照片</span>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+    <button class="btn btn-primary" id="generateBtn" onclick="handleGenerate()">消耗 3,000 积分 · AI 合成写真</button>
+  </div>
+
+  <!-- Step 3: Generating -->
+  <div id="genSection" class="hidden">
+    <div class="gen-progress">
+      <div class="spinner-lg"></div>
+      <p class="status" id="genStatus">正在分析照片...</p>
+      <p class="sub" id="genSub">AI 正在为你创作专属写真</p>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="genBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Step 4: Result -->
+  <div id="resultSection" class="hidden">
+    <div class="success-header">
+      <span class="emoji">✨</span>
+      <h2>写真合成完成</h2>
+      <p>长按保存，发朋友圈收获点赞</p>
+    </div>
+    <div class="result-wrapper" id="resultPreview"></div>
+    <div style="height:16px"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="showShareModal()">保存 / 分享</button>
+      <button class="btn btn-outline" onclick="handleReset()">再来一张</button>
+    </div>
+  </div>
+</div>
+
+<div id="shareModal" class="modal-overlay hidden" onclick="closeShareModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>保存或分享写真</h3>
+    <button class="btn btn-primary" onclick="doShare('save')">保存到相册</button>
+    <button class="btn btn-outline" onclick="doShare('moments')">发朋友圈</button>
+    <button class="btn btn-outline" onclick="doShare('friend')">发送给好友</button>
+    <button class="close-btn" onclick="closeShareModal()">关闭</button>
+  </div>
+</div>
+
+<script>
+const COST = 3000;
+
+const TEMPLATES = [
+  { src: "视频案例/portrait/jimeng-2025-09-27-8580-• 主体人物：年轻女性，中长发，妆容精致；佩戴细链项链、黑色手链；身着黑色无袖背....png", label: "胶片人像", badge: "rgba(168,85,247,0.7)", greeting: "你好，新世界" },
+  { src: "视频案例/portrait/jimeng-2025-07-14-6026-胶片摄影，对焦模糊，伦勃朗光，强烈明暗对比，清透干净，周围有金鱼，高反差，红蓝光....png", label: "锦鲤奇遇", badge: "rgba(220,38,38,0.7)", greeting: "锦鲤附体，好运连连" },
+  { src: "视频案例/portrait/jimeng-2025-09-16-2076-画面中，一只模样可爱的小狗十分醒目。它戴着棕色圆框眼镜，穿着蓝白条纹的衬衫，还斜....png", label: "萌宠派对", badge: "rgba(234,179,8,0.7)", greeting: "今天也是开心的一天" },
+  { src: "视频案例/portrait/jimeng-2025-09-26-2335-参考图中去除猫咪之外所有元素，保留猫咪形象。一张富有春日氛围的猫咪写真。春光明媚....png", label: "春日物语", badge: "rgba(22,163,74,0.7)", greeting: "春风十里不如你" },
+];
+
+const GEN_STEPS = [
+  { text: "正在分析你的照片...", sub: "识别人物特征", pct: 15 },
+  { text: "匹配风格模板...", sub: "融合模板与照片", pct: 35 },
+  { text: "AI 风格化合成中...", sub: "生成专属写真效果", pct: 65 },
+  { text: "添加氛围装饰...", sub: "点缀光影细节", pct: 85 },
+  { text: "精修输出中...", sub: "优化画质与色彩", pct: 100 },
+];
+
+let points = 10000;
+let selectedTpl = null;
+let userPhotoUrl = null;
+
+function init() {
+  const grid = document.getElementById("tplGrid");
+  TEMPLATES.forEach((t, i) => {
+    const card = document.createElement("div");
+    card.className = "tpl-card";
+    card.innerHTML = `<img src="${t.src}" /><div class="check">✓</div><div class="tpl-label">${t.label}</div>`;
+    card.onclick = () => selectTemplate(i);
+    grid.appendChild(card);
+  });
+}
+
+function selectTemplate(index) {
+  selectedTpl = TEMPLATES[index];
+  document.querySelectorAll(".tpl-card").forEach((c, i) => c.classList.toggle("selected", i === index));
+  document.getElementById("uploadSection").classList.remove("hidden");
+  updateStep(2);
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { showToast("请上传图片文件", "error"); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    userPhotoUrl = ev.target.result;
+    document.getElementById("uploadPreviewImg").src = userPhotoUrl;
+    document.getElementById("uploadPlaceholder").classList.add("hidden");
+    document.getElementById("uploadPreviewWrap").classList.remove("hidden");
+    document.getElementById("uploadArea").classList.add("has-photo");
+  };
+  reader.readAsDataURL(file);
+}
+
+async function handleGenerate() {
+  if (!selectedTpl) { showToast("请先选择风格模板", "error"); return; }
+  if (!userPhotoUrl) { showToast("请上传你的照片", "error"); return; }
+  if (points < COST) { showToast("积分不足，无法合成", "error"); return; }
+
+  points -= COST;
+  updatePointsDisplay();
+  showPhase("gen");
+
+  for (let i = 0; i < GEN_STEPS.length; i++) {
+    const s = GEN_STEPS[i];
+    document.getElementById("genStatus").textContent = s.text;
+    document.getElementById("genSub").textContent = s.sub;
+    document.getElementById("genBar").style.width = s.pct + "%";
+    await delay(600 + Math.random() * 400);
+  }
+
+  await delay(300);
+  renderResult("resultPreview");
+  showPhase("result");
+  showToast("写真合成完成", "success");
+}
+
+function handleReset() {
+  selectedTpl = null;
+  userPhotoUrl = null;
+  document.getElementById("fileInput").value = "";
+  document.getElementById("uploadPlaceholder").classList.remove("hidden");
+  document.getElementById("uploadPreviewWrap").classList.add("hidden");
+  document.getElementById("uploadArea").classList.remove("has-photo");
+  document.querySelectorAll(".tpl-card").forEach(c => c.classList.remove("selected"));
+  showPhase("tpl");
+}
+
+function renderResult(containerId) {
+  const t = selectedTpl;
+  let sparklesHtml = "";
+  for (let i = 0; i < 10; i++) {
+    const x = 5 + Math.random() * 90, y = 5 + Math.random() * 90;
+    const d = (Math.random() * 3).toFixed(1), sz = 3 + Math.random() * 5;
+    sparklesHtml += `<div class="sparkle" style="left:${x}%;top:${y}%;width:${sz}px;height:${sz}px;animation-delay:${d}s"></div>`;
+  }
+  document.getElementById(containerId).innerHTML = `
+    <div class="result-frame">
+      <img class="photo-bg" src="${t.src}" />
+      <div class="sparkles">${sparklesHtml}</div>
+      <div class="user-inset"><img src="${userPhotoUrl}" /></div>
+      <div class="deco-top">
+        <span class="style-badge" style="background:${t.badge}">AI 写真 · ${t.label}</span>
+      </div>
+      <div class="deco-bottom">
+        <p class="greeting">${t.greeting}</p>
+        <p class="sub-text">每张都不同 · 适合发朋友圈</p>
+      </div>
+      <span class="watermark">平安银行信用卡 × AI</span>
+    </div>
+  `;
+}
+
+function updatePointsDisplay() {
+  document.getElementById("pointsDisplay").textContent = points.toLocaleString() + " 分";
+  const btn = document.getElementById("generateBtn");
+  if (points < COST) { btn.disabled = true; btn.textContent = "积分不足"; }
+}
+
+function updateStep(n) {
+  [1,2,3,4].forEach(i => document.getElementById("step"+i).classList.toggle("active", i === n));
+}
+
+function showPhase(phase) {
+  const map = {
+    tpl:    { tplSection: true,  uploadSection: false, genSection: false, resultSection: false, step: 1 },
+    upload: { tplSection: true,  uploadSection: true,  genSection: false, resultSection: false, step: 2 },
+    gen:    { tplSection: false, uploadSection: false, genSection: true,  resultSection: false, step: 3 },
+    result: { tplSection: false, uploadSection: false, genSection: false, resultSection: true,  step: 4 },
+  };
+  const cfg = map[phase];
+  Object.entries(cfg).forEach(([k, v]) => {
+    if (k === "step") return;
+    document.getElementById(k).classList.toggle("hidden", !v);
+  });
+  document.getElementById("stepsBar").classList.toggle("hidden", phase === "result");
+  updateStep(cfg.step);
+}
+
+function showShareModal() { document.getElementById("shareModal").classList.remove("hidden"); }
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById("shareModal"))
+    document.getElementById("shareModal").classList.add("hidden");
+}
+function doShare(type) {
+  closeShareModal();
+  const msgs = { save: "已保存到相册", moments: "正在打开朋友圈...", friend: "已发送给好友" };
+  showToast(msgs[type] || "操作成功", "success");
+}
+
+function showToast(msg, type = "info") {
+  const t = document.createElement("div");
+  t.className = "toast " + type; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("hide"), 2000);
+  setTimeout(() => t.remove(), 2300);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

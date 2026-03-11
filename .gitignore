@@ -9,7 +9,10 @@
 # Allow presentations
 !ai-content-engine-v3.html
 !ai-content-engine-v8-0311.html
+!ai-content-engine-v12.html
 !积分兑换AI测MBTI_demo.html
+!积分兑换AI写真demo.html
+!积分兑换AI壁纸demo.html
 
 # Allow client folders
 !壹钱包×兑吧/
@@ -18,21 +21,22 @@
 !平安银行信用卡/*.html
 
 # Allow compressed videos (for GitHub Pages)
+!compressed/
+!compressed/hook/
+!compressed/hook/*.mp4
+!compressed/idea/
+!compressed/idea/*.mp4
+!compressed/kos/
+!compressed/kos/*.mp4
+!compressed/drama/
+!compressed/drama/*.mp4
+!compressed/wall/
+!compressed/wall/*.mp4
+
+# Legacy compressed path
 !视频案例/
 !视频案例/compressed/
-!视频案例/compressed/hook/
-!视频案例/compressed/hook/*.mp4
-!视频案例/compressed/idea/
-!视频案例/compressed/idea/*.mp4
-!视频案例/compressed/kos/
-!视频案例/compressed/kos/*.mp4
-!视频案例/compressed/ai 短剧/
-!视频案例/compressed/ai 短剧/*.mp4
-!视频案例/compressed/video wall/
-!视频案例/compressed/video wall/trimmed/
-!视频案例/compressed/video wall/trimmed/*.mp4
-
-# Allow portrait images (used by demo modals)
+!视频案例/compressed/**/*.mp4
 !视频案例/portrait/
 !视频案例/portrait/*.png
 
