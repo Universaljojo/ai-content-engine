@@ -16,6 +16,11 @@
 !积分兑换AI写真demo.html
 !积分兑换AI壁纸demo.html
 
+# Allow Nike V2 demo
+!nike-taobao-color-v2.html
+!nike-generated/
+!nike-generated/*.jpg
+
 # Allow client folders
 !壹钱包×兑吧/
 !壹钱包×兑吧/*.html
