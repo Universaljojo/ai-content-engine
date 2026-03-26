@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunrise.AI — 热点中心</title>
+<style>
+:root {
+  --accent: #374151;
+  --gold: #d97706;
+  --gold-hover: #b45309;
+  --gold-bg: rgba(217,119,6,0.08);
+  --surface-card: rgba(255,255,255,0.65);
+  --surface-input: rgba(255,255,255,0.5);
+  --border: rgba(0,0,0,0.06);
+  --border-input: rgba(0,0,0,0.08);
+  --border-card: rgba(255,255,255,0.7);
+  --text: #1c1917;
+  --text2: #57534e;
+  --text3: #a8a29e;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-btn: 980px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #fafaf9 0%, #f0ede8 30%, #f2f0ec 60%, #fafaf9 100%);
+  color: var(--text); min-height: 100vh; display: flex; position: relative; overflow: hidden;
+}
+
+body::before {
+  content: ''; position: fixed; top: -20%; right: -10%; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(217,119,6,0.04) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: ''; position: fixed; bottom: -15%; left: -5%; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(217,119,6,0.03) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px; background: var(--surface-card);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0;
+  position: relative; z-index: 1;
+}
+.logo-area { padding: 20px; display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #ea580c, #f59e0b, #fbbf24);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff;
+}
+.logo-text { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.logo-text .dot { color: var(--gold); }
+
+nav { flex: 1; padding: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 3px;
+  color: var(--text); background: transparent;
+  font-weight: 400; text-decoration: none; font-size: 15px;
+  transition: all .15s; cursor: pointer;
+}
+.nav-item:hover { background: rgba(0,0,0,0.03); }
+.nav-item.active {
+  background: var(--gold-bg);
+  color: var(--gold-hover);
+  font-weight: 500;
+}
+.nav-item .icon { width: 18px; text-align: center; }
+
+/* Main Layout */
+.main {
+  flex: 1; display: flex;
+  position: relative; z-index: 1;
+}
+
+/* Left Panel - Hotspot List */
+.hotspot-list-panel {
+  width: 40%; padding: 32px 20px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.panel-header {
+  margin-bottom: 24px;
+}
+.panel-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.panel-header p { font-size: 13px; color: var(--text3); }
+
+.hotspot-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.hotspot-card:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+.hotspot-card.active {
+  border-color: var(--gold);
+  background: var(--gold-bg);
+}
+
+.hotspot-title {
+  font-size: 15px; font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.hotspot-meta {
+  display: flex; align-items: center; gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hotspot-heat {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 600;
+  color: #ff6b35;
+}
+
+.relevance-score {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 12px; color: var(--text3);
+}
+.stars {
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-size: 13px;
+}
+
+.timeliness {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.timeliness.hot {
+  background: rgba(255,107,53,0.1);
+  color: #ff6b35;
+}
+.timeliness.decay {
+  background: rgba(251,191,36,0.1);
+  color: #d97706;
+}
+.timeliness.longtail {
+  background: rgba(16,185,129,0.1);
+  color: #10b981;
+}
+
+/* Right Panel - Script Generation */
+.detail-panel {
+  flex: 1; padding: 32px 40px;
+  overflow-y: auto;
+}
+
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%;
+  color: var(--text3);
+}
+.empty-state .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+.empty-state p { font-size: 14px; }
+
+.detail-content {
+  display: none;
+}
+.detail-content.visible { display: block; }
+
+.detail-section {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.detail-section h2 {
+  font-size: 18px; font-weight: 600;
+  margin-bottom: 14px;
+}
+.detail-section h3 {
+  font-size: 15px; font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text2);
+}
+
+.event-desc {
+  font-size: 14px; line-height: 1.7;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+
+.key-data {
+  display: flex; gap: 20px;
+  margin-bottom: 14px;
+}
+.data-item {
+  font-size: 13px; color: var(--text3);
+}
+.data-item strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.ai-insight {
+  background: rgba(217,119,6,0.05);
+  border-left: 3px solid var(--gold);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text2);
+}
+
+/* Copy Direction Selection */
+.copy-directions {
+  display: flex; gap: 10px;
+  margin-top: 12px;
+}
+.direction-btn {
+  flex: 1;
+  padding: 14px 12px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+}
+.direction-btn:hover { background: rgba(0,0,0,0.02); }
+.direction-btn.active {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.direction-btn .icon { font-size: 20px; margin-bottom: 6px; }
+.direction-btn .label { font-weight: 600; margin-bottom: 4px; }
+.direction-btn .desc { font-size: 11px; color: var(--text3); }
+
+/* Form */
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 13px; font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.form-input::placeholder { color: var(--text3); }
+.form-input:focus { border-color: var(--gold); }
+
+.btn-generate-script {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 15px; font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #ea580c 0%, #d97706 50%, #f59e0b 100%);
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 2px 12px rgba(217,119,6,0.3);
+  margin-top: 16px;
+}
+.btn-generate-script:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.4);
+}
+.btn-generate-script:active { transform: translateY(0); }
+
+/* Script Results */
+.script-results {
+  display: none;
+  margin-top: 20px;
+}
+.script-results.visible { display: block; }
+
+.script-option {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.script-option:hover { background: rgba(0,0,0,0.02); }
+.script-option.selected {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+}
+.script-option .badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: var(--gold);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: none;
+}
+.script-option.selected .badge { display: block; }
+
+.script-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.script-actions {
+  display: flex; gap: 10px;
+  margin-top: 16px;
+}
+.btn-secondary {
+  flex: 1;
+  padding: 10px 20px;
+  font-size: 14px; font-weight: 500;
+  font-family: inherit;
+  color: var(--text);
+  background: rgba(255,255,255,0.8);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-secondary:hover { background: rgba(0,0,0,0.02); }
+
+.btn-primary {
+  flex: 1;
+  padding: 10px 20px;
+  font-size: 14px; font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #ea580c 0%, #d97706 50%, #f59e0b 100%);
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 2px 12px rgba(217,119,6,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(217,119,6,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo-icon">✦</div>
+    <div class="logo-text">Sunrise<span class="dot">.</span>AI</div>
+  </div>
+  <nav>
+    <a class="nav-item" href="#"><span class="icon">📋</span>模板广场</a>
+    <a class="nav-item" href="#"><span class="icon">✨</span>自由创作</a>
+    <a class="nav-item active" href="#"><span class="icon">🔥</span>热点中心</a>
+    <a class="nav-item" href="#"><span class="icon">🕐</span>我的视频</a>
+    <a class="nav-item" href="#"><span class="icon">👤</span>品牌形象</a>
+    <a class="nav-item" href="#"><span class="icon">📊</span>数据看板</a>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span>模板管理</a>
+  </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Left Panel - Hotspot List -->
+  <div class="hotspot-list-panel">
+    <div class="panel-header">
+      <h1>热点中心</h1>
+      <p>实时热点 · 智能分析 · 快速出脚本</p>
+    </div>
+
+    <div id="hotspotList">
+      <!-- 热点 1 -->
+      <div class="hotspot-card" onclick="selectHotspot(1)">
+        <div class="hotspot-title">多地推出"惠民保"升级版，保费不变保障范围扩大</div>
+        <div class="hotspot-meta">
+          <div class="hotspot-heat">🔥 8.2万</div>
+          <div class="relevance-score">
+            相关度 <span class="stars">★★★★★★★★★☆</span>
+          </div>
+          <span class="timeliness hot">🔥 爆发中</span>
+        </div>
+      </div>
+
+      <!-- 热点 2 -->
+      <div class="hotspot-card" onclick="selectHotspot(2)">
+        <div class="hotspot-title">年轻人开始给父母买保险，"反向孝顺"成新趋势</div>
+        <div class="hotspot-meta">
+          <div class="hotspot-heat">🔥 12.5万</div>
+          <div class="relevance-score">
+            相关度 <span class="stars">★★★★★★★★☆☆</span>
+          </div>
+          <span class="timeliness hot">🔥 爆发中</span>
+        </div>
+      </div>
+
+      <!-- 热点 3 -->
+      <div class="hotspot-card" onclick="selectHotspot(3)">
+        <div class="hotspot-title">春季流感高发，医疗险理赔量激增</div>
+        <div class="hotspot-meta">
+          <div class="hotspot-heat">🔥 6.8万</div>
+          <div class="relevance-score">
+            相关度 <span class="stars">★★★★★★★☆☆☆</span>
+          </div>
+          <span class="timeliness decay">⏰ 衰减中</span>
+        </div>
+      </div>
+
+      <!-- 热点 4 -->
+      <div class="hotspot-card" onclick="selectHotspot(4)">
+        <div class="hotspot-title">退休老人旅游意外险怎么买？这些坑要避开</div>
+        <div class="hotspot-meta">
+          <div class="hotspot-heat">🔥 4.3万</div>
+          <div class="relevance-score">
+            相关度 <span class="stars">★★★★★★☆☆☆☆</span>
+          </div>
+          <span class="timeliness longtail">✅ 长尾话题</span>
+        </div>
+      </div>
+
+      <!-- 热点 5 -->
+      <div class="hotspot-card" onclick="selectHotspot(5)">
+        <div class="hotspot-title">新能源车保费又涨了？车险怎么买最划算</div>
+        <div class="hotspot-meta">
+          <div class="hotspot-heat">🔥 9.7万</div>
+          <div class="relevance-score">
+            相关度 <span class="stars">★★★★★★★☆☆☆</span>
+          </div>
+          <span class="timeliness hot">🔥 爆发中</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Script Generation -->
+  <div class="detail-panel">
+    <div class="empty-state" id="emptyState">
+      <div class="icon">👈</div>
+      <p>选择左侧热点，快速生成视频脚本</p>
+    </div>
+
+    <div class="detail-content" id="detailContent">
+      <!-- Event Description -->
+      <div class="detail-section">
+        <h2 id="eventTitle">多地推出"惠民保"升级版</h2>
+        <p class="event-desc" id="eventDesc">
+          近期，北京、上海、广州等多个城市陆续推出"惠民保"升级版产品。新版产品在保费不变的情况下，将保障范围从原来的住院医疗扩展到门诊特殊病、罕见病用药等领域。业内人士表示，这是政府主导的普惠型商业健康保险的重要升级，将惠及更多中低收入人群。
+        </p>
+        <div class="key-data">
+          <div class="data-item">阅读量 <strong>8.2万</strong></div>
+          <div class="data-item">讨论量 <strong>1.3万</strong></div>
+          <div class="data-item">发布时间 <strong>2小时前</strong></div>
+        </div>
+      </div>
+
+      <!-- AI Insight -->
+      <div class="detail-section">
+        <h2>AI 分析</h2>
+        <div class="ai-insight">
+          💡 惠民保是政府主导的普惠型商业健康保险，与传统商业保险形成互补。这个热点直接关联保险行业，适合借势营销。推荐产品：百万医疗险、重疾险、补充医疗险。可以强调"惠民保+商业保险"的组合保障方案。
+        </div>
+      </div>
+
+      <!-- Script Generation Form -->
+      <div class="detail-section" id="scriptForm">
+        <h2>生成脚本</h2>
+        
+        <h3>选择视频时长</h3>
+        <div class="copy-directions" style="margin-bottom: 24px;">
+          <button class="direction-btn active" onclick="selectDuration(this, 15)">
+            <div class="icon">⚡</div>
+            <div class="label">15秒</div>
+            <div class="desc">快速传达核心信息</div>
+          </button>
+          <button class="direction-btn" onclick="selectDuration(this, 30)">
+            <div class="icon">📱</div>
+            <div class="label">30秒</div>
+            <div class="desc">完整表达产品卖点</div>
+          </button>
+          <button class="direction-btn" onclick="selectDuration(this, 60)">
+            <div class="icon">🎬</div>
+            <div class="label">60秒</div>
+            <div class="desc">深度讲述品牌故事</div>
+          </button>
+        </div>
+
+        <h3>选择文案方向</h3>
+        <div class="copy-directions">
+          <button class="direction-btn active" onclick="selectDirection(this, 'rational')">
+            <div class="icon">📊</div>
+            <div class="label">理性分析</div>
+            <div class="desc">对比保障范围和保费</div>
+          </button>
+          <button class="direction-btn" onclick="selectDirection(this, 'emotional')">
+            <div class="icon">❤️</div>
+            <div class="label">情感共鸣</div>
+            <div class="desc">关爱家人健康</div>
+          </button>
+          <button class="direction-btn" onclick="selectDirection(this, 'story')">
+            <div class="icon">📖</div>
+            <div class="label">故事叙事</div>
+            <div class="desc">真实理赔案例</div>
+          </button>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <h3>填写产品信息</h3>
+          <div class="form-group">
+            <label class="form-label">产品名称</label>
+            <input class="form-input" type="text" placeholder="例如：平安e生保" value="平安e生保">
+          </div>
+          <div class="form-group">
+            <label class="form-label">核心卖点</label>
+            <input class="form-input" type="text" placeholder="例如：600万保额，0免赔" value="600万保额，0免赔">
+          </div>
+        </div>
+
+        <button class="btn-generate-script" onclick="generateScript()">生成脚本</button>
+      </div>
+
+      <!-- Script Results -->
+      <div class="detail-section script-results" id="scriptResults">
+        <h2>选择脚本</h2>
+        <p style="font-size: 13px; color: var(--text3); margin-bottom: 16px;">AI 为你生成了 3 条备选脚本，选择一条或手动编辑</p>
+        
+        <div class="script-option selected" onclick="selectScript(this)">
+          <span class="badge">已选中</span>
+          <div class="script-text">【钩子】惠民保升级了！保费不变，保障范围扩大30%。
+
+【痛点】但你知道吗？惠民保只是基础保障，大病自费部分依然要自己承担。
+
+【方案】平安e生保，600万保额，0免赔，和惠民保组合使用，真正做到大病无忧。
+
+【行动】点击了解详情，给家人多一份保障。</div>
+        </div>
+
+        <div class="script-option" onclick="selectScript(this)">
+          <span class="badge">已选中</span>
+          <div class="script-text">【开场】最近惠民保升级的消息刷屏了，很多朋友问我：有了惠民保，还需要商业保险吗？
+
+【解答】答案是：需要。惠民保是普惠型产品，保障有限，重大疾病的自费部分依然要自己承担。
+
+【推荐】平安e生保，600万保额，0免赔，和惠民保形成完美互补，真正做到大病无忧。
+
+【结尾】保险不是消费，是对家人的责任。</div>
+        </div>
+
+        <div class="script-option" onclick="selectScript(this)">
+          <span class="badge">已选中</span>
+          <div class="script-text">【场景】去年，我的一位客户王女士确诊了重疾。幸好她买了惠民保+商业医疗险的组合。
+
+【对比】惠民保报销了住院费用，平安e生保报销了自费药和特殊治疗费用，最终自己只花了不到2万。
+
+【感悟】如果只有惠民保，她至少要自费20万。保险的意义，就是在关键时刻不让家人为钱发愁。
+
+【行动】点击了解平安e生保，给家人多一份保障。</div>
+        </div>
+
+        <div class="script-actions">
+          <button class="btn-secondary" onclick="editScript()">手动编辑</button>
+          <button class="btn-primary" onclick="goToQuickGenerate()">前往生成视频</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+let selectedDirection = 'rational';
+
+let selectedDuration = 15;
+
+function selectDuration(btn, duration) {
+  document.querySelectorAll('.copy-directions').forEach(group => {
+    group.querySelectorAll('.direction-btn').forEach(b => {
+      if (b.parentElement === btn.parentElement) {
+        b.classList.remove('active');
+      }
+    });
+  });
+  btn.classList.add('active');
+  selectedDuration = duration;
+}
+
+
+function selectHotspot(id) {
+  // 移除所有选中状态
+  document.querySelectorAll('.hotspot-card').forEach(card => card.classList.remove('active'));
+  // 选中当前卡片
+  event.currentTarget.classList.add('active');
+  
+  // 显示详情区
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('detailContent').classList.add('visible');
+  
+  // 隐藏脚本结果
+  document.getElementById('scriptResults').classList.remove('visible');
+  document.getElementById('scriptForm').style.display = 'block';
+}
+
+function selectDirection(btn, direction) {
+  document.querySelectorAll('.direction-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedDirection = direction;
+}
+
+function generateScript() {
+  // 隐藏表单，显示脚本结果
+  document.getElementById('scriptForm').style.display = 'none';
+  document.getElementById('scriptResults').classList.add('visible');
+}
+
+function selectScript(option) {
+  document.querySelectorAll('.script-option').forEach(o => o.classList.remove('selected'));
+  option.classList.add('selected');
+}
+
+function editScript() {
+  alert('编辑功能演示：实际会打开文本编辑器，允许用户修改脚本内容');
+}
+
+function goToQuickGenerate() {
+  alert('跳转演示：实际会跳转到"快速生成"页面，脚本自动填入，用户选择模型和参数后生成视频');
+}
+</script>
+</body>
+</html>

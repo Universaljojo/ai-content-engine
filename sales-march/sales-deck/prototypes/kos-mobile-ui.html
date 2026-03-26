@@ -1,0 +1,2326 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Starry.AI 手机端 UI 原型</title>
+  <style>
+    :root {
+      --accent: #3558b6;
+      --accent-hover: #2b4792;
+      --accent-bg: rgba(53,88,182,0.1);
+      --gold: #4f7dff;
+      --gold-hover: #3f63d1;
+      --gold-bg: rgba(79,125,255,0.12);
+      --bg: #f8fbff;
+      --bg-gradient: linear-gradient(135deg, #f9fbff 0%, #eef3ff 30%, #f5f8ff 60%, #fbfdff 100%);
+      --surface: rgba(237,244,255,0.42);
+      --surface-card: rgba(255,255,255,0.75);
+      --surface-input: rgba(255,255,255,0.65);
+      --glass: blur(40px) saturate(180%);
+      --border: rgba(34,68,156,0.12);
+      --border-input: rgba(53,88,182,0.18);
+      --border-card: rgba(255,255,255,0.88);
+      --text: #18264e;
+      --text2: #4f6293;
+      --text3: #97a8d1;
+      --success: #16a34a;
+      --warning: #4f7dff;
+      --error: #dc2626;
+      --info: #2563eb;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      --radius-btn: 980px;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-modal: 0 8px 32px rgba(0,0,0,0.12);
+      --shadow: var(--shadow-card);
+      --card: var(--surface-card);
+      --line: var(--border);
+      --sub: var(--text2);
+      --blue: var(--accent);
+      --blue-soft: var(--accent-bg);
+      --mint: var(--gold);
+      --star-glow: rgba(87, 117, 214, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(600px 600px at 100% 0%, rgba(79,125,255,0.14) 0%, transparent 70%),
+        radial-gradient(500px 500px at 0% 100%, var(--star-glow) 0%, transparent 70%),
+        var(--bg-gradient);
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Noto Sans SC", sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .phone {
+      width: min(100vw, 430px);
+      height: min(100vh, 920px);
+      border-radius: 40px;
+      background: #000;
+      padding: 11px;
+      box-shadow: 0 30px 80px rgba(2, 6, 23, 0.35);
+    }
+
+    .screen {
+      height: 100%;
+      border-radius: 31px;
+      overflow: hidden;
+      background:
+        radial-gradient(520px 240px at -12% -10%, rgba(79,108,204,0.15) 0%, transparent 72%),
+        radial-gradient(480px 240px at 112% -10%, rgba(56,189,248,0.14) 0%, transparent 72%),
+        linear-gradient(180deg, #fbfdff, #eff4ff 58%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .notch {
+      position: absolute;
+      z-index: 8;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 27px;
+      background: #000;
+      border-radius: 999px;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 18px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+    }
+
+    .app {
+      flex: 1;
+      overflow: auto;
+      padding: 10px 14px 98px;
+      scrollbar-width: none;
+    }
+
+    .app::-webkit-scrollbar { display: none; }
+
+    .app.login-mode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 10px 14px;
+    }
+
+    .app.login-mode .page {
+      width: 100%;
+    }
+
+    .app.login-mode #page-login.page.active {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app.login-mode .login-wrap {
+      transform: translateY(-66px);
+    }
+
+    .page { display: none; }
+    .page.active { display: block; animation: fade 0.2s ease; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 6px 2px 12px;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(140deg, #223b8a 0%, #4f7dff 55%, #67e8f9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #fff;
+      box-shadow: 0 8px 22px rgba(60,90,199,0.34), inset 0 1px 0 rgba(255,255,255,0.35);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 760;
+      letter-spacing: 1.2px;
+      color: transparent;
+      background: linear-gradient(100deg, #1f3573 0%, #3f63d1 52%, #0891b2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .logo-text .dot {
+      color: var(--info);
+    }
+
+    .small { font-size: 12px; color: var(--sub); }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--gold-bg);
+      border: 1px solid rgba(79,125,255,0.28);
+    }
+
+    .card {
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--border-card);
+      box-shadow: var(--shadow);
+      backdrop-filter: var(--glass);
+    }
+
+    .hero {
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, rgba(79,108,204,0.14), rgba(56,189,248,0.16));
+      border: 1px solid rgba(79,108,204,0.18);
+    }
+
+    .hero .title {
+      margin: 2px 0 0;
+      font-size: 16px;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .h {
+      margin: 15px 3px 10px;
+      font-size: 16px;
+      font-weight: 690;
+      letter-spacing: -0.01em;
+    }
+
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow: auto;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    .tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-btn);
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--text2);
+      font-size: 13px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: #2b4792;
+      border-color: rgba(79,125,255,0.26);
+      background: rgba(79,125,255,0.14);
+      font-weight: 500;
+    }
+
+    .video-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .video-row::-webkit-scrollbar { display: none; }
+
+    .video-card {
+      min-width: 62%;
+      scroll-snap-align: start;
+      padding: 10px;
+    }
+
+    .video-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: #0b1220;
+      line-height: 0;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .video-wrap video {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .play-hint {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      font-size: 11px;
+      color: #fff;
+      background: rgba(15, 23, 42, 0.72);
+      border-radius: 999px;
+      padding: 4px 8px;
+      pointer-events: none;
+    }
+
+    .video-title {
+      margin: 10px 0 4px;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+    }
+
+    .meta { font-size: 12px; color: var(--sub); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-xs);
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      color: var(--text2);
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text2);
+      border-radius: var(--radius-btn);
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(31,41,55,0.18);
+    }
+
+    .btn.mint {
+      background: var(--gold);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(79,125,255,0.28);
+    }
+
+    .btn:hover {
+      background: var(--accent-bg);
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn.mint:hover {
+      background: var(--gold-hover);
+    }
+
+    .btn.off {
+      opacity: 0.5;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 11px;
+    }
+
+    .tile { padding: 12px; }
+    .tile b { display: block; font-size: 19px; margin-bottom: 3px; }
+    .tile span { font-size: 12px; color: var(--sub); }
+
+    .field { margin-top: 10px; }
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .input {
+      width: 100%;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-input);
+      background: var(--surface-input);
+      padding: 10px 14px;
+      font-size: 15px;
+      color: var(--text);
+      font-family: inherit;
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(79,125,255,0.15);
+    }
+
+    .asset-row {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--surface-card);
+      padding: 8px;
+      backdrop-filter: var(--glass);
+    }
+
+    .asset-thumb {
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #f9fafb;
+    }
+
+    .asset-name {
+      font-size: 13px;
+      font-weight: 620;
+      line-height: 1.35;
+    }
+
+    .asset-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .asset-actions button {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .asset-quick {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .latest-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .latest-row::-webkit-scrollbar { display: none; }
+
+    .latest-row .shelf-card {
+      width: calc((100% - 16px) / 3);
+      min-width: calc((100% - 16px) / 3);
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+
+    .shelf-card {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface-card);
+      overflow: hidden;
+      cursor: pointer;
+      backdrop-filter: var(--glass);
+      box-shadow: var(--shadow-card);
+    }
+
+    .shelf-card:hover {
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-1px);
+    }
+
+    .shelf-thumb {
+      background: #0b1220;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      line-height: 0;
+      aspect-ratio: 9 / 16;
+      width: 100%;
+    }
+
+    .shelf-thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    .shelf-body {
+      padding: 6px;
+    }
+
+    .shelf-title {
+      font-size: 11px;
+      font-weight: 640;
+      line-height: 1.35;
+      min-height: 30px;
+    }
+
+    .shelf-meta {
+      font-size: 10px;
+      color: var(--sub);
+      margin-top: 2px;
+    }
+
+    .profile-head {
+      padding: 12px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .profile-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(145deg, #29479a, #4f7dff);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(41,71,154,0.24);
+    }
+
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .profile-role {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .profile-kv {
+      margin-top: 8px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .profile-kv-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(15,23,42,0.12);
+    }
+
+    .profile-kv-row span {
+      color: var(--sub);
+      flex-shrink: 0;
+    }
+
+    .profile-kv-row b {
+      margin: 0;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 620;
+      color: var(--text);
+    }
+
+    .setting-list {
+      display: grid;
+      gap: 2px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-top: 1px dashed rgba(15,23,42,0.12);
+    }
+
+    .setting-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .setting-row .meta {
+      font-size: 11px;
+      color: var(--sub);
+      margin-top: 2px;
+    }
+
+    .switch {
+      min-width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0 10px;
+    }
+
+    .switch.on {
+      color: #fff;
+      border-color: rgba(53,88,182,0.4);
+      background: linear-gradient(120deg, #3558b6, #4f7dff);
+    }
+
+    .service-list { display: grid; gap: 10px; }
+
+    .service-item {
+      padding: 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface-card);
+      backdrop-filter: var(--glass);
+    }
+
+    .service-item h4 {
+      margin: 0 0 5px;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .list { display: grid; gap: 10px; }
+
+    .list-item {
+      padding: 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: var(--surface-card);
+      backdrop-filter: var(--glass);
+    }
+
+    .work-card {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .work-preview {
+      width: 76px;
+      aspect-ratio: 9 / 16;
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1px solid rgba(15,23,42,0.08);
+      background: #000;
+    }
+
+    .work-preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    .work-info { min-width: 0; }
+
+    .work-title {
+      font-size: 13px;
+      font-weight: 680;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .work-line {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--sub);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .work-status {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text2);
+    }
+
+    .work-status.live {
+      color: var(--success);
+      border-color: rgba(30,166,114,0.24);
+      background: rgba(30,166,114,0.1);
+    }
+
+    .work-status.wait {
+      color: var(--warning);
+      border-color: rgba(79,125,255,0.28);
+      background: var(--gold-bg);
+    }
+
+    .work-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .work-actions .btn {
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
+    .pack-details {
+      margin-top: 8px;
+      border-top: 1px dashed rgba(15,23,42,0.14);
+      padding-top: 8px;
+    }
+
+    .pack-details summary {
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 620;
+    }
+
+    .pack-details .small { margin-top: 4px; }
+
+    .gen-progress {
+      margin-top: 8px;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .gen-progress b {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #38bdf8);
+      border-radius: inherit;
+    }
+
+    .result-preview {
+      margin-top: 8px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(15,23,42,0.08);
+      background: #000;
+      max-height: 138px;
+    }
+
+    .result-preview video {
+      width: 100%;
+      height: 138px;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+
+    .bottom {
+      position: absolute;
+      z-index: 6;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      border-radius: var(--radius);
+      background: var(--surface-card);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: var(--shadow-card-hover);
+      backdrop-filter: var(--glass);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 7px;
+    }
+
+    .nav {
+      border: 0;
+      background: transparent;
+      border-radius: 13px;
+      color: var(--text2);
+      font-size: 10px;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      padding: 7px 4px;
+      cursor: pointer;
+    }
+
+    .dot {
+      width: 21px;
+      height: 21px;
+      border-radius: var(--radius-xs);
+      background: rgba(0,0,0,0.05);
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nav.active { color: #2b4792; font-weight: 500; }
+    .nav.active .dot { background: rgba(79,125,255,0.16); color: var(--gold); }
+
+    .hidden { display: none; }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 0 4px;
+    }
+
+    .login-brand {
+      width: 100%;
+      display: grid;
+      justify-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .login-wrap > .card {
+      width: 100%;
+    }
+
+    .login-brand .logo-area.big {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-area.big .logo-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      font-size: 22px;
+    }
+
+    .logo-area.big .logo-text {
+      font-size: 30px;
+      letter-spacing: 1.4px;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 90px;
+      background: rgba(31,41,55,0.92);
+      color: #fff;
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 24;
+    }
+
+    .toast.show { opacity: 1; }
+
+    .template-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      align-items: end;
+      background: rgba(15, 23, 42, 0.36);
+      padding: 14px;
+    }
+
+    .template-modal.hidden {
+      display: none;
+    }
+
+    .template-modal-panel {
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid rgba(255,255,255,0.9);
+      box-shadow: var(--shadow-modal);
+      backdrop-filter: var(--glass);
+    }
+
+    .template-modal-video {
+      width: 100%;
+      border-radius: 12px;
+      background: #000;
+      max-height: 280px;
+    }
+
+    .template-modal-meta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .template-modal-actions {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 430px) {
+      .phone { width: 100vw; height: 100vh; border-radius: 0; padding: 0; }
+      .screen { border-radius: 0; }
+      .notch { top: 6px; }
+      .video-card { min-width: 68%; }
+      .shelf-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .latest-row .shelf-card {
+        width: calc((100% - 24px) / 4);
+        min-width: calc((100% - 24px) / 4);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="status"><span>9:41</span><span>5G 100%</span></div>
+
+      <div class="app login-mode" id="app">
+        <section class="page active" id="page-login">
+          <div class="login-wrap">
+            <div class="login-brand">
+              <div class="logo-area big">
+                <div class="logo-icon">✦</div>
+                <div class="logo-text">Starry.AI</div>
+              </div>
+              <div class="small">视频同款制作</div>
+            </div>
+
+            <article class="card" style="padding:14px;">
+              <div class="field">
+                <label>手机号</label>
+                <input class="input" value="138****8821" />
+              </div>
+              <div class="field row-between">
+                <div style="flex:1;">
+                  <label>验证码</label>
+                  <input class="input" value="2478" />
+                </div>
+                <button class="btn" style="margin-top:24px;">发送</button>
+              </div>
+              <div style="margin-top:12px;">
+                <button id="btnLogin" class="btn primary" style="width:100%;">登录</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" id="page-home">
+          <div class="top">
+            <div>
+              <div class="small">李顾问</div>
+            </div>
+            <span class="chip">42 点</span>
+          </div>
+
+          <article class="card hero">
+            <div class="small">快捷生成</div>
+            <div class="title">今日最热一键生成</div>
+            <div style="margin-top:8px;" class="row-between">
+              <span class="small" id="quickTemplateMeta">今日最热：加载中</span>
+              <button class="btn mint off" id="btnQuickGenerate">一键生成</button>
+            </div>
+          </article>
+
+          <div class="h">推荐视频</div>
+          <div class="tabs" id="homeFilter"></div>
+          <div class="video-row" id="homeVideoRow"></div>
+
+          <div class="h" id="homeGenerateAnchor">生成同款</div>
+          <article class="card" style="padding:12px; margin-bottom:10px;">
+            <div class="small" style="margin-bottom:8px;">已选模板</div>
+            <div id="homeSelectedMeta" class="small">先从上方选一个视频模板</div>
+            <div class="small" id="generateEstimate" style="margin-top:6px;">预计消耗 -- 点 · 预计时长 -- · 1080P</div>
+            <div style="margin-top:8px;" class="row-between">
+              <button class="btn" id="btnThreeSecPreview">点按预览3秒</button>
+              <button class="btn" id="btnHidePreview">收起预览</button>
+            </div>
+            <div class="result-preview" id="previewWrap" style="margin-top:8px;display:none;">
+              <video id="previewVideo" muted playsinline preload="metadata" controls></video>
+            </div>
+
+            <div class="field" style="margin-top:12px;">
+              <label>照片 <span style="color:#dc2626;font-weight:700;">*</span></label>
+              <input id="photoInput" type="file" accept="image/*" style="display:none" />
+              <div id="photoPanel"></div>
+            </div>
+
+            <div class="field">
+              <label>声音 <span style="color:#9a9a9a;font-size:11px;">可选·默认使用视频原音</span></label>
+              <input id="voiceInput" type="file" accept="audio/*" style="display:none" />
+              <div id="voicePanel"></div>
+            </div>
+
+            <div class="field">
+              <label>同城改写</label>
+              <div class="row-between">
+                <input id="cityInput" class="input" value="上海" style="max-width:48%;" />
+                <select id="toneSelect" class="input" style="max-width:48%;">
+                  <option>普通话专业版</option>
+                  <option>亲和口语版</option>
+                  <option>上海本地口吻</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="small" style="margin-top:8px;color:#3558b6;">发布前提醒：避免绝对化承诺（如“100%赔付”）。</div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+              <button class="btn" id="btnSaveDraft">保存草稿</button>
+              <button class="btn mint off" id="btnGenerateNow">先选模板</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="page" id="page-templates">
+          <div class="top">
+            <div>
+              <div class="brand">模板</div>
+            </div>
+          </div>
+
+          <div class="h">最新</div>
+          <div class="latest-row" id="latestRow"></div>
+
+          <div class="h">客户场景</div>
+          <div class="tabs" id="sceneTabs"></div>
+
+          <div class="row-between" style="margin:15px 3px 8px;">
+            <div class="h" style="margin:0;">分类</div>
+            <button class="btn" id="btnMoreFilter" style="padding:6px 10px;font-size:12px;">更多筛选</button>
+          </div>
+          <div id="advancedFilters" style="display:none;">
+            <div class="tabs" id="moduleTabs"></div>
+            <div class="tabs" id="subTabs"></div>
+          </div>
+          <div class="shelf-grid" id="moduleShelf" style="margin-top:8px;"></div>
+        </section>
+
+        <section class="page" id="page-generate">
+          <div class="top">
+            <div>
+              <div class="small">我的生成</div>
+              <div class="brand">生成</div>
+            </div>
+            <span class="chip" id="balanceBadge">剩余 42 点</span>
+          </div>
+
+          <div class="grid2" style="margin-top:0;">
+            <article class="card tile"><b id="statGenerated">16</b><span>本月已生成</span></article>
+            <article class="card tile"><b id="statDraft">5</b><span>待发布草稿</span></article>
+          </div>
+
+          <div class="h">发布状态</div>
+          <div class="tabs" id="groupTabs"></div>
+
+          <div class="h">最近</div>
+          <div class="list" id="generateList"></div>
+        </section>
+
+        <section class="page" id="page-profile">
+          <div class="top">
+            <div>
+              <div class="small">账号与服务</div>
+              <div class="brand">我的</div>
+            </div>
+            <span class="chip">年卡</span>
+          </div>
+
+          <article class="card profile-head">
+            <div class="profile-avatar">李</div>
+            <div>
+              <div class="profile-name">李顾问</div>
+              <div class="profile-role">高级保险顾问 · 已实名</div>
+            </div>
+          </article>
+
+          <article class="card" style="padding:12px; margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:680;">账号信息</div>
+            <div class="profile-kv">
+              <div class="profile-kv-row"><span>账号</span><b id="profileAccount">li.gu#A1027</b></div>
+              <div class="profile-kv-row"><span>手机号</span><b id="profilePhone">138****8821</b></div>
+              <div class="profile-kv-row"><span>隶属保险公司</span><b id="profileCompany">平安人寿（上海分公司）</b></div>
+              <div class="profile-kv-row"><span>顾问编号</span><b id="profileAdvisorId">PA-SH-1027</b></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;">
+              <button class="btn" data-profile-action="switch-company">切换所属机构</button>
+            </div>
+          </article>
+
+          <article class="card" style="padding:12px; margin-bottom:10px;">
+            <div class="row-between">
+              <div>
+                <div style="font-size:14px;font-weight:680;">点数余额</div>
+                <div class="small" id="profilePointBalance">42 点</div>
+              </div>
+              <div style="font-size:26px;font-weight:760;" id="profilePointBig">42</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;">
+              <button class="btn" data-buy-points="10">10点 ¥120</button>
+              <button class="btn" data-buy-points="30">30点 ¥330</button>
+              <button class="btn" data-buy-points="50">50点 ¥500</button>
+            </div>
+          </article>
+
+          <article class="card" style="padding:12px; margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:680; margin-bottom:8px;">偏好与通知</div>
+            <div class="setting-list">
+              <div class="setting-row">
+                <div>
+                  <div style="font-size:13px;font-weight:620;">生成完成提醒</div>
+                  <div class="meta">任务完成后提醒我去发布</div>
+                </div>
+                <button class="switch" data-setting-toggle="notifyGenerate" id="settingNotifyGenerate">开</button>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div style="font-size:13px;font-weight:620;">私信线索提醒</div>
+                  <div class="meta">已发布作品出现私信时提醒</div>
+                </div>
+                <button class="switch" data-setting-toggle="notifyLeads" id="settingNotifyLeads">开</button>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div style="font-size:13px;font-weight:620;">自动复制发布文案</div>
+                  <div class="meta">跳转小红书时自动复制标题和正文</div>
+                </div>
+                <button class="switch" data-setting-toggle="autoCopy" id="settingAutoCopy">开</button>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div style="font-size:13px;font-weight:620;">手机号脱敏展示</div>
+                  <div class="meta">在页面中仅显示手机号前后位</div>
+                </div>
+                <button class="switch" data-setting-toggle="maskPhone" id="settingMaskPhone">开</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" style="padding:12px; margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:680; margin-bottom:8px;">客服与账号安全</div>
+            <div class="service-list">
+              <div class="service-item">
+                <h4>联系客服</h4>
+                <div style="margin-top:8px;"><button class="btn primary">发起联系</button></div>
+              </div>
+              <div class="service-item">
+                <h4>模板定制申请工单</h4>
+                <div style="margin-top:8px;"><button class="btn">提交工单</button></div>
+              </div>
+              <div class="service-item">
+                <h4>意见反馈</h4>
+                <div style="margin-top:8px;"><button class="btn" data-profile-action="feedback">提交反馈</button></div>
+              </div>
+              <div class="service-item">
+                <h4>退出当前账号</h4>
+                <div style="margin-top:8px;"><button class="btn" data-profile-action="logout">退出登录</button></div>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <nav class="bottom hidden" id="bottomNav">
+        <button class="nav active" data-page="home"><span class="dot">H</span><span>首页</span></button>
+        <button class="nav" data-page="templates"><span class="dot">T</span><span>模板</span></button>
+        <button class="nav" data-page="generate"><span class="dot">G</span><span>生成</span></button>
+        <button class="nav" data-page="profile"><span class="dot">M</span><span>我的</span></button>
+      </nav>
+
+      <div class="template-modal hidden" id="templateModal">
+        <div class="template-modal-panel">
+          <div class="row-between" style="margin-bottom:8px;">
+            <div style="font-size:14px;font-weight:680;">模板预览</div>
+            <button class="btn" id="btnCloseTemplateModal" style="padding:4px 10px;">关闭</button>
+          </div>
+          <div id="templateModalContent"></div>
+          <div class="template-modal-actions">
+            <button class="btn" id="btnUseTemplateStay">仅选用</button>
+            <button class="btn primary" id="btnUseTemplateGo">选用并去制作</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">已切换页面</div>
+    </div>
+  </div>
+
+  <script>
+    const videoLibrary = [
+      {
+        id: 'hallway',
+        title: '公司走廊 · 职场切入开场',
+        duration: '12s',
+        points: 1,
+        homeTag: '爆款推荐',
+        scene: '家庭顶梁柱',
+        audience: '企业主',
+        module: '增员',
+        sub: '招募短视频',
+        addedAt: '2026-03-22',
+        path: '../../kos/公司走廊.mp4'
+      },
+      {
+        id: 'ski',
+        title: '滑雪 · 场景故事表达',
+        duration: '30s',
+        points: 2,
+        homeTag: '品牌故事',
+        scene: '财富传承',
+        audience: '高净值',
+        module: '财富',
+        sub: '资产配置',
+        addedAt: '2026-03-21',
+        path: '../../kos/滑雪.mp4'
+      },
+      {
+        id: 'street',
+        title: '街头采访 · 问答式脚本',
+        duration: '30s',
+        points: 2,
+        homeTag: '高转化',
+        scene: '家庭顶梁柱',
+        audience: '企业主',
+        module: '保险',
+        sub: '客户问答',
+        addedAt: '2026-03-20',
+        path: '../../kos/街头采访.mp4'
+      },
+      {
+        id: 'climb',
+        title: '攀岩 · 挑战感开场',
+        duration: '12s',
+        points: 1,
+        homeTag: '新人友好',
+        scene: '理赔答疑',
+        audience: '企业主',
+        module: '健康',
+        sub: '健康管理',
+        addedAt: '2026-03-19',
+        path: '../../kos/攀岩.mp4'
+      },
+      {
+        id: 'show',
+        title: '脱口秀场景 · 观点口播',
+        duration: '60s',
+        points: 4,
+        homeTag: '爆款推荐',
+        scene: '少儿保障',
+        audience: '宝妈群',
+        module: '教育',
+        sub: '子女规划',
+        addedAt: '2026-03-18',
+        path: '../../kos/脱口秀场景mp4.mp4'
+      },
+      {
+        id: 'tax-1',
+        title: '税优政策一分钟讲清',
+        duration: '30s',
+        points: 2,
+        homeTag: '高转化',
+        scene: '财富传承',
+        audience: '高净值',
+        module: '税优',
+        sub: '税优政策',
+        addedAt: '2026-03-17',
+        path: '../../kos/街头采访.mp4'
+      },
+      {
+        id: 'retire-1',
+        title: '养老账户怎么配更稳妥',
+        duration: '30s',
+        points: 2,
+        homeTag: '新人友好',
+        scene: '养老规划',
+        audience: '养老客户',
+        module: '养老',
+        sub: '养老账户',
+        addedAt: '2026-03-16',
+        path: '../../kos/公司走廊.mp4'
+      }
+    ];
+
+    const moduleSubtabs = {
+      '保险': ['全部', '客户问答', '保障配置'],
+      '税优': ['全部', '税优政策', '税延产品'],
+      '健康': ['全部', '健康管理', '慢病管理'],
+      '养老': ['全部', '养老账户', '年金规划'],
+      '财富': ['全部', '资产配置', '家族财富'],
+      '教育': ['全部', '子女规划', '教育金'],
+      '增员': ['全部', '招募短视频', '团队故事']
+    };
+
+    const storageKeys = {
+      photoData: 'stary_photo_data_v1',
+      photoName: 'stary_photo_name_v1',
+      photoDefault: 'stary_photo_default_v1',
+      voiceName: 'stary_voice_name_v1',
+      voiceDefault: 'stary_voice_default_v1',
+      lastTemplate: 'stary_last_template_v1'
+    };
+
+    const defaultPhoto = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#eef4ff'/><stop offset='100%' stop-color='#b7c9ff'/></linearGradient></defs><rect width='300' height='300' fill='url(#g)'/><circle cx='150' cy='110' r='42' fill='rgba(53,88,182,0.18)'/><ellipse cx='150' cy='238' rx='56' ry='72' fill='rgba(53,88,182,0.12)'/></svg>`);
+
+    const app = document.getElementById('app');
+    const toast = document.getElementById('toast');
+    const bottomNav = document.getElementById('bottomNav');
+    const templateModal = document.getElementById('templateModal');
+    const templateModalContent = document.getElementById('templateModalContent');
+    const btnCloseTemplateModal = document.getElementById('btnCloseTemplateModal');
+    const btnUseTemplateStay = document.getElementById('btnUseTemplateStay');
+    const btnUseTemplateGo = document.getElementById('btnUseTemplateGo');
+
+    const homeFilter = document.getElementById('homeFilter');
+    const homeVideoRow = document.getElementById('homeVideoRow');
+    const homeSelectedMeta = document.getElementById('homeSelectedMeta');
+    const quickTemplateMeta = document.getElementById('quickTemplateMeta');
+    const generateEstimate = document.getElementById('generateEstimate');
+    const previewWrap = document.getElementById('previewWrap');
+    const previewVideo = document.getElementById('previewVideo');
+    const photoPanel = document.getElementById('photoPanel');
+    const voicePanel = document.getElementById('voicePanel');
+    const photoInput = document.getElementById('photoInput');
+    const voiceInput = document.getElementById('voiceInput');
+    const btnGenerateNow = document.getElementById('btnGenerateNow');
+    const btnQuickGenerate = document.getElementById('btnQuickGenerate');
+    const btnThreeSecPreview = document.getElementById('btnThreeSecPreview');
+    const btnHidePreview = document.getElementById('btnHidePreview');
+    const cityInput = document.getElementById('cityInput');
+    const toneSelect = document.getElementById('toneSelect');
+
+    const latestRow = document.getElementById('latestRow');
+    const sceneTabs = document.getElementById('sceneTabs');
+    const btnMoreFilter = document.getElementById('btnMoreFilter');
+    const advancedFilters = document.getElementById('advancedFilters');
+    const moduleShelf = document.getElementById('moduleShelf');
+    const moduleTabs = document.getElementById('moduleTabs');
+    const subTabs = document.getElementById('subTabs');
+
+    const statGenerated = document.getElementById('statGenerated');
+    const statDraft = document.getElementById('statDraft');
+    const balanceBadge = document.getElementById('balanceBadge');
+    const groupTabs = document.getElementById('groupTabs');
+    const generateList = document.getElementById('generateList');
+    const profilePointBalance = document.getElementById('profilePointBalance');
+    const profilePointBig = document.getElementById('profilePointBig');
+    const profilePhone = document.getElementById('profilePhone');
+    const settingNotifyGenerate = document.getElementById('settingNotifyGenerate');
+    const settingNotifyLeads = document.getElementById('settingNotifyLeads');
+    const settingAutoCopy = document.getElementById('settingAutoCopy');
+    const settingMaskPhone = document.getElementById('settingMaskPhone');
+
+    const pages = {
+      login: document.getElementById('page-login'),
+      home: document.getElementById('page-home'),
+      templates: document.getElementById('page-templates'),
+      generate: document.getElementById('page-generate'),
+      profile: document.getElementById('page-profile')
+    };
+
+    const homeTags = ['爆款推荐', '高转化', '新人友好', '品牌故事'];
+    const moduleOrder = ['保险', '税优', '健康', '养老', '财富', '教育', '增员'];
+    const sceneOrder = ['全部', '少儿保障', '家庭顶梁柱', '养老规划', '财富传承', '理赔答疑'];
+    const groupOrder = ['全部', '待发布', '已发布'];
+    const defaultProfileSettings = {
+      notifyGenerate: true,
+      notifyLeads: true,
+      autoCopy: true,
+      maskPhone: true
+    };
+    let savedProfileSettings = {};
+    try {
+      savedProfileSettings = JSON.parse(localStorage.getItem('stary_profile_settings_v1') || '{}');
+    } catch (e) {
+      savedProfileSettings = {};
+    }
+
+    const state = {
+      selectedTemplateId: localStorage.getItem(storageKeys.lastTemplate) || null,
+      activeHomeTag: '爆款推荐',
+      activeScene: '全部',
+      activeModule: '保险',
+      activeSubtab: '全部',
+      activeGroup: '全部',
+      showAdvancedFilter: false,
+      city: '上海',
+      tone: '普通话专业版',
+      photoData: localStorage.getItem(storageKeys.photoData) || null,
+      photoName: localStorage.getItem(storageKeys.photoName) || null,
+      useDefaultPhoto: localStorage.getItem(storageKeys.photoDefault) === '1',
+      voiceName: localStorage.getItem(storageKeys.voiceName) || null,
+      useDefaultVoice: localStorage.getItem(storageKeys.voiceDefault) === '1',
+      profilePhoneRaw: '13812348821',
+      profileSettings: { ...defaultProfileSettings, ...savedProfileSettings },
+      remainingPoints: 42,
+      generatedCount: 16,
+      draftCount: 5,
+      generatingJob: null,
+      generatingTimer: null,
+      generatingTick: null,
+      templatePreviewId: null,
+      works: [
+        {
+          title: '家庭保障误区：3个常见坑',
+          time: '今天 14:38',
+          duration: '30秒',
+          points: 2,
+          status: '待发布',
+          group: '宝妈群',
+          preview: './kos/街头采访.mp4',
+          metrics: { play: 0, dm: 0, leads: 0 },
+          pack: {
+            cover: '封面A',
+            titles: ['这3个家庭保障误区你踩了吗？', '买保险前，先避开这3个坑', '家庭保障最常见错误清单'],
+            copies: ['先看误区，再看配置顺序。', '一条视频讲清预算有限怎么配。', '评论区回复“方案”发你模板。'],
+            hashtags: ['#家庭保障', '#保险科普', '#宝妈必看']
+          }
+        },
+        {
+          title: '投保前必须问的5个问题',
+          time: '昨天 20:12',
+          duration: '12秒',
+          points: 1,
+          status: '已发布',
+          group: '企业主',
+          preview: './kos/公司走廊.mp4',
+          metrics: { play: 1280, dm: 37, leads: 12 },
+          pack: {
+            cover: '封面B',
+            titles: ['投保前一定问这5个问题', '企业主买保险先看这5点', '1分钟避坑投保流程'],
+            copies: ['先看保额，再看免责条款。', '建议收藏，签单前对照检查。', '留言“清单”领取完整版。'],
+            hashtags: ['#企业主保障', '#保险避坑', '#投保指南']
+          }
+        }
+      ]
+    };
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 1200);
+    }
+
+    function setPage(name) {
+      if (name !== 'templates' && !templateModal.classList.contains('hidden')) {
+        closeTemplateModal();
+      }
+      Object.entries(pages).forEach(([k, el]) => el.classList.toggle('active', k === name));
+      app.classList.toggle('login-mode', name === 'login');
+      document.querySelectorAll('.nav').forEach(btn => btn.classList.toggle('active', btn.dataset.page === name));
+      app.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function getTemplateById(id) {
+      return videoLibrary.find(v => v.id === id) || null;
+    }
+
+    function selectedTemplate() {
+      return getTemplateById(state.selectedTemplateId);
+    }
+
+    function hasPhoto() {
+      return Boolean(state.photoData || state.useDefaultPhoto);
+    }
+
+    function hasVoice() {
+      return Boolean(state.voiceName || state.useDefaultVoice);
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderTabs(container, list, active, key) {
+      container.innerHTML = list.map(item => `<button class="tab ${item === active ? 'active' : ''}" data-tab-key="${key}" data-tab="${item}">${item}</button>`).join('');
+    }
+
+    function todayHotTemplate() {
+      const candidates = videoLibrary
+        .filter(v => v.homeTag === '爆款推荐')
+        .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
+      return candidates[0] || videoLibrary[0] || null;
+    }
+
+    function homeVideoCard(item, context) {
+      const key = `${context}-${item.id}`;
+      return `
+        <article class="card video-card">
+          <div class="video-wrap tap-play" data-wrap-key="${key}">
+            <video src="${item.path}" playsinline preload="metadata" data-video-key="${key}"></video>
+            <span class="play-hint" data-hint-key="${key}">点按播放</span>
+          </div>
+          <div class="video-title">${item.title}</div>
+          <div class="row-between" style="margin-bottom:8px;">
+            <span class="tag">${item.scene}</span>
+            <span class="meta">${item.duration} · ${item.points}点</span>
+          </div>
+          <div class="small" style="margin-bottom:8px;">适用对象：${item.audience}</div>
+          <button class="btn" data-home-select="${item.id}">选用模板</button>
+        </article>`;
+    }
+
+    function shelfCard(item) {
+      return `
+        <article class="shelf-card" data-open-template="${item.id}">
+          <div class="shelf-thumb"><video src="${item.path}" muted playsinline preload="metadata"></video></div>
+          <div class="shelf-body">
+            <div class="shelf-title">${item.title}</div>
+            <div class="shelf-meta">${item.duration} · ${item.points}点 · ${item.audience}</div>
+          </div>
+        </article>`;
+    }
+
+    function renderHome() {
+      renderTabs(homeFilter, homeTags, state.activeHomeTag, 'home');
+      const list = videoLibrary.filter(v => v.homeTag === state.activeHomeTag);
+      const safeList = list.length ? list : videoLibrary;
+      homeVideoRow.innerHTML = safeList.map(v => homeVideoCard(v, 'home')).join('');
+
+      const hot = todayHotTemplate();
+      quickTemplateMeta.textContent = hot ? `今日最热：${hot.title}` : '今日最热：暂无';
+    }
+
+    function renderTemplates() {
+      const latest = [...videoLibrary].sort((a, b) => b.addedAt.localeCompare(a.addedAt)).slice(0, 6);
+      latestRow.innerHTML = latest.map(shelfCard).join('');
+
+      renderTabs(sceneTabs, sceneOrder, state.activeScene, 'scene');
+      advancedFilters.style.display = state.showAdvancedFilter ? 'block' : 'none';
+      btnMoreFilter.textContent = state.showAdvancedFilter ? '收起筛选' : '更多筛选';
+      renderTabs(moduleTabs, moduleOrder, state.activeModule, 'module');
+      const subList = moduleSubtabs[state.activeModule] || ['全部'];
+      renderTabs(subTabs, subList, state.activeSubtab, 'sub');
+
+      const filtered = videoLibrary.filter(v =>
+        (state.activeScene === '全部' || v.scene === state.activeScene) &&
+        v.module === state.activeModule &&
+        (state.activeSubtab === '全部' || v.sub === state.activeSubtab)
+      );
+      moduleShelf.innerHTML = filtered.length
+        ? filtered.map(shelfCard).join('')
+        : '<article class="card" style="padding:12px;"><div style="font-size:13px;">暂无模板</div></article>';
+    }
+
+    function renderPhotoPanel() {
+      if (state.photoData) {
+        photoPanel.innerHTML = `
+          <div class="asset-row">
+            <img class="asset-thumb" src="${state.photoData}" alt="照片" />
+            <div>
+              <div class="asset-name">${state.photoName || '已上传照片'}</div>
+              <div class="asset-actions">
+                <button data-photo-action="choose">更换</button>
+                <button data-photo-action="clear">清除</button>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      if (state.useDefaultPhoto) {
+        photoPanel.innerHTML = `
+          <div class="asset-row">
+            <img class="asset-thumb" src="${defaultPhoto}" alt="默认照片" />
+            <div>
+              <div class="asset-name">默认照片</div>
+              <div class="asset-actions">
+                <button data-photo-action="choose">上传照片</button>
+                <button data-photo-action="clear-default">取消默认</button>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      photoPanel.innerHTML = `
+        <div class="asset-quick">
+          <button class="btn" data-photo-action="choose">上传照片</button>
+          <button class="btn" data-photo-action="default">用默认照片</button>
+        </div>`;
+    }
+
+    function renderVoicePanel() {
+      if (state.voiceName) {
+        voicePanel.innerHTML = `
+          <div class="asset-row" style="grid-template-columns:1fr;">
+            <div>
+              <div class="asset-name">${state.voiceName}</div>
+              <div class="asset-actions">
+                <button data-voice-action="choose">更换</button>
+                <button data-voice-action="clear">清除</button>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      if (state.useDefaultVoice) {
+        voicePanel.innerHTML = `
+          <div class="asset-row" style="grid-template-columns:1fr;">
+            <div>
+              <div class="asset-name">默认声音</div>
+              <div class="asset-actions">
+                <button data-voice-action="choose">上传声音</button>
+                <button data-voice-action="clear-default">取消默认</button>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      voicePanel.innerHTML = `
+        <div class="asset-quick">
+          <button class="btn" data-voice-action="choose">上传声音</button>
+          <button class="btn" data-voice-action="default">用默认声音</button>
+        </div>`;
+    }
+
+    function renderSelectedTemplate() {
+      const tpl = selectedTemplate();
+      if (!tpl) {
+        homeSelectedMeta.textContent = '先从上方选一个视频模板';
+        generateEstimate.textContent = '预计消耗 -- 点 · 预计时长 -- · 1080P';
+        return;
+      }
+      homeSelectedMeta.textContent = `${tpl.title} · ${tpl.duration} · ${tpl.points}点 · 适用对象 ${tpl.audience}`;
+      const eta = tpl.points <= 1 ? '约1分30秒' : tpl.points <= 2 ? '约2分20秒' : '约3分40秒';
+      generateEstimate.textContent = `预计消耗 ${tpl.points} 点 · 预计时长 ${eta} · 1080P`;
+    }
+
+    function updateGenerateButton() {
+      const tpl = selectedTemplate();
+      let text = '先选模板';
+      let disabled = true;
+
+      if (tpl) {
+        text = '上传照片';
+        if (hasPhoto()) {
+          text = '上传声音';
+        }
+        if (hasPhoto() && hasVoice()) {
+          text = `开始生成（-${tpl.points}点）`;
+          disabled = false;
+        }
+      }
+
+      btnGenerateNow.textContent = text;
+      btnGenerateNow.classList.toggle('off', disabled);
+
+      const hot = todayHotTemplate();
+      const quickDisabled = !(hot && hasPhoto() && hasVoice());
+      btnQuickGenerate.classList.toggle('off', quickDisabled);
+    }
+
+    function renderGenerateList() {
+      const publishedCount = state.works.filter(w => w.status === '已发布').length;
+      const draftCount = state.works.filter(w => w.status === '待发布').length;
+      statGenerated.textContent = String(publishedCount + draftCount);
+      statDraft.textContent = String(draftCount);
+      balanceBadge.textContent = `剩余 ${state.remainingPoints} 点`;
+      renderProfile();
+      renderTabs(groupTabs, groupOrder, state.activeGroup, 'group');
+
+      const visibleWorks = state.activeGroup === '全部'
+        ? state.works
+        : state.works.filter(w => w.status === state.activeGroup);
+
+      const showGenerating = state.generatingJob && state.activeGroup !== '已发布';
+      const generatingHtml = showGenerating ? `
+        <article class="list-item">
+          <div class="work-card">
+            <div class="work-preview">
+              <video src="${state.generatingJob.preview}" muted loop playsinline preload="metadata" controls></video>
+            </div>
+            <div class="work-info">
+              <div class="work-title">${state.generatingJob.title}</div>
+              <div class="work-line">后台排队中 · ${state.generatingJob.duration} · ${state.generatingJob.points}点</div>
+              <span class="work-status wait">生成中</span>
+              <div class="gen-progress"><b style="width:${state.generatingJob.progress || 0}%;"></b></div>
+              <div class="work-line">进度 ${state.generatingJob.progress || 0}% · 约${state.generatingJob.etaSec || 0}s</div>
+            </div>
+          </div>
+        </article>` : '';
+
+      const worksHtml = visibleWorks.map((w) => {
+        const rawIdx = state.works.indexOf(w);
+        const isDraft = w.status === '待发布';
+        return `
+        <article class="list-item">
+          <div class="work-card">
+            <div class="work-preview">
+              <video src="${w.preview}" controls playsinline preload="metadata"></video>
+            </div>
+            <div class="work-info">
+              <div class="work-title">${w.title}</div>
+              <div class="work-line">${w.time} · ${w.duration} · ${w.points}点 · ${w.group}</div>
+              <span class="work-status ${w.status === '已发布' ? 'live' : ''}">${w.status}</span>
+              ${w.status === '已发布' ? `
+                <div class="work-line">播放 ${w.metrics.play} · 私信 ${w.metrics.dm} · 留资 ${w.metrics.leads}</div>
+              ` : ''}
+            </div>
+          </div>
+          ${isDraft ? `
+            <div class="work-line">推荐标题：${w.pack.titles[0] || '—'}</div>
+            <details class="pack-details">
+              <summary>查看发布包</summary>
+              <div class="small" style="margin-top:6px;">封面：${w.pack.cover}</div>
+              <div class="small" style="margin-top:4px;">标题：${w.pack.titles.join(' / ')}</div>
+              <div class="small" style="margin-top:4px;">正文：${w.pack.copies.join(' / ')}</div>
+              <div class="small" style="margin-top:4px;">话题：${w.pack.hashtags.join(' ')}</div>
+            </details>
+            <div class="work-actions">
+              <button class="btn" data-work-action="xhs-edit" data-work-index="${rawIdx}">去小红书编辑文案</button>
+              <button class="btn" data-copy-action="title" data-work-index="${rawIdx}">复制标题</button>
+              <button class="btn" data-copy-action="copy" data-work-index="${rawIdx}">复制文案</button>
+              <button class="btn primary" data-work-action="publish" data-work-index="${rawIdx}">去发布</button>
+            </div>
+          ` : `
+            <div class="work-actions">
+              <button class="btn" data-work-action="xhs-view" data-work-index="${rawIdx}">去小红书查看</button>
+            </div>
+          `}
+        </article>`;
+      }).join('');
+
+      generateList.innerHTML = generatingHtml + worksHtml;
+    }
+
+    function renderAssetsAndCTA() {
+      renderPhotoPanel();
+      renderVoicePanel();
+      updateGenerateButton();
+    }
+
+    function saveProfileSettings() {
+      localStorage.setItem('stary_profile_settings_v1', JSON.stringify(state.profileSettings));
+    }
+
+    function renderProfile() {
+      const phoneRaw = state.profilePhoneRaw || '13812348821';
+      const maskedPhone = phoneRaw.replace(/^(\d{3})\d*(\d{4})$/, '$1****$2');
+      profilePhone.textContent = state.profileSettings.maskPhone ? maskedPhone : phoneRaw;
+      profilePointBalance.textContent = `${state.remainingPoints} 点`;
+      profilePointBig.textContent = String(state.remainingPoints);
+
+      const toggles = [
+        [settingNotifyGenerate, state.profileSettings.notifyGenerate],
+        [settingNotifyLeads, state.profileSettings.notifyLeads],
+        [settingAutoCopy, state.profileSettings.autoCopy],
+        [settingMaskPhone, state.profileSettings.maskPhone]
+      ];
+      toggles.forEach(([el, on]) => {
+        el.classList.toggle('on', Boolean(on));
+        el.textContent = on ? '开' : '关';
+      });
+    }
+
+    function pickTemplate(templateId, options = {}) {
+      const { jumpToHome = true, toastText = '模板已选用' } = options;
+      const tpl = getTemplateById(templateId);
+      if (!tpl) return;
+      state.selectedTemplateId = tpl.id;
+      localStorage.setItem(storageKeys.lastTemplate, tpl.id);
+      renderSelectedTemplate();
+      updateGenerateButton();
+      if (jumpToHome) {
+        setPage('home');
+        setTimeout(() => {
+          const anchor = document.getElementById('homeGenerateAnchor');
+          if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+      showToast(toastText);
+    }
+
+    function renderTemplateModal() {
+      const tpl = getTemplateById(state.templatePreviewId);
+      if (!tpl) {
+        templateModalContent.innerHTML = '';
+        return;
+      }
+
+      templateModalContent.innerHTML = `
+        <video class="template-modal-video" src="${tpl.path}" controls playsinline preload="metadata"></video>
+        <div class="template-modal-meta">
+          <div style="font-size:14px;color:var(--text);font-weight:680;">${tpl.title}</div>
+          <div style="margin-top:4px;">${tpl.duration} · ${tpl.points}点 · ${tpl.scene} · ${tpl.audience}</div>
+          <div style="margin-top:4px;">模块：${tpl.module} · 分类：${tpl.sub}</div>
+        </div>`;
+    }
+
+    function openTemplateModal(templateId) {
+      const tpl = getTemplateById(templateId);
+      if (!tpl) return;
+      state.templatePreviewId = tpl.id;
+      renderTemplateModal();
+      templateModal.classList.remove('hidden');
+    }
+
+    function closeTemplateModal() {
+      const video = templateModalContent.querySelector('video');
+      if (video) video.pause();
+      templateModal.classList.add('hidden');
+      state.templatePreviewId = null;
+    }
+
+    function toggleTapPlay(wrap) {
+      const key = wrap.dataset.wrapKey;
+      const video = document.querySelector(`video[data-video-key="${key}"]`);
+      const hint = document.querySelector(`[data-hint-key="${key}"]`);
+      if (!video) return;
+
+      if (video.paused) {
+        document.querySelectorAll('.tap-play video').forEach(v => {
+          if (v !== video) v.pause();
+        });
+        video.play();
+        if (hint) hint.textContent = '点按暂停';
+      } else {
+        video.pause();
+        if (hint) hint.textContent = '点按播放';
+      }
+    }
+
+    function saveAssetState() {
+      if (state.photoData) {
+        localStorage.setItem(storageKeys.photoData, state.photoData);
+      } else {
+        localStorage.removeItem(storageKeys.photoData);
+      }
+
+      if (state.photoName) {
+        localStorage.setItem(storageKeys.photoName, state.photoName);
+      } else {
+        localStorage.removeItem(storageKeys.photoName);
+      }
+
+      localStorage.setItem(storageKeys.photoDefault, state.useDefaultPhoto ? '1' : '0');
+
+      if (state.voiceName) {
+        localStorage.setItem(storageKeys.voiceName, state.voiceName);
+      } else {
+        localStorage.removeItem(storageKeys.voiceName);
+      }
+
+      localStorage.setItem(storageKeys.voiceDefault, state.useDefaultVoice ? '1' : '0');
+    }
+
+    function inferAudienceGroup(tpl) {
+      if (tpl.audience === '宝妈群') return '宝妈群';
+      if (tpl.audience === '养老客户') return '养老客户';
+      if (tpl.audience === '高净值') return '高净值';
+      return '企业主';
+    }
+
+    function startGeneratingWith(tpl) {
+      if (state.generatingJob) {
+        setPage('generate');
+        showToast('已有任务正在生成');
+        return;
+      }
+      if (state.remainingPoints < tpl.points) {
+        showToast(`点数不足，还差 ${tpl.points - state.remainingPoints} 点`);
+        return;
+      }
+
+      const targetGroup = inferAudienceGroup(tpl);
+      state.remainingPoints -= tpl.points;
+
+      state.generatingJob = {
+        title: tpl.title,
+        duration: tpl.duration,
+        points: tpl.points,
+        preview: tpl.path,
+        progress: 0,
+        etaSec: 3
+      };
+      renderGenerateList();
+      setPage('generate');
+      showToast('已进入后台生成');
+
+      clearInterval(state.generatingTick);
+      const totalMs = 2600;
+      const startTs = Date.now();
+      state.generatingTick = setInterval(() => {
+        const elapsed = Date.now() - startTs;
+        const ratio = Math.min(1, elapsed / totalMs);
+        state.generatingJob.progress = Math.max(1, Math.floor(ratio * 100));
+        state.generatingJob.etaSec = Math.max(0, Math.ceil((totalMs - elapsed) / 1000));
+        renderGenerateList();
+      }, 250);
+
+      clearTimeout(state.generatingTimer);
+      state.generatingTimer = setTimeout(() => {
+        clearInterval(state.generatingTick);
+        state.generatedCount += 1;
+        state.draftCount += 1;
+        state.works.unshift({
+          title: tpl.title,
+          time: '刚刚',
+          duration: tpl.duration,
+          points: tpl.points,
+          status: '待发布',
+          group: targetGroup,
+          preview: tpl.path,
+          metrics: { play: 0, dm: 0, leads: 0 },
+          pack: {
+            cover: `封面-${state.city}`,
+            titles: [`${state.city}家庭保障怎么配`, `${targetGroup}常见保障误区`, `30秒看懂${tpl.title}`],
+            copies: ['先看保障缺口，再做保费预算。', '按家庭阶段调整保障顺序。', `评论区回复“${state.city}方案”获取清单。`],
+            hashtags: [`#${state.city}保险`, '#家庭保障', '#StarryAI同款']
+          }
+        });
+        state.generatingJob = null;
+        renderGenerateList();
+        showToast('生成完成，可去发布');
+      }, 2600);
+    }
+
+    function mount() {
+      if (!state.photoData && !state.useDefaultPhoto) state.useDefaultPhoto = true;
+      if (!state.voiceName && !state.useDefaultVoice) state.useDefaultVoice = true;
+      if (!state.selectedTemplateId && videoLibrary.length) {
+        state.selectedTemplateId = videoLibrary[0].id;
+        localStorage.setItem(storageKeys.lastTemplate, state.selectedTemplateId);
+      }
+      cityInput.value = state.city;
+      toneSelect.value = state.tone;
+      renderHome();
+      renderTemplates();
+      renderSelectedTemplate();
+      renderAssetsAndCTA();
+      renderProfile();
+      renderGenerateList();
+    }
+
+    document.getElementById('btnLogin').addEventListener('click', () => {
+      bottomNav.classList.remove('hidden');
+      setPage('home');
+      showToast('登录成功');
+    });
+
+    btnCloseTemplateModal.addEventListener('click', closeTemplateModal);
+    templateModal.addEventListener('click', (e) => {
+      if (e.target === templateModal) closeTemplateModal();
+    });
+    btnUseTemplateStay.addEventListener('click', () => {
+      if (!state.templatePreviewId) return;
+      pickTemplate(state.templatePreviewId, { jumpToHome: false, toastText: '模板已选用，可继续筛选' });
+      closeTemplateModal();
+    });
+    btnUseTemplateGo.addEventListener('click', () => {
+      if (!state.templatePreviewId) return;
+      pickTemplate(state.templatePreviewId, { jumpToHome: true, toastText: '模板已选用，已进入制作' });
+      closeTemplateModal();
+    });
+
+    bottomNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.nav[data-page]');
+      if (!btn) return;
+      setPage(btn.dataset.page);
+    });
+
+    document.body.addEventListener('click', (e) => {
+      const tabBtn = e.target.closest('[data-tab-key]');
+      if (tabBtn) {
+        const key = tabBtn.dataset.tabKey;
+        const value = tabBtn.dataset.tab;
+        if (key === 'home') {
+          state.activeHomeTag = value;
+          renderHome();
+        }
+        if (key === 'scene') {
+          state.activeScene = value;
+          renderTemplates();
+        }
+        if (key === 'module') {
+          state.activeModule = value;
+          state.activeSubtab = '全部';
+          renderTemplates();
+        }
+        if (key === 'sub') {
+          state.activeSubtab = value;
+          renderTemplates();
+        }
+        if (key === 'group') {
+          state.activeGroup = value;
+          renderGenerateList();
+        }
+        return;
+      }
+
+      const jump = e.target.closest('[data-page-jump]');
+      if (jump) {
+        setPage(jump.dataset.pageJump);
+        return;
+      }
+
+      if (e.target.closest('#btnMoreFilter')) {
+        state.showAdvancedFilter = !state.showAdvancedFilter;
+        renderTemplates();
+        return;
+      }
+
+      const homeSelect = e.target.closest('[data-home-select]');
+      if (homeSelect) {
+        pickTemplate(homeSelect.dataset.homeSelect);
+        return;
+      }
+
+      const openTpl = e.target.closest('[data-open-template]');
+      if (openTpl) {
+        openTemplateModal(openTpl.dataset.openTemplate);
+        return;
+      }
+
+      const wrap = e.target.closest('.tap-play');
+      if (wrap) {
+        toggleTapPlay(wrap);
+        return;
+      }
+
+      const photoAction = e.target.closest('[data-photo-action]');
+      if (photoAction) {
+        const action = photoAction.dataset.photoAction;
+        if (action === 'choose') {
+          photoInput.click();
+        }
+        if (action === 'default') {
+          state.photoData = null;
+          state.photoName = null;
+          state.useDefaultPhoto = true;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        if (action === 'clear') {
+          state.photoData = null;
+          state.photoName = null;
+          state.useDefaultPhoto = false;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        if (action === 'clear-default') {
+          state.useDefaultPhoto = false;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        return;
+      }
+
+      const voiceAction = e.target.closest('[data-voice-action]');
+      if (voiceAction) {
+        const action = voiceAction.dataset.voiceAction;
+        if (action === 'choose') {
+          voiceInput.click();
+        }
+        if (action === 'default') {
+          state.voiceName = null;
+          state.useDefaultVoice = true;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        if (action === 'clear') {
+          state.voiceName = null;
+          state.useDefaultVoice = false;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        if (action === 'clear-default') {
+          state.useDefaultVoice = false;
+          saveAssetState();
+          renderAssetsAndCTA();
+        }
+        return;
+      }
+
+      const settingToggle = e.target.closest('[data-setting-toggle]');
+      if (settingToggle) {
+        const key = settingToggle.dataset.settingToggle;
+        if (!(key in state.profileSettings)) return;
+        state.profileSettings[key] = !state.profileSettings[key];
+        saveProfileSettings();
+        renderProfile();
+        showToast(state.profileSettings[key] ? '设置已开启' : '设置已关闭');
+        return;
+      }
+
+      const buyPoints = e.target.closest('[data-buy-points]');
+      if (buyPoints) {
+        const points = Number(buyPoints.dataset.buyPoints || 0);
+        if (!points) return;
+        showToast(`已发起 ${points} 点充值，请在收银台完成支付`);
+        return;
+      }
+
+      const profileAction = e.target.closest('[data-profile-action]');
+      if (profileAction) {
+        const action = profileAction.dataset.profileAction;
+        if (action === 'switch-company') {
+          showToast('已提交所属机构切换申请');
+          return;
+        }
+        if (action === 'feedback') {
+          showToast('已打开反馈入口');
+          return;
+        }
+        if (action === 'logout') {
+          bottomNav.classList.add('hidden');
+          setPage('login');
+          showToast('已退出登录');
+          return;
+        }
+      }
+
+      const workAction = e.target.closest('[data-work-action]');
+      if (workAction) {
+        const idx = Number(workAction.dataset.workIndex);
+        const work = state.works[idx];
+        if (!work) return;
+
+        const action = workAction.dataset.workAction;
+        const xhsPublishUrl = 'https://creator.xiaohongshu.com/publish/publish';
+        const xhsHomeUrl = 'https://creator.xiaohongshu.com/';
+        const copyText = `${work.pack.titles[0] || work.title}\n${work.pack.copies[0] || ''}\n${work.pack.hashtags.join(' ')}`.trim();
+
+        const openXhs = (url) => {
+          window.open(url, '_blank', 'noopener');
+        };
+
+        if (action === 'xhs-edit') {
+          if (state.profileSettings.autoCopy && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(copyText).then(() => {
+              openXhs(xhsPublishUrl);
+              showToast('已复制文案，正在打开小红书');
+            }).catch(() => {
+              openXhs(xhsPublishUrl);
+              showToast('已打开小红书，请手动复制文案');
+            });
+          } else {
+            openXhs(xhsPublishUrl);
+            showToast('已打开小红书，请手动复制文案');
+          }
+          return;
+        }
+
+        if (action === 'publish') {
+          openXhs(xhsPublishUrl);
+          showToast('已打开小红书发布页');
+          return;
+        }
+
+        if (action === 'xhs-view') {
+          openXhs(xhsHomeUrl);
+          showToast('已打开小红书创作后台');
+          return;
+        }
+        return;
+      }
+
+      const copyAction = e.target.closest('[data-copy-action]');
+      if (copyAction) {
+        const idx = Number(copyAction.dataset.workIndex);
+        const work = state.works[idx];
+        if (!work) return;
+        const text = copyAction.dataset.copyAction === 'title'
+          ? (work.pack.titles[0] || work.title)
+          : `${work.pack.copies[0] || ''}\n${work.pack.hashtags.join(' ')}`;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => showToast('已复制')).catch(() => showToast('复制失败'));
+        } else {
+          showToast('当前环境不支持复制');
+        }
+      }
+    });
+
+    photoInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const dataUrl = await fileToDataUrl(file);
+        state.photoData = dataUrl;
+        state.photoName = file.name;
+        state.useDefaultPhoto = false;
+        saveAssetState();
+        renderAssetsAndCTA();
+        showToast('照片已更新');
+      } catch (err) {
+        showToast('照片读取失败');
+      }
+      photoInput.value = '';
+    });
+
+    voiceInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      state.voiceName = file.name;
+      state.useDefaultVoice = false;
+      saveAssetState();
+      renderAssetsAndCTA();
+      showToast('声音已更新');
+      voiceInput.value = '';
+    });
+
+    btnGenerateNow.addEventListener('click', () => {
+      const tpl = selectedTemplate();
+      if (!tpl) {
+        showToast('请先选模板');
+        return;
+      }
+      if (!hasPhoto()) {
+        showToast('请上传照片');
+        return;
+      }
+      if (!hasVoice()) {
+        showToast('请上传声音');
+        return;
+      }
+      startGeneratingWith(tpl);
+    });
+
+    document.getElementById('btnSaveDraft').addEventListener('click', () => {
+      showToast('已保存草稿');
+    });
+
+    btnQuickGenerate.addEventListener('click', () => {
+      const tpl = todayHotTemplate();
+      if (!tpl) {
+        showToast('暂无今日最热模板');
+        return;
+      }
+      if (!hasPhoto() || !hasVoice()) {
+        showToast('先补全默认照片和默认声音');
+        return;
+      }
+      startGeneratingWith(tpl);
+    });
+
+    btnThreeSecPreview.addEventListener('click', () => {
+      const tpl = selectedTemplate();
+      if (!tpl) {
+        showToast('请先选模板');
+        return;
+      }
+      previewVideo.src = tpl.path;
+      previewWrap.style.display = 'block';
+      previewVideo.currentTime = 0;
+      previewVideo.play();
+      clearTimeout(btnThreeSecPreview._t);
+      btnThreeSecPreview._t = setTimeout(() => {
+        previewVideo.pause();
+      }, 3000);
+      showToast('3秒预览中');
+    });
+
+    btnHidePreview.addEventListener('click', () => {
+      previewVideo.pause();
+      previewWrap.style.display = 'none';
+    });
+
+    cityInput.addEventListener('change', () => {
+      state.city = cityInput.value.trim() || '上海';
+    });
+
+    toneSelect.addEventListener('change', () => {
+      state.tone = toneSelect.value;
+    });
+
+    mount();
+  </script>
+</body>
+</html>

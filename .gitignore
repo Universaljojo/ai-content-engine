@@ -47,6 +47,10 @@
 !视频案例/portrait/
 !视频案例/portrait/*.png
 
+# Allow sales-march (compressed v2 presentation)
+!sales-march/
+!sales-march/**
+
 # Exclude non-media junk
 *.mov
 *.DS_Store
