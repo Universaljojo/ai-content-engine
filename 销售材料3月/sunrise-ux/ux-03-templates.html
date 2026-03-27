@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunrise.AI — 模板广场</title>
+<style>
+:root {
+  --accent: #374151;
+  --gold: #d97706;
+  --gold-hover: #b45309;
+  --gold-bg: rgba(217,119,6,0.08);
+  --surface-card: rgba(255,255,255,0.65);
+  --border: rgba(0,0,0,0.06);
+  --border-input: rgba(0,0,0,0.08);
+  --border-card: rgba(255,255,255,0.7);
+  --text: #1c1917;
+  --text2: #57534e;
+  --text3: #a8a29e;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-btn: 980px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #fafaf9 0%, #f0ede8 30%, #f2f0ec 60%, #fafaf9 100%);
+  color: var(--text); min-height:100vh; display:flex; position:relative; overflow:hidden;
+}
+body::before {
+  content:''; position:fixed; top:-20%; right:-10%; width:600px; height:600px;
+  background:radial-gradient(circle, rgba(217,119,6,0.04) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+
+/* Sidebar */
+.sidebar {
+  width:220px; background:var(--surface-card);
+  backdrop-filter:blur(40px) saturate(180%);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; flex-shrink:0;
+  position:relative; z-index:1;
+}
+.logo-area { padding:20px; display:flex; align-items:center; gap:10px; }
+.logo-icon {
+  width:32px; height:32px;
+  background:linear-gradient(135deg, #ea580c, #f59e0b, #fbbf24);
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:#fff;
+}
+.logo-text { font-size:18px; font-weight:700; letter-spacing:1px; }
+.logo-text .dot { color:var(--gold); }
+nav { flex:1; padding:8px; }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border-radius:var(--radius-sm); margin-bottom:3px;
+  color:var(--text); background:transparent;
+  font-weight:400; text-decoration:none; font-size:15px;
+  transition:all .15s; cursor:pointer;
+}
+.nav-item:hover { background:rgba(0,0,0,0.03); }
+.nav-item.active { background:var(--gold-bg); color:var(--gold-hover); font-weight:500; }
+.nav-item .icon { width:18px; text-align:center; }
+
+/* Main */
+.main { flex:1; padding:32px 40px; overflow-y:auto; position:relative; z-index:1; }
+.header { margin-bottom:28px; }
+.header h1 { font-size:28px; font-weight:700; margin-bottom:6px; }
+.header p { font-size:14px; color:var(--text3); }
+
+/* Tabs */
+.tabs { display:flex; gap:8px; margin-bottom:24px; }
+.tab {
+  padding:8px 18px; border-radius:var(--radius-btn);
+  font-size:14px; font-weight:500; color:var(--text2);
+  background:transparent; border:1px solid var(--border);
+  cursor:pointer; transition:all .15s; font-family:inherit;
+}
+.tab:hover { background:rgba(0,0,0,0.02); }
+.tab.active { background:var(--gold); color:#fff; border-color:var(--gold); }
+
+/* Video Template Grid */
+.template-grid {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:20px;
+}
+.template-card {
+  background:var(--surface-card);
+  backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid var(--border-card);
+  border-radius:var(--radius);
+  overflow:hidden; cursor:pointer; transition:all .2s;
+}
+.template-card:hover {
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.1);
+}
+.template-card video {
+  width:100%; display:block;
+}
+.template-card-info { padding:14px 16px; }
+.template-card-info h3 { font-size:15px; font-weight:600; margin-bottom:4px; }
+.template-card-info p { font-size:12px; color:var(--text3); line-height:1.4; }
+.template-card-info .meta {
+  display:flex; align-items:center; gap:8px; margin-top:8px;
+  font-size:11px; color:var(--text3);
+}
+.template-card-info .meta .tag {
+  background:var(--gold-bg); color:var(--gold); font-weight:600;
+  padding:2px 8px; border-radius:6px; font-size:11px;
+}
+
+/* ===== Detail Modal (left video + right form) ===== */
+.modal-overlay {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(8px);
+  display:none; align-items:center; justify-content:center;
+}
+.modal-overlay.visible { display:flex; }
+.modal {
+  width:92%; max-width:960px; max-height:88vh;
+  background:rgba(255,255,255,0.97);
+  backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--border-card);
+  border-radius:var(--radius);
+  box-shadow:0 20px 60px rgba(0,0,0,0.18);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.modal-header {
+  padding:20px 24px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.modal-header h2 { font-size:18px; font-weight:600; }
+.modal-close {
+  width:30px; height:30px; border-radius:50%;
+  background:rgba(0,0,0,0.04); border:none;
+  cursor:pointer; font-size:16px; color:var(--text2); transition:all .15s;
+}
+.modal-close:hover { background:rgba(0,0,0,0.08); }
+
+.modal-body {
+  flex:1; overflow-y:auto; display:flex; gap:0;
+}
+/* Left: video preview */
+.modal-left {
+  flex:0 0 340px; background:#000;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.modal-left video {
+  width:100%; height:100%; object-fit:contain; display:block;
+}
+.modal-left .preview-label {
+  position:absolute; top:12px; left:12px;
+  background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+  color:#fff; font-size:11px; font-weight:600;
+  padding:4px 10px; border-radius:12px;
+}
+
+/* Right: form */
+.modal-right {
+  flex:1; padding:24px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:18px;
+}
+.form-group {}
+.form-label {
+  display:block; font-size:13px; font-weight:500;
+  color:var(--text2); margin-bottom:6px;
+}
+.form-input, .form-textarea {
+  width:100%; padding:10px 14px; font-size:14px; font-family:inherit;
+  background:rgba(255,255,255,0.8); border:1px solid var(--border-input);
+  border-radius:var(--radius-sm); color:var(--text); outline:none;
+  transition:border-color .15s;
+}
+.form-input::placeholder, .form-textarea::placeholder { color:var(--text3); }
+.form-input:focus, .form-textarea:focus { border-color:var(--gold); }
+.form-textarea { resize:vertical; min-height:70px; }
+.form-hint { font-size:11px; color:var(--text3); margin-top:3px; }
+
+.upload-area {
+  border:2px dashed var(--border); border-radius:var(--radius-sm);
+  padding:18px; text-align:center; cursor:pointer; transition:all .15s;
+}
+.upload-area:hover { border-color:var(--gold); background:rgba(217,119,6,0.02); }
+.upload-area .icon { font-size:24px; margin-bottom:4px; }
+.upload-area p { font-size:12px; color:var(--text3); }
+
+.aspect-group { display:flex; gap:10px; }
+.aspect-btn {
+  flex:1; padding:10px; background:rgba(255,255,255,0.8);
+  border:1px solid var(--border-input); border-radius:var(--radius-sm);
+  cursor:pointer; transition:all .15s; text-align:center;
+  font-size:13px; font-weight:500; color:var(--text2); font-family:inherit;
+}
+.aspect-btn:hover { background:rgba(0,0,0,0.02); }
+.aspect-btn.active { background:var(--gold-bg); border-color:var(--gold); color:var(--gold); }
+
+.modal-right-footer {
+  margin-top:auto; padding-top:16px; border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:flex-end; gap:12px;
+}
+.btn-primary {
+  padding:11px 32px; font-size:15px; font-weight:600; font-family:inherit;
+  color:#fff;
+  background:linear-gradient(135deg, #ea580c 0%, #d97706 50%, #f59e0b 100%);
+  border:none; border-radius:var(--radius-btn); cursor:pointer;
+  transition:all .2s; box-shadow:0 2px 12px rgba(217,119,6,0.3);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(217,119,6,0.4); }
+.btn-primary:active { transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="logo-area">
+    <div class="logo-icon">✦</div>
+    <div class="logo-text">Sunrise<span class="dot">.</span>AI</div>
+  </div>
+  <nav>
+    <a class="nav-item active" href="#"><span class="icon">📋</span>模板广场</a>
+    <a class="nav-item" href="#"><span class="icon">✨</span>自由创作</a>
+    <a class="nav-item" href="#"><span class="icon">🔥</span>热点中心</a>
+    <a class="nav-item" href="#"><span class="icon">🕐</span>我的视频</a>
+    <a class="nav-item" href="#"><span class="icon">👤</span>品牌形象</a>
+    <a class="nav-item" href="#"><span class="icon">📊</span>数据看板</a>
+    <a class="nav-item" href="#"><span class="icon">⚙️</span>模板管理</a>
+  </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="header">
+    <h1>模板广场</h1>
+    <p>选择模板，填写信息，快速生成品牌视频</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="filterTemplates(this,'all')">全部模板</button>
+    <button class="tab" onclick="filterTemplates(this,'greeting')">早晚问候</button>
+    <button class="tab" onclick="filterTemplates(this,'solar')">节气节日</button>
+  </div>
+
+  <div class="template-grid" id="templateGrid"></div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modalTitle">早安问候</h2>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- Left: video preview -->
+      <div class="modal-left">
+        <video id="modalVideo" muted autoplay loop playsinline></video>
+        <div class="preview-label">样片预览</div>
+      </div>
+      <!-- Right: editable form -->
+      <div class="modal-right">
+        <div class="form-group">
+          <label class="form-label">品牌名称</label>
+          <input class="form-input" type="text" placeholder="例如：平安保险" value="平安保险">
+        </div>
+        <div class="form-group">
+          <label class="form-label">品牌 Slogan</label>
+          <input class="form-input" type="text" placeholder="例如：平安守护，温暖相伴" value="平安守护，温暖相伴">
+        </div>
+        <div class="form-group">
+          <label class="form-label">问候语 / 文案</label>
+          <textarea class="form-textarea" id="modalCopy" placeholder="可自定义文案内容"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">品牌 Logo（水印）</label>
+          <div class="upload-area">
+            <div class="icon">📤</div>
+            <p>点击上传或拖拽文件</p>
+          </div>
+          <div class="form-hint">建议 512×512 PNG 透明背景</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">视频比例</label>
+          <div class="aspect-group">
+            <button class="aspect-btn active" onclick="selectAspect(this)">📱 9:16 竖版</button>
+            <button class="aspect-btn" onclick="selectAspect(this)">🖥️ 16:9 横版</button>
+          </div>
+        </div>
+        <div class="modal-right-footer">
+          <button class="btn-primary" onclick="generate()">✦ 做同款</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TEMPLATES = [
+  { id:'jingzhe', cat:'solar', title:'节气 · 惊蛰', desc:'春雷响，万物长', video:'../sunrise-模板广场素材/节气-惊蛰.mp4', copy:'惊蛰至，春雷响，万物复苏。愿您的生活也充满生机。' },
+  { id:'chunfen', cat:'solar', title:'节气 · 春分', desc:'昼夜均分，万物生长', video:'../sunrise-模板广场素材/节气-春分.mp4', copy:'春分时节，昼夜均分。愿您的人生也恰到好处。' },
+  { id:'qingming', cat:'solar', title:'节气 · 清明', desc:'清明时节，缅怀感恩', video:'../sunrise-模板广场素材/节气-清明.mp4', copy:'清明时节，慎终追远。珍惜当下，感恩拥有。' },
+  { id:'zaoan1', cat:'greeting', title:'早安问候 · 暖阳版', desc:'温暖日出画面，传递品牌关怀', video:'../sunrise-模板广场素材/早安 1.mp4', copy:'新的一天，从一份温暖开始。平安守护，温暖相伴。' },
+  { id:'zaoan2', cat:'greeting', title:'早安问候 · 花语版', desc:'花开晨光，开启美好一天', video:'../sunrise-模板广场素材/早安 2.mp4', copy:'花开有时，好运常在。早安，愿今天一切顺利。' },
+  { id:'zaoan3', cat:'greeting', title:'早安问候 · 城市版', desc:'城市苏醒，活力满满', video:'../sunrise-模板广场素材/早安 3.mp4', copy:'城市醒来，梦想启程。早安，新的一天加油！' },
+];
+
+function renderGrid(cat) {
+  const grid = document.getElementById('templateGrid');
+  const list = cat === 'all' ? TEMPLATES : TEMPLATES.filter(t => t.cat === cat);
+  grid.innerHTML = list.map(t => `
+    <div class="template-card" onclick="openModal('${t.id}')">
+      <video src="${t.video}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0"></video>
+      <div class="template-card-info">
+        <h3>${t.title}</h3>
+        <p>${t.desc}</p>
+        <div class="meta"><span class="tag">做同款</span><span>AI 生成 · 约 1 分钟</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterTemplates(btn, cat) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid(cat);
+}
+
+function openModal(id) {
+  const t = TEMPLATES.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('modalTitle').textContent = t.title;
+  const v = document.getElementById('modalVideo');
+  v.src = t.video; v.play().catch(()=>{});
+  document.getElementById('modalCopy').value = t.copy;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+  document.getElementById('modalVideo').pause();
+}
+
+function selectAspect(btn) {
+  document.querySelectorAll('.aspect-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function generate() {
+  alert('生成功能演示：实际会调用后端 API 创建生成任务');
+  closeModal();
+}
+
+// Init — all templates, solar first in data order
+renderGrid('all');
+</script>
+</body>
+</html>

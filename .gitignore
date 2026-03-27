@@ -51,6 +51,37 @@
 !sales-march/
 !sales-march/**
 
+# Allow minimal published subset for 销售材料3月
+!销售材料3月/
+销售材料3月/*
+!销售材料3月/index-universal.html
+!销售材料3月/optimized/
+销售材料3月/optimized/*
+!销售材料3月/optimized/*.mp4
+!销售材料3月/sunrise-ux/
+销售材料3月/sunrise-ux/*
+!销售材料3月/sunrise-ux/ux-02-quick.html
+!销售材料3月/sunrise-ux/ux-03-templates.html
+!销售材料3月/sunrise-ux/ux-05-hotspot.html
+!销售材料3月/sunrise-模板广场素材/
+销售材料3月/sunrise-模板广场素材/*
+!销售材料3月/sunrise-模板广场素材/*.mp4
+!销售材料3月/sales-deck/
+销售材料3月/sales-deck/*
+!销售材料3月/sales-deck/prototypes/
+销售材料3月/sales-deck/prototypes/*
+!销售材料3月/sales-deck/prototypes/kos-mobile-ui.html
+!销售材料3月/sales-deck/screenshots/
+销售材料3月/sales-deck/screenshots/*
+!销售材料3月/sales-deck/screenshots/case2-段永平标普500.jpg
+!销售材料3月/爆款做同款/
+销售材料3月/爆款做同款/*
+!销售材料3月/爆款做同款/保险女王截图 1.jpg
+!销售材料3月/爆款做同款/保险女王抖音截图.jpg
+!销售材料3月/爆款做同款/雪山飞狐截图.jpg
+!销售材料3月/爆款做同款/雪山飞狐热点截图.jpg
+!销售材料3月/爆款做同款/雪山飞狐视频号数据.jpg
+
 # Exclude non-media junk
 *.mov
 *.DS_Store
