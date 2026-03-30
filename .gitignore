@@ -51,6 +51,14 @@
 !sales-march/
 !sales-march/**
 
+# Allow guiyan-duiba short link page
+!guiyan-duiba/
+!guiyan-duiba/**
+
+# Allow 贵烟材料 publish set
+!贵烟材料/
+!贵烟材料/*
+
 # Allow minimal published subset for 销售材料3月
 !销售材料3月/
 销售材料3月/*
