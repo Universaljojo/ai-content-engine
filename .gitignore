@@ -59,6 +59,10 @@
 !贵烟材料/
 !贵烟材料/*
 
+# Allow 贵烟材料 2 publish set
+!贵烟材料 2/
+!贵烟材料 2/*
+
 # Allow minimal published subset for 销售材料3月
 !销售材料3月/
 销售材料3月/*
