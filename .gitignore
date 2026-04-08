@@ -55,6 +55,10 @@
 !guiyan-duiba/
 !guiyan-duiba/**
 
+# Allow tadaai short link page
+!tadaai/
+!tadaai/**
+
 # Allow 贵烟材料 publish set
 !贵烟材料/
 !贵烟材料/*
