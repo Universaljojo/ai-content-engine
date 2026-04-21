@@ -60,6 +60,8 @@
 !tadaai/**
 !tadaai-lite/
 !tadaai-lite/**
+!tadaai-v2/
+!tadaai-v2/**
 
 # Allow 贵烟材料 publish set
 !贵烟材料/
@@ -74,6 +76,10 @@
 销售材料3月/*
 !销售材料3月/index-universal.html
 !销售材料3月/index-universal-lite.html
+!销售材料3月/index-universal-lite-v2.html
+!销售材料3月/众安/
+销售材料3月/众安/.DS_Store
+!销售材料3月/众安/*.jpg
 !销售材料3月/optimized/
 销售材料3月/optimized/*
 !销售材料3月/optimized/*.mp4
