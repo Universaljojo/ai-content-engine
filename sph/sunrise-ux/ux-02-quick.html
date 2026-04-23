@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunrise.AI — 快速生成</title>
+<style>
+:root {
+  --accent: #374151; --accent-hover: #1f2937; --accent-bg: rgba(55,65,81,0.06);
+  --gold: #d97706; --gold-hover: #b45309; --gold-bg: rgba(217,119,6,0.08);
+  --bg: #fafaf9;
+  --surface: rgba(245,243,239,0.35); --surface-card: rgba(255,255,255,0.65); --surface-input: rgba(255,255,255,0.5);
+  --border: rgba(0,0,0,0.06); --border-card: rgba(255,255,255,0.7); --border-input: rgba(0,0,0,0.08);
+  --text: #1c1917; --text2: #57534e; --text3: #a8a29e;
+  --radius: 14px; --radius-sm: 10px; --radius-btn: 980px; --radius-xs: 6px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #fafaf9 0%, #f0ede8 30%, #f2f0ec 60%, #fafaf9 100%);
+  color: var(--text); min-height: 100vh; display: flex; position: relative; overflow: hidden;
+}
+body::before {
+  content: ''; position: fixed; top: -20%; right: -10%; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(217,119,6,0.04) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: ''; position: fixed; bottom: -15%; left: -5%; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(55,65,81,0.03) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px; background: var(--surface);
+  backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0; height: 100vh;
+  position: sticky; top: 0; z-index: 10;
+}
+.sidebar-logo { padding: 20px; display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #fbbf24 100%);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; font-weight: 700;
+  box-shadow: 0 2px 8px rgba(234,88,12,0.3);
+}
+.logo-text { font-size: 18px; font-weight: 700; letter-spacing: 1px; }
+.logo-text .dot { color: var(--gold); }
+
+.sidebar-nav { flex: 1; padding: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 3px;
+  color: var(--text2); background: transparent; font-weight: 400;
+  text-decoration: none; font-size: 15px; transition: all .15s; cursor: pointer;
+}
+.nav-item:hover { background: rgba(0,0,0,0.03); }
+.nav-item.active { background: rgba(217,119,6,0.12); color: #92400e; font-weight: 500; }
+.nav-item .icon { width: 18px; text-align: center; }
+.nav-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+.nav-item.admin { font-size: 14px; color: var(--text3); }
+.nav-item.admin:hover { color: var(--text2); }
+
+.sidebar-user {
+  padding: 14px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 600;
+}
+.user-info { flex: 1; }
+.user-name { font-size: 14px; font-weight: 500; }
+.user-points { font-size: 12px; color: var(--gold); font-weight: 500; }
+
+/* ── Main ── */
+.main { flex: 1; padding: 24px; overflow-y: auto; height: 100vh; position: relative; z-index: 1; }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.page-title { font-size: 24px; font-weight: 700; }
+.points-badge {
+  background: var(--gold-bg); color: var(--gold);
+  padding: 6px 14px; border-radius: var(--radius-btn);
+  font-size: 13px; font-weight: 600;
+}
+
+/* ── 生成区域 ── */
+.gen-section {
+  background: var(--surface-card);
+  backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border-card); border-radius: var(--radius);
+  box-shadow: var(--shadow-card); padding: 24px;
+}
+
+.prompt-area textarea {
+  width: 100%; height: 100px; padding: 12px 14px; font-size: 15px; font-family: inherit;
+  background: var(--surface-input); border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm); color: var(--text); outline: none;
+  resize: vertical; transition: border-color 0.15s; line-height: 1.6;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.prompt-area textarea::placeholder { color: var(--text3); }
+.prompt-area textarea:focus { border-color: var(--gold); }
+
+/* 类型 Tab */
+.type-tabs { display: flex; gap: 6px; margin-top: 16px; }
+.type-tab {
+  padding: 7px 18px; border-radius: var(--radius-btn); font-size: 14px;
+  cursor: pointer; transition: all .15s; border: none; font-family: inherit;
+  background: var(--accent-bg); color: var(--text2);
+}
+.type-tab:hover { background: rgba(55,65,81,0.1); }
+.type-tab.active { background: var(--accent); color: #fff; }
+
+/* 模型卡片网格 */
+.section-label { font-size: 13px; font-weight: 500; color: var(--text2); margin: 16px 0 8px; }
+.model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.model-card {
+  background: var(--surface-input); border: 1.5px solid var(--border-card);
+  border-radius: var(--radius-sm); padding: 12px; cursor: pointer;
+  transition: all .15s; position: relative;
+}
+.model-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); transform: translateY(-1px); }
+.model-card.selected { border: 2px solid var(--gold); background: var(--gold-bg); }
+
+.model-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.model-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.model-points {
+  background: var(--gold-bg); color: var(--gold);
+  padding: 2px 8px; border-radius: var(--radius-xs);
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.model-desc { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.model-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.model-tag {
+  background: var(--gold-bg); color: var(--gold);
+  padding: 1px 6px; border-radius: var(--radius-xs);
+  font-size: 11px;
+}
+
+/* 选项行 */
+.options-row { display: flex; gap: 16px; margin-top: 16px; align-items: flex-end; }
+.option-group label { display: block; font-size: 13px; color: var(--text2); font-weight: 500; margin-bottom: 4px; }
+.option-group select {
+  padding: 8px 12px; font-size: 13px; font-family: inherit;
+  background: var(--surface-input); border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm); color: var(--text); outline: none;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.option-group select:focus { border-color: var(--gold); }
+
+/* 底部操作栏 */
+.gen-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+}
+.cost-preview { font-size: 14px; color: var(--text2); }
+.cost-preview .cost-num { color: var(--gold); font-weight: 700; font-size: 18px; }
+.btn-generate {
+  padding: 10px 32px; font-size: 15px; font-weight: 600; font-family: inherit;
+  color: #fff; background: var(--accent); border: none;
+  border-radius: var(--radius-btn); cursor: pointer; transition: all .15s;
+}
+.btn-generate:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+/* ── 结果区域（下方）── */
+.results-section { margin-top: 24px; }
+.results-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+
+/* JobCard */
+.job-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--border-card); border-radius: var(--radius);
+  box-shadow: var(--shadow-card); padding: 20px; margin-bottom: 20px;
+}
+.job-prompt { font-size: 15px; color: var(--text); line-height: 1.6; margin-bottom: 8px; }
+.job-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.job-tag {
+  font-size: 12px; padding: 3px 10px; border-radius: 12px;
+  background: var(--accent-bg); color: var(--text2);
+}
+.job-tag.gold { background: var(--gold-bg); color: var(--gold); }
+
+/* 变体网格 — 4列 280px 高 */
+.job-variants {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  height: 280px; margin-bottom: 12px;
+}
+.variant-cell {
+  position: relative; border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+}
+.variant-cell.variant-empty {
+  background: var(--accent-bg); opacity: 0.3; cursor: default;
+}
+.variant-hover {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  opacity: 0; transition: opacity .15s;
+}
+.variant-cell:hover .variant-hover { opacity: 1; }
+.variant-btn {
+  padding: 5px 10px; border-radius: var(--radius-btn);
+  background: rgba(255,255,255,0.9); color: #000;
+  font-weight: 600; font-size: 11px; cursor: pointer;
+}
+
+/* 音频变体 — 单列宽 */
+.job-variants-audio { grid-template-columns: 1fr; height: 120px; }
+.variant-audio {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+}
+.audio-wave { display: flex; align-items: center; gap: 3px; }
+.wave-bar {
+  width: 4px; border-radius: 2px; background: rgba(255,255,255,0.6);
+  animation: wave 1.2s ease-in-out infinite alternate;
+}
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { animation-delay: 0.6s; }
+.wave-bar:nth-child(8) { animation-delay: 0.7s; }
+@keyframes wave {
+  0% { transform: scaleY(0.5); }
+  100% { transform: scaleY(1.2); }
+}
+
+/* 底部操作栏 */
+.job-actions {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.job-actions-left { display: flex; gap: 8px; }
+.job-action-btn {
+  padding: 6px 14px; background: transparent;
+  border: 1px solid var(--border); border-radius: var(--radius-btn);
+  color: var(--text2); font-size: 12px; cursor: pointer;
+  font-family: inherit; transition: all .15s;
+}
+.job-action-btn:hover { background: var(--accent-bg); }
+.job-time { font-size: 12px; color: var(--text3); }
+
+/* 上传区域 hover */
+.voice-upload:hover, .ref-upload:hover { border-color: var(--gold); background: var(--gold-bg) !important; }
+
+/* 标注 */
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">✦</div>
+    <div class="logo-text">Sunrise<span class="dot">.</span>AI</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-item" onclick="navClick(this)"><span class="icon">📋</span>模板广场</div>
+    <div class="nav-item active" onclick="navClick(this)"><span class="icon">⚡</span>快速生成</div>
+    <div class="nav-item" onclick="navClick(this)"><span class="icon">🕐</span>我的视频</div>
+    <div class="nav-item" onclick="navClick(this)"><span class="icon">👤</span>品牌形象</div>
+    <div class="nav-item" onclick="navClick(this)"><span class="icon">📊</span>数据看板</div>
+    <div class="nav-divider"></div>
+    <div class="nav-item admin" onclick="navClick(this)"><span class="icon">⚙️</span>模板管理</div>
+    <div class="nav-item admin" onclick="navClick(this)"><span class="icon">👥</span>成员管理</div>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="user-avatar">监</div>
+    <div class="user-info">
+      <div class="user-name">李总监</div>
+      <div class="user-points">剩余 8,753 点</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="page-header">
+    <div class="page-title">快速生成</div>
+    <div class="points-badge">剩余 8,753 点</div>
+  </div>
+
+  <!-- 生成区域 -->
+  <div class="gen-section">
+    <div class="prompt-area">
+      <textarea placeholder="输入文字描述，AI 帮你生成图片、视频或配音..."></textarea>
+    </div>
+
+    <!-- 类型 Tab -->
+    <div class="type-tabs">
+      <button class="type-tab active" onclick="switchType('image', this)">图片</button>
+      <button class="type-tab" onclick="switchType('video', this)">视频</button>
+      <button class="type-tab" onclick="switchType('audio', this)">音频</button>
+    </div>
+
+    <!-- 模型选择 -->
+    <div class="section-label">选择模型</div>
+
+    <!-- 图片模型 -->
+    <div class="model-grid" id="grid-image">
+      <div class="model-card selected" onclick="selectModel(this, 1)">
+        <div class="model-top">
+          <div class="model-name">Seedream 4.5</div>
+          <div class="model-points">1 点/张</div>
+        </div>
+        <div class="model-desc">电影级画质，光影细腻</div>
+        <div class="model-tags"><span class="model-tag">产品海报</span><span class="model-tag">场景图</span></div>
+      </div>
+      <div class="model-card" onclick="selectModel(this, 1)">
+        <div class="model-top">
+          <div class="model-name">Seedream 5 Lite</div>
+          <div class="model-points">1 点/张</div>
+        </div>
+        <div class="model-desc">空间推理强，理解复杂场景</div>
+        <div class="model-tags"><span class="model-tag">多元素组合</span><span class="model-tag">信息图</span></div>
+      </div>
+      <div class="model-card" onclick="selectModel(this, 5)">
+        <div class="model-top">
+          <div class="model-name">Nano Banana Pro</div>
+          <div class="model-points">5 点/张</div>
+        </div>
+        <div class="model-desc">文字渲染最准，多语言支持</div>
+        <div class="model-tags"><span class="model-tag">带文字海报</span><span class="model-tag">产品名展示</span></div>
+      </div>
+      <div class="model-card" onclick="selectModel(this, 2)">
+        <div class="model-top">
+          <div class="model-name">Imagen 4</div>
+          <div class="model-points">2 点/张</div>
+        </div>
+        <div class="model-desc">Prompt 理解最强，细节精准</div>
+        <div class="model-tags"><span class="model-tag">复杂描述</span><span class="model-tag">精确构图</span></div>
+      </div>
+    </div>
+
+    <!-- 视频模型 -->
+    <div class="model-grid" id="grid-video" style="display:none">
+      <div class="model-card selected" data-model="wan-2.2" onclick="selectModel(this, 2)">
+        <div class="model-top">
+          <div class="model-name">Wan 2.2 Fast</div>
+          <div class="model-points">2 点/5s</div>
+        </div>
+        <div class="model-desc">最便宜，快速出片</div>
+        <div class="model-tags"><span class="model-tag">快速预览</span><span class="model-tag">仅图生视频</span><span class="model-tag" style="background:rgba(220,38,38,0.08);color:#dc2626">无音频</span></div>
+      </div>
+      <div class="model-card" data-model="seedance-1-fast" onclick="selectModel(this, 8)">
+        <div class="model-top">
+          <div class="model-name">Seedance 1 Fast</div>
+          <div class="model-points">8 点/5s</div>
+        </div>
+        <div class="model-desc">性价比之选，速度快</div>
+        <div class="model-tags"><span class="model-tag">日常内容</span><span class="model-tag">快速迭代</span><span class="model-tag" style="background:rgba(22,163,74,0.08);color:#16a34a">有声</span></div>
+      </div>
+      <div class="model-card" data-model="kling-v2.6" onclick="selectModel(this, 9)">
+        <div class="model-top">
+          <div class="model-name">Kling v2.6</div>
+          <div class="model-points">9 点/5s</div>
+        </div>
+        <div class="model-desc">人脸一致性最强</div>
+        <div class="model-tags"><span class="model-tag">真人出镜</span><span class="model-tag">仅图生视频</span><span class="model-tag" style="background:rgba(22,163,74,0.08);color:#16a34a">有声</span></div>
+      </div>
+      <div class="model-card" data-model="seedance-1.5-pro" onclick="selectModel(this, 13)">
+        <div class="model-top">
+          <div class="model-name">Seedance 1.5 Pro</div>
+          <div class="model-points">13 点/5s</div>
+        </div>
+        <div class="model-desc">指令理解强，时长灵活</div>
+        <div class="model-tags"><span class="model-tag">产品展示</span><span class="model-tag">复杂动作</span><span class="model-tag" style="background:rgba(22,163,74,0.08);color:#16a34a">有声</span></div>
+      </div>
+      <div class="model-card" data-model="kling-v3" onclick="selectModel(this, 25)">
+        <div class="model-top">
+          <div class="model-name">Kling 3.0</div>
+          <div class="model-points">25 点/5s</div>
+        </div>
+        <div class="model-desc">4K超清，15秒长视频</div>
+        <div class="model-tags"><span class="model-tag">高端品牌片</span><span class="model-tag">长视频</span><span class="model-tag" style="background:rgba(22,163,74,0.08);color:#16a34a">有声</span></div>
+      </div>
+      <div class="model-card" data-model="veo-3.1" onclick="selectModel(this, 31)">
+        <div class="model-top">
+          <div class="model-name">Veo 3.1 Fast</div>
+          <div class="model-points">31 点/5s</div>
+        </div>
+        <div class="model-desc">电影级画质+原生音频</div>
+        <div class="model-tags"><span class="model-tag">品牌大片</span><span class="model-tag">音画同步</span><span class="model-tag" style="background:rgba(22,163,74,0.08);color:#16a34a">有声</span></div>
+      </div>
+    </div>
+
+    <!-- 音频模型 -->
+    <div class="model-grid" id="grid-audio" style="display:none">
+      <div class="model-card selected" onclick="selectModel(this, 1)">
+        <div class="model-top">
+          <div class="model-name">Qwen3-TTS</div>
+          <div class="model-points">1 点/次</div>
+        </div>
+        <div class="model-desc">中文最强，3秒声音克隆</div>
+        <div class="model-tags"><span class="model-tag">中文配音</span><span class="model-tag">声音定制</span></div>
+      </div>
+      <div class="model-card" onclick="selectModel(this, 1)">
+        <div class="model-top">
+          <div class="model-name">MiniMax 2.8 Turbo</div>
+          <div class="model-points">1 点/次</div>
+        </div>
+        <div class="model-desc">极速出声，性价比高</div>
+        <div class="model-tags"><span class="model-tag">快速配音</span><span class="model-tag">批量生成</span></div>
+      </div>
+      <div class="model-card" onclick="selectModel(this, 2)">
+        <div class="model-top">
+          <div class="model-name">MiniMax 2.8 HD</div>
+          <div class="model-points">2 点/次</div>
+        </div>
+        <div class="model-desc">音质第一，情感丰富</div>
+        <div class="model-tags"><span class="model-tag">高品质配音</span><span class="model-tag">情感表达</span></div>
+      </div>
+    </div>
+
+    <!-- 声音克隆（音频专属） -->
+    <div class="voice-clone-area" id="voiceCloneArea" style="display:none">
+      <div class="section-label">声音设置</div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="option-group" style="flex:1">
+          <label>预设声音</label>
+          <select style="width:100%">
+            <option>云希（男·温和）</option>
+            <option>晓晓（女·甜美）</option>
+            <option>云扬（男·新闻）</option>
+            <option>晓悠（女·活泼）</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label class="section-label" style="margin-top:0;margin-bottom:6px;display:block">或上传声音样本</label>
+          <div class="voice-upload" id="voiceUpload" onclick="document.getElementById('voiceFile').click()" style="
+            border:2px dashed var(--border-input);border-radius:var(--radius-sm);
+            padding:16px;text-align:center;cursor:pointer;transition:all .15s;
+            background:var(--surface-input);
+          ">
+            <div style="font-size:20px;margin-bottom:4px">🎙</div>
+            <div style="font-size:12px;color:var(--text3)">上传 3 秒以上录音</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">支持 mp3 / wav / m4a</div>
+          </div>
+          <input type="file" id="voiceFile" accept="audio/*" style="display:none" onchange="handleVoiceUpload(this)">
+          <div id="voiceFileName" style="display:none;margin-top:6px;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:4px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频专属选项 -->
+    <div id="videoOptions" style="display:none">
+      <div class="section-label">视频参数</div>
+      <div class="options-row" style="margin-top:0">
+        <div class="option-group">
+          <label>视频模式</label>
+          <select id="videoMode" onchange="onVideoModeChange()">
+            <option value="t2v">文生视频</option>
+            <option value="i2v">图生视频</option>
+            <option value="first_last_frame">首尾帧插值</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label>时长</label>
+          <select id="videoDuration">
+            <option value="5">5 秒</option>
+            <option value="10">10 秒</option>
+          </select>
+        </div>
+        <div class="option-group" id="resolutionGroup">
+          <label>分辨率</label>
+          <select id="videoResolution">
+            <option value="720p">720p</option>
+            <option value="1080p">1080p</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label>音频</label>
+          <select id="videoAudio">
+            <option value="on">有声</option>
+            <option value="off">无声</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 图生视频 / 首尾帧 上传区 -->
+      <div id="videoRefArea" style="display:none;margin-top:12px">
+        <div style="display:flex;gap:12px">
+          <div style="flex:1">
+            <label class="section-label" style="margin-top:0;margin-bottom:6px;display:block" id="firstFrameLabel">首帧图片</label>
+            <div class="ref-upload" onclick="document.getElementById('firstFrameFile').click()" style="
+              border:2px dashed var(--border-input);border-radius:var(--radius-sm);
+              padding:20px;text-align:center;cursor:pointer;transition:all .15s;
+              background:var(--surface-input);
+            ">
+              <div style="font-size:24px;margin-bottom:4px">🖼</div>
+              <div style="font-size:12px;color:var(--text3)">上传首帧图片</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">支持 jpg / png / webp</div>
+            </div>
+            <input type="file" id="firstFrameFile" accept="image/*" style="display:none">
+          </div>
+          <div id="lastFrameArea" style="flex:1;display:none">
+            <label class="section-label" style="margin-top:0;margin-bottom:6px;display:block">尾帧图片</label>
+            <div class="ref-upload" onclick="document.getElementById('lastFrameFile').click()" style="
+              border:2px dashed var(--border-input);border-radius:var(--radius-sm);
+              padding:20px;text-align:center;cursor:pointer;transition:all .15s;
+              background:var(--surface-input);
+            ">
+              <div style="font-size:24px;margin-bottom:4px">🖼</div>
+              <div style="font-size:12px;color:var(--text3)">上传尾帧图片</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">支持 jpg / png / webp</div>
+            </div>
+            <input type="file" id="lastFrameFile" accept="image/*" style="display:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通用选项 -->
+    <div class="options-row">
+      <div class="option-group">
+        <label>生成数量</label>
+        <select id="variantCount" onchange="updateCost()">
+          <option value="1">1 个</option>
+          <option value="2">2 个</option>
+          <option value="3">3 个</option>
+          <option value="4">4 个</option>
+        </select>
+      </div>
+      <div class="option-group" id="ratioGroup">
+        <label>比例</label>
+        <select>
+          <option>16:9</option>
+          <option>9:16</option>
+          <option>1:1</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <div class="gen-footer">
+      <div class="cost-preview">预计消耗 <span class="cost-num" id="costDisplay">1</span> 点</div>
+      <button class="btn-generate">生成</button>
+    </div>
+  </div>
+
+  <!-- 结果区域 -->
+  <div class="results-section">
+    <div class="results-title">生成结果</div>
+
+    <!-- JobCard 1: 图片任务 -->
+    <div class="job-card">
+      <div class="job-prompt">一位穿西装的客户经理站在银行大厅，面带微笑，背景是现代化的金融服务中心</div>
+      <div class="job-tags">
+        <span class="job-tag">Seedream 4.5</span>
+        <span class="job-tag">16:9</span>
+        <span class="job-tag">4 个变体</span>
+        <span class="job-tag gold">4 点</span>
+      </div>
+      <div class="job-variants">
+        <div class="variant-cell" style="background:linear-gradient(135deg,#fbbf24,#f59e0b,#d97706)">
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span><span class="variant-btn">📎 参考图</span><span class="variant-btn">🖼 首帧</span><span class="variant-btn">🖼 尾帧</span></div>
+        </div>
+        <div class="variant-cell" style="background:linear-gradient(160deg,#f59e0b,#d97706,#b45309)">
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span><span class="variant-btn">📎 参考图</span><span class="variant-btn">🖼 首帧</span><span class="variant-btn">🖼 尾帧</span></div>
+        </div>
+        <div class="variant-cell" style="background:linear-gradient(135deg,#fcd34d,#fbbf24,#f59e0b)">
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span><span class="variant-btn">📎 参考图</span><span class="variant-btn">🖼 首帧</span><span class="variant-btn">🖼 尾帧</span></div>
+        </div>
+        <div class="variant-cell" style="background:linear-gradient(200deg,#d97706,#b45309,#92400e)">
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span><span class="variant-btn">📎 参考图</span><span class="variant-btn">🖼 首帧</span><span class="variant-btn">🖼 尾帧</span></div>
+        </div>
+      </div>
+      <div class="job-actions">
+        <div class="job-actions-left">
+          <button class="job-action-btn">重新编辑</button>
+          <button class="job-action-btn">再次生成</button>
+        </div>
+        <span class="job-time">2026/03/20 10:32:15</span>
+      </div>
+    </div>
+
+    <!-- JobCard 2: 视频任务 -->
+    <div class="job-card">
+      <div class="job-prompt">理财顾问在办公室里向客户介绍产品，镜头缓慢推进，专业而亲切</div>
+      <div class="job-tags">
+        <span class="job-tag">Kling v2.6</span>
+        <span class="job-tag">16:9</span>
+        <span class="job-tag">文生视频</span>
+        <span class="job-tag">1080p</span>
+        <span class="job-tag">2 个变体</span>
+        <span class="job-tag gold">18 点</span>
+      </div>
+      <div class="job-variants">
+        <div class="variant-cell" style="background:linear-gradient(135deg,#60a5fa,#3b82f6,#2563eb)">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-size:36px;color:rgba(255,255,255,0.8)">▶</span></div>
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span></div>
+        </div>
+        <div class="variant-cell" style="background:linear-gradient(160deg,#3b82f6,#2563eb,#1d4ed8)">
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="font-size:36px;color:rgba(255,255,255,0.8)">▶</span></div>
+          <div class="variant-hover"><span class="variant-btn">🔍 放大</span></div>
+        </div>
+        <div class="variant-cell variant-empty"></div>
+        <div class="variant-cell variant-empty"></div>
+      </div>
+      <div class="job-actions">
+        <div class="job-actions-left">
+          <button class="job-action-btn">重新编辑</button>
+          <button class="job-action-btn">再次生成</button>
+        </div>
+        <span class="job-time">2026/03/20 10:28:41</span>
+      </div>
+    </div>
+
+    <!-- JobCard 3: 音频任务 -->
+    <div class="job-card">
+      <div class="job-prompt">您好，我是您的专属理财顾问，很高兴为您服务。今天为您推荐一款稳健型理财产品...</div>
+      <div class="job-tags">
+        <span class="job-tag">Qwen3-TTS</span>
+        <span class="job-tag">声音克隆</span>
+        <span class="job-tag gold">1 点</span>
+      </div>
+      <div class="job-variants job-variants-audio">
+        <div class="variant-cell variant-audio" style="background:linear-gradient(135deg,#34d399,#10b981,#059669)">
+          <span style="font-size:36px">🔊</span>
+          <div class="audio-wave">
+            <div class="wave-bar" style="height:12px"></div>
+            <div class="wave-bar" style="height:20px"></div>
+            <div class="wave-bar" style="height:16px"></div>
+            <div class="wave-bar" style="height:24px"></div>
+            <div class="wave-bar" style="height:14px"></div>
+            <div class="wave-bar" style="height:22px"></div>
+            <div class="wave-bar" style="height:10px"></div>
+            <div class="wave-bar" style="height:18px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="job-actions">
+        <div class="job-actions-left">
+          <button class="job-action-btn">重新编辑</button>
+          <button class="job-action-btn">再次生成</button>
+        </div>
+        <span class="job-time">2026/03/20 10:25:03</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<script>
+let currentPoints = 1;
+let currentType = 'image';
+
+// 视频模型能力矩阵
+const VIDEO_CAPS = {
+  'wan-2.2': { modes: ['i2v','first_last_frame'], durations: [5], ratios: ['16:9','9:16'], resolutions: ['480p','720p'], audio: false },
+  'seedance-1-fast': { modes: ['t2v','i2v'], durations: [2,3,4,5,6,7,8,9,10,11,12], ratios: ['16:9','9:16','1:1','4:3'], resolutions: ['480p','720p','1080p'], audio: true },
+  'kling-v2.6': { modes: ['i2v'], durations: [5,10], ratios: ['16:9','9:16','1:1'], resolutions: [], audio: true },
+  'seedance-1.5-pro': { modes: ['t2v','i2v','first_last_frame'], durations: [2,3,4,5,6,7,8,9,10,11,12], ratios: ['16:9','9:16','1:1','4:3','21:9'], resolutions: [], audio: true },
+  'kling-v3': { modes: ['t2v','i2v','first_last_frame'], durations: [3,5,10,15], ratios: ['16:9','9:16','1:1'], resolutions: ['720p','1080p'], audio: true },
+  'veo-3.1': { modes: ['t2v','i2v','first_last_frame'], durations: [4,6,8], ratios: ['16:9','9:16'], resolutions: ['720p','1080p'], audio: true },
+};
+let currentVideoModel = 'wan-2.2';
+
+function navClick(el) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('grid-image').style.display = type === 'image' ? 'grid' : 'none';
+  document.getElementById('grid-video').style.display = type === 'video' ? 'grid' : 'none';
+  document.getElementById('grid-audio').style.display = type === 'audio' ? 'grid' : 'none';
+  document.getElementById('ratioGroup').style.display = type === 'video' ? 'none' : (type === 'audio' ? 'none' : 'block');
+  document.getElementById('voiceCloneArea').style.display = type === 'audio' ? 'block' : 'none';
+  document.getElementById('videoOptions').style.display = type === 'video' ? 'block' : 'none';
+  // 选中当前grid第一个
+  const grid = document.getElementById('grid-' + type);
+  const first = grid.querySelector('.model-card');
+  if (first) {
+    grid.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+    first.classList.add('selected');
+    const pts = parseInt(first.querySelector('.model-points').textContent);
+    currentPoints = pts;
+    if (type === 'video') {
+      currentVideoModel = first.dataset.model;
+      syncVideoOptions();
+    }
+    updateCost();
+  }
+}
+
+function selectModel(card, pts) {
+  card.parentElement.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  currentPoints = pts;
+  if (currentType === 'video' && card.dataset.model) {
+    currentVideoModel = card.dataset.model;
+    syncVideoOptions();
+  }
+  updateCost();
+}
+
+function syncVideoOptions() {
+  const cap = VIDEO_CAPS[currentVideoModel];
+  if (!cap) return;
+
+  // 视频模式
+  const modeSelect = document.getElementById('videoMode');
+  const modeLabels = { t2v:'文生视频', i2v:'图生视频', first_last_frame:'首尾帧插值' };
+  modeSelect.innerHTML = cap.modes.map(m => '<option value="'+m+'">'+modeLabels[m]+'</option>').join('');
+
+  // 时长
+  const durSelect = document.getElementById('videoDuration');
+  durSelect.innerHTML = cap.durations.map(d => '<option value="'+d+'">'+d+' 秒</option>').join('');
+
+  // 分辨率
+  const resGroup = document.getElementById('resolutionGroup');
+  const resSelect = document.getElementById('videoResolution');
+  if (cap.resolutions.length > 0) {
+    resGroup.style.display = 'block';
+    resSelect.innerHTML = cap.resolutions.map(r => '<option value="'+r+'">'+r+'</option>').join('');
+    resSelect.value = cap.resolutions[cap.resolutions.length - 1]; // 默认最高
+  } else {
+    resGroup.style.display = 'none';
+  }
+
+  // 音频
+  const audioSelect = document.getElementById('videoAudio');
+  if (cap.audio) {
+    audioSelect.innerHTML = '<option value="on">有声</option><option value="off">无声</option>';
+    audioSelect.disabled = false;
+  } else {
+    audioSelect.innerHTML = '<option value="off">无声（不支持）</option>';
+    audioSelect.disabled = true;
+  }
+
+  // 比例（视频用自己的）
+  // 已在 videoOptions 外隐藏了通用 ratioGroup，这里不需要额外处理
+
+  onVideoModeChange();
+}
+
+function onVideoModeChange() {
+  const mode = document.getElementById('videoMode').value;
+  const refArea = document.getElementById('videoRefArea');
+  const lastArea = document.getElementById('lastFrameArea');
+  if (mode === 'i2v') {
+    refArea.style.display = 'block';
+    lastArea.style.display = 'none';
+    document.getElementById('firstFrameLabel').textContent = '参考图片';
+  } else if (mode === 'first_last_frame') {
+    refArea.style.display = 'block';
+    lastArea.style.display = 'block';
+    document.getElementById('firstFrameLabel').textContent = '首帧图片';
+  } else {
+    refArea.style.display = 'none';
+  }
+}
+
+function handleVoiceUpload(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const nameEl = document.getElementById('voiceFileName');
+    nameEl.style.display = 'flex';
+    nameEl.innerHTML = '🎙 <span>' + file.name + '</span><span style="margin-left:8px;cursor:pointer;color:var(--text3)" onclick="clearVoice()">✕</span>';
+    document.getElementById('voiceUpload').style.borderColor = 'var(--gold)';
+    document.getElementById('voiceUpload').style.background = 'var(--gold-bg)';
+  }
+}
+
+function clearVoice() {
+  document.getElementById('voiceFile').value = '';
+  document.getElementById('voiceFileName').style.display = 'none';
+  document.getElementById('voiceUpload').style.borderColor = '';
+  document.getElementById('voiceUpload').style.background = 'var(--surface-input)';
+}
+
+function updateCost() {
+  const count = parseInt(document.getElementById('variantCount').value);
+  document.getElementById('costDisplay').textContent = currentPoints * count;
+}
+</script>
+</body>
+</html>

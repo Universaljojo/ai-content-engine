@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Sunrise.AI — 热点中心</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:#f2f2f7;color:#1c1c1e;min-height:100vh;display:flex}
+
+/* ===== Sidebar ===== */
+.sidebar{width:220px;background:rgba(255,255,255,0.65);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid rgba(0,0,0,0.04);padding:20px 16px;height:100vh;display:flex;flex-direction:column;position:sticky;top:0}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;padding:0 4px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#ea580c,#f59e0b,#fbbf24);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+.logo-text{font-size:18px;font-weight:700;letter-spacing:1px;color:#1c1c1e}
+.logo-text em{font-style:normal;color:#d97706}
+.nav{list-style:none;display:flex;flex-direction:column;gap:2px}
+.nav-item{padding:10px 14px;border-radius:12px;font-size:15px;color:#8e8e93;display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .15s}
+.nav-item:hover{background:rgba(0,0,0,0.03)}
+.nav-item.active{background:rgba(0,0,0,0.05);color:#1c1c1e;font-weight:500}
+.nav-item .ic{width:18px;text-align:center;font-size:15px}
+.nav-section{font-size:11px;color:#8e8e93;text-transform:uppercase;letter-spacing:1px;padding:14px 14px 6px;margin-top:8px}
+.user-block{margin-top:auto;padding:12px 14px;border-radius:12px;display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.02)}
+.avatar{width:32px;height:32px;border-radius:50%;background:#d97706;color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.user-name{font-size:13px;color:#1c1c1e;font-weight:500}
+.user-role{font-size:11px;color:#8e8e93}
+
+/* ===== Main ===== */
+.main{flex:1;padding:24px 32px;max-width:1200px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.page-title{font-size:24px;font-weight:600;color:#1c1c1e}
+.page-sub{font-size:13px;color:#8e8e93;margin-bottom:24px}
+
+/* ===== Top bar ===== */
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.select-demo{padding:6px 32px 6px 14px;border:1px solid rgba(0,0,0,0.05);border-radius:12px;font-size:13px;background:#f9f9fb url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%238e8e93' fill='none' stroke-width='1.5'/></svg>") no-repeat right 12px center;color:#1c1c1e;font-family:inherit;appearance:none;cursor:pointer}
+.segment{display:inline-flex;background:#fff;border-radius:12px;padding:2px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.seg-btn{padding:5px 14px;border:none;background:transparent;font-size:12px;color:#8e8e93;cursor:pointer;border-radius:10px;font-family:inherit;font-weight:500}
+.seg-btn.active{background:rgba(0,0,0,0.05);color:#1c1c1e}
+.btn-sm{padding:6px 14px;font-size:13px;border:none;border-radius:20px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-primary{background:#d97706;color:#fff}
+.btn-primary:hover{background:#b45309}
+.btn-secondary{background:rgba(0,0,0,0.05);color:#1c1c1e}
+.btn-ghost{background:transparent;color:#d97706;padding:6px 10px}
+
+/* ===== Summary card ===== */
+.summary-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:28px;border-left:3px solid #d97706}
+.summary-label{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.summary-text{font-size:15px;color:#1c1c1e;line-height:1.7}
+.summary-meta{font-size:12px;color:#8e8e93;margin-top:12px;display:flex;gap:16px}
+
+/* ===== Section header ===== */
+.section-header{display:flex;align-items:baseline;gap:12px;margin:28px 0 14px}
+.section-title{font-size:18px;font-weight:600;color:#1c1c1e}
+.section-count{font-size:12px;color:#8e8e93}
+
+/* ===== Event card ===== */
+.event-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:12px;border:1px solid rgba(0,0,0,0.04);transition:box-shadow .2s}
+.event-card:hover{box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.event-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:10px}
+.event-title{font-size:17px;font-weight:600;color:#1c1c1e;flex:1;line-height:1.4}
+.badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:12px;font-weight:500;white-space:nowrap}
+.badge-heat{background:rgba(217,119,6,0.08);color:#d97706}
+.badge-heat-hi{background:#d97706;color:#fff}
+.value-score{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;white-space:nowrap}
+.value-score.high{background:#d1fae5;color:#059669}
+.value-score.mid{background:rgba(0,0,0,0.04);color:#3a3a3c}
+.value-score .num{font-size:13px;font-weight:700}
+.time-hint{font-size:12px;color:#8e8e93;margin-bottom:6px;display:flex;align-items:center;gap:4px}
+
+/* Sources block */
+.sources-block{background:#f9f9fb;border-radius:12px;padding:12px 14px;margin:12px 0}
+.sources-label{font-size:11px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.sources-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.sources-list li{font-size:13px;color:#3a3a3c;display:flex;gap:8px;align-items:baseline}
+.src-company{color:#1c1c1e;font-weight:500;min-width:70px}
+.src-title{flex:1}
+.src-title a{color:#3a3a3c;text-decoration:none;border-bottom:1px dotted rgba(0,0,0,0.15)}
+.src-title a:hover{color:#d97706;border-bottom-color:#d97706}
+.src-date{color:#8e8e93;font-size:12px;min-width:60px;text-align:right}
+
+/* Summary of event */
+.event-summary{font-size:14px;color:#3a3a3c;line-height:1.65;margin:10px 0}
+
+/* Angle block */
+.angle-block{margin-top:12px;padding:14px;background:rgba(217,119,6,0.04);border-radius:12px;border-left:2px solid #d97706}
+.angle-label{font-size:11px;font-weight:600;color:#d97706;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+
+/* Topic list */
+.topic-list{display:flex;flex-direction:column;gap:8px}
+.topic-item{background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;border:1px solid rgba(0,0,0,0.04)}
+.topic-main{flex:1;min-width:0}
+.topic-head{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.topic-title{font-size:14px;font-weight:600;color:#1c1c1e}
+.topic-form{font-size:11px;color:#8e8e93;font-weight:500}
+.topic-desc{font-size:13px;color:#3a3a3c;line-height:1.55}
+.btn-do{background:transparent;color:#d97706;border:1px solid rgba(217,119,6,0.25);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;align-self:center;transition:all .15s}
+.btn-do:hover{background:rgba(217,119,6,0.06);border-color:#d97706}
+
+/* Action row */
+.action-row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,0.04)}
+.feedback-row{display:flex;gap:8px;align-items:center}
+.fb-btn{padding:5px 11px;font-size:12px;border:1px solid rgba(0,0,0,0.05);border-radius:20px;background:#fff;color:#8e8e93;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all .15s}
+.fb-btn:hover{border-color:rgba(0,0,0,0.12);color:#1c1c1e}
+.fb-btn.active{background:rgba(5,150,105,0.08);border-color:transparent;color:#059669}
+.primary-action{display:flex;gap:8px;align-items:center}
+.btn-generate{background:#d97706;color:#fff;border:none;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
+.btn-generate:hover{background:#b45309}
+
+/* ===== Not recommended / Next week ===== */
+.quiet-card{background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:12px}
+.quiet-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.quiet-list li{font-size:13px;color:#3a3a3c;display:flex;align-items:flex-start;gap:10px}
+.quiet-reason{color:#8e8e93;font-size:12px;margin-left:8px}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    <div class="logo-text">Sunrise<em>.AI</em></div>
+  </div>
+  <ul class="nav">
+    <li class="nav-item"><span class="ic">📁</span>项目总览</li>
+    <li class="nav-item"><span class="ic">🎨</span>自由创作</li>
+    <li class="nav-item"><span class="ic">✨</span>提示词库</li>
+    <li class="nav-item"><span class="ic">🛡</span>素材审核</li>
+    <li class="nav-item"><span class="ic">🕐</span>历史任务</li>
+    <li class="nav-item active"><span class="ic">🔥</span>热点中心</li>
+    <li class="nav-item"><span class="ic">👤</span>IP 角色</li>
+    <li class="nav-item"><span class="ic">🏢</span>客户管理</li>
+    <li class="nav-item"><span class="ic">📊</span>积分统计</li>
+  </ul>
+  <div class="user-block">
+    <div class="avatar">R</div>
+    <div>
+      <div class="user-name">Rose</div>
+      <div class="user-role">Content Ops</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== Main ===== -->
+<main class="main">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">🔥 热点中心</div>
+      <div class="page-sub">媒体行业动向 · 基于亚太主流媒体的同主题聚合 · SPH Media 视角</div>
+    </div>
+    <button class="btn-sm btn-primary">🔄 重新生成本周</button>
+  </div>
+
+  <!-- Topbar filters -->
+  <div class="topbar">
+    <select class="select-demo">
+      <option>客户视角：SPH Media</option>
+      <option>客户视角：Sunrise.AI</option>
+    </select>
+    <div class="segment">
+      <button class="seg-btn">本周</button>
+      <button class="seg-btn active">近 7 天</button>
+      <button class="seg-btn">近 14 天</button>
+    </div>
+    <div class="segment">
+      <button class="seg-btn active">同业动向</button>
+      <button class="seg-btn">行业热点</button>
+      <button class="seg-btn">社会热点</button>
+    </div>
+    <span style="font-size:11px;color:#8e8e93;margin-left:auto">v1.0 · 2026.04.22 更新</span>
+  </div>
+
+  <!-- Weekly summary -->
+  <div class="summary-card">
+    <div class="summary-label">本周概况</div>
+    <div class="summary-text">
+      本周 8 家亚太主流媒体共发布 42 篇重点内容，聚焦 5 个主题。<strong>AI 新闻编辑室</strong>成为行业共同动作（4 家同期），<strong>短视频新闻战略</strong>集中在头部 3 家。CNA 独家推出<strong>多语言 AI 摘要</strong>值得关注，南华早报的<strong>AI 个性化推荐升级</strong>指向内容分发深耕。
+    </div>
+    <div class="summary-meta">
+      <span>📅 数据窗口：2026-04-14 ~ 2026-04-20</span>
+      <span>📊 监测对象：8 家（MVP0 阶段 3 家）</span>
+      <span>📝 推荐：5 条 · 不建议跟：2 条</span>
+    </div>
+  </div>
+
+  <!-- Recommended events -->
+  <div class="section-header">
+    <div class="section-title">🔥 本期推荐关注</div>
+    <div class="section-count">5 条 · 按紧急度排序</div>
+  </div>
+
+  <!-- Event 1 -->
+  <article class="event-card">
+    <div class="event-head">
+      <div class="event-title">AI 新闻编辑室集中升级（行业现象级）</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge badge-heat-hi">🔥 4 家同期</span>
+        <span class="value-score high">价值度 <span class="num">92</span></span>
+      </div>
+    </div>
+
+    <div class="sources-block">
+      <div class="sources-label">📊 信源（4 家同期发布）</div>
+      <ul class="sources-list">
+        <li><span class="src-company">CNA</span><span class="src-title"><a href="#">AI Newsroom 3.0 正式上线，实时多语言编译</a></span><span class="src-date">04-18</span></li>
+        <li><span class="src-company">The Straits Times</span><span class="src-title"><a href="#">编辑室 AI 助手 2.0：从辅助写作到全流程自动化</a></span><span class="src-date">04-17</span></li>
+        <li><span class="src-company">South China Morning Post</span><span class="src-title"><a href="#">AI 编辑覆盖率突破 80%，日产稿量翻倍</a></span><span class="src-date">04-16</span></li>
+        <li><span class="src-company">SPH Media</span><span class="src-title"><a href="#">AI 内容工作流升级：编辑效率提升 3 倍</a></span><span class="src-date">04-15</span></li>
+      </ul>
+    </div>
+
+    <div class="event-summary">
+      4 家亚太主流媒体在同一周密集发布 AI 编辑室相关升级。CNA 强调"实时多语言"、海峡时报侧重"全流程自动化"、南华早报关注"覆盖率"、SPH 走"效率提升"。共同信号是<strong>AI 编辑室从辅助工具转向核心生产力</strong>。
+    </div>
+
+    <div class="angle-block">
+      <div class="angle-label">💡 SPH 视角 · 可切入方向（3 个候选）</div>
+      <div class="topic-list">
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">多语言内容一键生成的幕后</span>
+              <span class="topic-form">· 品牌纪录片 2-3min</span>
+            </div>
+            <div class="topic-desc">展示 SPH 如何用 AI 实现英文、中文、马来文、泰米尔文四语内容同步产出，强调多元文化服务能力。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">AI 编辑室 × 记者协作工作流</span>
+              <span class="topic-form">· 流程演示短视频 30s</span>
+            </div>
+            <div class="topic-desc">AI 负责初稿和数据核查，记者专注深度分析和现场报道，突出人机协作而非替代。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">"AI 提速 + 编辑把关"的双保险</span>
+              <span class="topic-form">· IP 角色科普短视频 60s</span>
+            </div>
+            <div class="topic-desc">AI 不是替代编辑，而是让编辑有更多时间做深度内容。强调 SPH "有深度"的差异化。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="feedback-row">
+        <button class="fb-btn">👍 选题有用</button>
+        <button class="fb-btn">👎 都不合适</button>
+      </div>
+      <div style="font-size:12px;color:#8e8e93">👆 点候选选题的"做这条"进入生成</div>
+    </div>
+  </article>
+
+  <!-- Event 2 -->
+  <article class="event-card">
+    <div class="event-head">
+      <div class="event-title">亚太媒体短视频战略集中发布</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge badge-heat">📣 3 家同期</span>
+        <span class="value-score mid">价值度 <span class="num">65</span></span>
+      </div>
+    </div>
+
+    <div class="sources-block">
+      <div class="sources-label">📊 信源（3 家同期发布）</div>
+      <ul class="sources-list">
+        <li><span class="src-company">CNA</span><span class="src-title"><a href="#">CNA Insider 短视频频道日均播放量突破 500 万</a></span><span class="src-date">04-19</span></li>
+        <li><span class="src-company">Bloomberg</span><span class="src-title"><a href="#">Bloomberg Quick Takes：3 分钟解读全球财经</a></span><span class="src-date">04-18</span></li>
+        <li><span class="src-company">SPH Media</span><span class="src-title"><a href="#">zaobao.sg 短视频栏目正式上线</a></span><span class="src-date">04-17</span></li>
+      </ul>
+    </div>
+
+    <div class="event-summary">
+      头部媒体集中发力短视频赛道，以数据叙事和快速解读为主，内容形式趋同。SPH 自身已布局，再跟进价值有限。
+    </div>
+
+    <div class="angle-block">
+      <div class="angle-label">💡 SPH 视角 · 可切入方向（3 个候选）</div>
+      <div class="topic-list">
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">播放数字 → 读者故事</span>
+              <span class="topic-form">· 数据可视化海报</span>
+            </div>
+            <div class="topic-desc">把短视频播放数据转化为"N 位读者选择用 3 分钟了解世界"的具象叙事，突出 SPH 的读者连接。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">短视频背后的编辑方法论</span>
+              <span class="topic-form">· 图文科普 + 数据图表</span>
+            </div>
+            <div class="topic-desc">从数据里抽出短视频观众画像（年龄/兴趣/观看时段），让数字有面孔。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">资深记者的短视频转型日记</span>
+              <span class="topic-form">· 短视频 1-2min</span>
+            </div>
+            <div class="topic-desc">从 SPH 资深记者中选 1-2 位，让他们讲述"从长文到短视频"的转型故事。比数字更有说服力。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="feedback-row">
+        <button class="fb-btn">👍 选题有用</button>
+        <button class="fb-btn">👎 都不合适</button>
+      </div>
+      <div style="font-size:12px;color:#8e8e93">👆 点候选选题的"做这条"进入生成</div>
+    </div>
+  </article>
+
+  <!-- Event 3 -->
+  <article class="event-card">
+    <div class="event-head">
+      <div class="event-title">CNA 独家：AI 多语言新闻摘要上线</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge badge-heat">🆕 首发 · 1 家</span>
+        <span class="value-score high">价值度 <span class="num">78</span></span>
+      </div>
+    </div>
+
+    <div class="sources-block">
+      <div class="sources-label">📊 信源（1 家首发）</div>
+      <ul class="sources-list">
+        <li><span class="src-company">CNA</span><span class="src-title"><a href="#">"AI Digest"多语言新闻摘要功能正式上线</a></span><span class="src-date">04-16</span></li>
+      </ul>
+    </div>
+
+    <div class="event-summary">
+      CNA 首发 AI 多语言摘要功能，支持英文、中文、马来文实时翻译摘要。属于情报价值高的"首发动作"，但<strong>门槛在"多语言 NLP 能力"</strong>——SPH 可做内容形式上的对标。
+    </div>
+
+    <div class="angle-block">
+      <div class="angle-label">💡 SPH 视角 · 可切入方向（3 个候选）</div>
+      <div class="topic-list">
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">SPH 的四语内容服务日常</span>
+              <span class="topic-form">· AI 短片 2-3min</span>
+            </div>
+            <div class="topic-desc">讲 SPH 如何服务新加坡四大语言社区的内容需求，把多语言话题从"技术能力"切到"文化连接+社区服务"。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">读者视角的多语言体验</span>
+              <span class="topic-form">· 图文情感向长图</span>
+            </div>
+            <div class="topic-desc">从英语读者看中文内容、马来语读者看英文内容的双向阅读切入，展示 SPH 的多元文化桥梁角色。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+        <div class="topic-item">
+          <div class="topic-main">
+            <div class="topic-head">
+              <span class="topic-title">"AI 翻译 + 编辑润色"的品质承诺</span>
+              <span class="topic-form">· 品牌海报组</span>
+            </div>
+            <div class="topic-desc">以 SPH 编辑部为符号，讲 SPH 对多语言内容质量的承诺。视觉专业沉稳，匹配 SPH 调性。</div>
+          </div>
+          <button class="btn-do">做这条</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row">
+      <div class="feedback-row">
+        <button class="fb-btn">👍 选题有用</button>
+        <button class="fb-btn">👎 都不合适</button>
+      </div>
+      <div style="font-size:12px;color:#8e8e93">👆 点候选选题的"做这条"进入生成</div>
+    </div>
+  </article>
+
+  <!-- Event 4 - collapsed style -->
+  <article class="event-card">
+    <div class="event-head">
+      <div class="event-title">南华早报 AI 个性化推荐升级</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge badge-heat">🆕 首发 · 1 家</span>
+        <span class="value-score mid">价值度 <span class="num">68</span></span>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;font-size:12px;color:#8e8e93;text-align:right">SCMP · 04-14</div>
+    <div class="event-summary">
+      南华早报推出 AI 个性化内容推荐引擎，聚焦读者留存和阅读深度。SPH 作为同类型媒体高度吻合，但<strong>短期内做不到同等技术投入</strong>，建议作为"长期对标"放入视野而非立即响应。
+    </div>
+    <div class="action-row">
+      <div class="feedback-row">
+        <button class="fb-btn">👍 有用</button>
+        <button class="fb-btn">👎 不合适</button>
+        <button class="fb-btn">✅ 已采用</button>
+      </div>
+      <button class="btn-ghost" style="font-size:13px">展开详情 · 看候选选题 ↓</button>
+    </div>
+  </article>
+
+  <!-- Event 5 - collapsed -->
+  <article class="event-card">
+    <div class="event-head">
+      <div class="event-title">IMDA 发布 AI 内容治理框架</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span class="badge badge-heat">📰 政策类</span>
+        <span class="value-score mid">价值度 <span class="num">71</span></span>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;font-size:12px;color:#8e8e93;text-align:right">3 家跟进解读 · 04-15</div>
+    <div class="event-summary">
+      新框架涉及 AI 生成内容标注、深度伪造防范、算法透明度等要求，头部 3 家媒体都做了政策解读。SPH 可做<strong>"给读者的 AI 内容治理问答"</strong>图文科普，呈现专业性和对读者的负责态度。
+    </div>
+    <div class="action-row">
+      <div class="feedback-row">
+        <button class="fb-btn">👍 有用</button>
+        <button class="fb-btn">👎 不合适</button>
+        <button class="fb-btn">✅ 已采用</button>
+      </div>
+      <button class="btn-ghost" style="font-size:13px">展开详情 · 看候选选题 ↓</button>
+    </div>
+  </article>
+
+  <!-- Not recommended -->
+  <div class="section-header">
+    <div class="section-title">❌ 本期不建议跟</div>
+    <div class="section-count">2 条</div>
+  </div>
+  <div class="quiet-card">
+    <ul class="quiet-list">
+      <li>
+        <span>【某媒体】未经核实信源的 AI 生成新闻</span>
+        <span class="quiet-reason">— 触发红线：新闻真实性（行业硬禁区）</span>
+      </li>
+      <li>
+        <span>【某媒体】"标题党"式 AI 生成标题优化</span>
+        <span class="quiet-reason">— SPH 自定义禁区：不走流量至上的标题党叙事</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Next week watch -->
+  <div class="section-header">
+    <div class="section-title">📌 下周关注</div>
+  </div>
+  <div class="quiet-card">
+    <ul class="quiet-list">
+      <li>🗓 <strong>4.25</strong> IMDA AI 内容治理框架意见征求截止 — 预计媒体会有第二轮解读</li>
+      <li>🗓 <strong>5.1 前后</strong> 劳动节 + 开斋节节点 — 媒体常规会做节日专题内容</li>
+      <li>📈 持续观察：AI 编辑室 / 多语言内容 / 个性化推荐 三个赛道</li>
+    </ul>
+  </div>
+
+</main>
+</body>
+</html>

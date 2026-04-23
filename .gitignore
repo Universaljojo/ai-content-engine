@@ -51,6 +51,10 @@
 !sales-march/
 !sales-march/**
 
+# Allow SPH client deck
+!sph/
+!sph/**
+
 # Allow guiyan-duiba short link page
 !guiyan-duiba/
 !guiyan-duiba/**
