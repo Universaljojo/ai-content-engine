@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北京越野 · 板块内容运营方案 · BAIC Off-Road Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* 🌙 沙丘 Dune · 越野荒漠 + 高级科技感 */
+    --ink:#1f1a14;
+    --ink-rgb:31,26,20;
+    --paper:#f0e6d2;
+    --paper-rgb:240,230,210;
+    --paper-tint:#e3d7bf;
+    --ink-tint:#2d2620;
+
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --serif-en:"Playfair Display","Source Serif 4",Georgia,serif;
+    --serif-body-en:"Source Serif 4",Georgia,serif;
+    --serif-zh:"Noto Serif SC",source-han-serif-sc,serif;
+    --sans-zh:"Noto Sans SC",source-han-sans-sc,sans-serif;
+    --gold:#c9a35a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--sans-zh);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+  canvas.bg{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;transition:opacity 1.2s ease}
+  canvas#bg-light{opacity:0}
+  canvas#bg-dark{opacity:1}
+  body.light-bg canvas#bg-light{opacity:1}
+  body.light-bg canvas#bg-dark{opacity:0}
+
+  #deck{position:fixed;inset:0;width:10000vw;height:100vh;display:flex;flex-wrap:nowrap;transition:transform .9s cubic-bezier(.77,0,.175,1);z-index:10;will-change:transform}
+  .slide{width:100vw;height:100vh;flex:0 0 100vw;position:relative;padding:6vh 6vw 10vh 6vw;display:flex;flex-direction:column;overflow:hidden}
+  .slide.light{color:var(--ink)}
+  .slide.dark{color:var(--paper)}
+
+  .slide::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;transition:background .7s ease}
+  .slide.light::before{background:rgba(var(--paper-rgb),.78);backdrop-filter:blur(3px)}
+  .slide.dark::before{background:rgba(var(--ink-rgb),.78);backdrop-filter:blur(3px)}
+  .slide.hero.light::before{background:rgba(var(--paper-rgb),.16);backdrop-filter:none}
+  .slide.hero.dark::before{background:rgba(var(--ink-rgb),.12);backdrop-filter:none}
+  .slide.hero::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+  .slide.hero.light::after{background:linear-gradient(180deg,rgba(var(--paper-rgb),.28) 0%,rgba(var(--paper-rgb),0) 14%,rgba(var(--paper-rgb),0) 86%,rgba(var(--paper-rgb),.28) 100%)}
+  .slide.hero.dark::after{background:linear-gradient(180deg,rgba(var(--ink-rgb),.32) 0%,rgba(var(--ink-rgb),0) 14%,rgba(var(--ink-rgb),0) 86%,rgba(var(--ink-rgb),.32) 100%)}
+
+  .chrome{display:flex;justify-content:space-between;align-items:flex-start;font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.2em;text-transform:uppercase;opacity:.62}
+  .chrome .left,.chrome .right{display:flex;gap:2.4em;align-items:center}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:max(11px,.78vw);letter-spacing:.18em;text-transform:uppercase;opacity:.5}
+  .foot .title{font-family:var(--serif-zh);font-weight:400;letter-spacing:.05em;text-transform:none;opacity:.75;font-size:13px}
+
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;padding:6px 14px;border:1px solid currentColor;opacity:.85}
+  .rule{width:100%;height:1px;background:currentColor;opacity:.25;margin:3vh 0}
+
+  .kicker{font-family:var(--mono);font-size:max(11px,.85vw);letter-spacing:.3em;text-transform:uppercase;opacity:.62;margin-bottom:2.4vh}
+  .gold{color:var(--gold)}
+  .lead{font-family:var(--serif-zh);font-weight:400;font-size:1.75vw;line-height:1.5;opacity:.86}
+  .meta-row{display:flex;gap:1.2em;align-items:baseline;flex-wrap:wrap;font-family:var(--mono);font-size:max(12px,.92vw);letter-spacing:.16em;text-transform:uppercase;opacity:.6}
+
+  .frame{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .frame.grid-2-7-5,.frame.grid-2-6-6,.frame.grid-2-8-4,.frame.grid-3-3,.frame.grid-6{display:grid}
+  .grid-2-7-5{display:grid;grid-template-columns:7fr 5fr;gap:3vw 4vh;align-items:start}
+  .grid-2-6-6{display:grid;grid-template-columns:1fr 1fr;gap:3vw 4vh;align-items:start}
+  .grid-2-8-4{display:grid;grid-template-columns:8fr 4fr;gap:3vw 4vh;align-items:start}
+  .grid-3-3{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:minmax(0,1fr);gap:2.4vh 2vw}
+  .grid-6{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:4vw 6vw;flex:1;align-content:center;padding:2vh 0}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:4vw;flex:1;align-content:center}
+  .grid-4{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:4vh 6vw;flex:1;align-content:center}
+  .col{display:flex;flex-direction:column;gap:2.4vh}
+
+  .h-hero{font-family:var(--serif-zh);font-weight:900;font-size:10vw;line-height:.96;letter-spacing:-.02em}
+  .h-xl{font-family:var(--serif-zh);font-weight:700;font-size:6.2vw;line-height:1.08;letter-spacing:-.01em}
+  .h-sub{font-family:var(--serif-zh);font-weight:500;font-size:3.1vw;line-height:1.25;letter-spacing:0;opacity:.78}
+  .h-md{font-family:var(--serif-zh);font-weight:600;font-size:2.3vw;line-height:1.3}
+  .h-hero-en,.h-xl-en{font-family:var(--serif-en);letter-spacing:-.025em}
+
+  .stat-card{display:flex;flex-direction:column;gap:.8vh;align-items:flex-start;padding-top:1.6vh;border-top:1px solid currentColor;border-color:rgba(127,127,127,.3)}
+  .stat-card .stat-label{font-family:var(--mono);font-size:max(10px,.78vw);letter-spacing:.24em;text-transform:uppercase;opacity:.55}
+  .stat-card .stat-nb{font-family:var(--serif-en);font-weight:800;font-size:5.8vw;line-height:.9;letter-spacing:-.03em;font-feature-settings:"tnum";margin-top:.4vh}
+  .stat-card .stat-nb .stat-unit{font-family:var(--serif-zh);font-weight:500;font-size:.38em;letter-spacing:0;opacity:.72;margin-left:.14em}
+  .stat-card .stat-note{font-family:var(--sans-zh);font-weight:400;font-size:max(13px,1.05vw);line-height:1.5;opacity:.72;margin-top:.6vh}
+
+  .pipeline-section{margin-top:4.4vh;padding-top:2.8vh;border-top:1px dashed rgba(127,127,127,.32)}
+  .pipeline-section:first-of-type{border-top:0;padding-top:0;margin-top:3vh}
+  .pipeline-label{font-family:var(--mono);font-size:max(11px,.85vw);letter-spacing:.24em;text-transform:uppercase;opacity:.62;margin-bottom:2.2vh}
+  .pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:1.2vw}
+  .pipeline[data-cols="3"]{grid-template-columns:repeat(3,1fr)}
+  .pipeline[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  .step{display:flex;flex-direction:column;gap:.8vh;padding-top:1.4vh;border-top:1px solid currentColor;border-color:rgba(127,127,127,.35)}
+  .step-nb{font-family:var(--serif-en);font-style:italic;font-weight:500;font-size:1.15vw;opacity:.45}
+  .step-title{font-family:var(--sans-zh);font-weight:700;font-size:1.55vw;letter-spacing:.01em;line-height:1.2}
+  .step-desc{font-family:var(--sans-zh);font-weight:400;font-size:max(12px,.95vw);line-height:1.45;opacity:.72}
+
+  .callout{padding:3vh 2.4vw;border-left:3px solid currentColor;position:relative;font-family:var(--serif-zh);font-size:max(15px,1.2vw);line-height:1.55;opacity:.92}
+  .slide.light .callout{background:rgba(var(--ink-rgb),.05)}
+  .slide.dark .callout{background:rgba(var(--paper-rgb),.06)}
+  .callout-src{display:block;margin-top:1.6vh;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+
+  .frame-img{overflow:hidden;position:relative;background:rgba(0,0,0,.04);box-sizing:border-box;width:100%;border-radius:4px}
+  .slide.dark .frame-img{background:rgba(255,255,255,.04)}
+  .frame-img > img,.frame-img > video{width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+  .img-cap{display:block;margin-top:.8vh;font-family:var(--mono);font-size:max(10px,.8vw);letter-spacing:.22em;text-transform:uppercase;opacity:.6}
+  figure.tile{display:flex;flex-direction:column;margin:0;min-width:0}
+  figure.frame-img{margin:0;display:flex;flex-direction:column;min-width:0}
+
+  .pillar{display:flex;flex-direction:column;gap:1.6vh;padding-top:1.8vh;border-top:1px solid currentColor;border-color:rgba(127,127,127,.4)}
+  .pillar .ic{font-family:var(--serif-en);font-style:italic;font-size:1.15vw;opacity:.5}
+  .pillar .t{font-family:var(--serif-zh);font-weight:700;font-size:2.2vw;line-height:1.15;color:var(--gold)}
+  .pillar .d{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.1vw);opacity:.78;line-height:1.6}
+
+  .rowline{display:grid;grid-template-columns:1.1fr 1.4fr 1.6fr 1.6fr;gap:2vw;padding:2.2vh 0;border-top:1px solid currentColor;align-items:start;border-color:rgba(127,127,127,.3)}
+  .rowline:last-child{border-bottom:1px solid currentColor;border-color:rgba(127,127,127,.3)}
+  .rowline .k{font-family:var(--serif-zh);font-weight:700;font-size:1.5vw;color:var(--gold)}
+  .rowline .k .sub{display:block;font-family:var(--mono);font-size:.6em;letter-spacing:.18em;text-transform:uppercase;opacity:.6;margin-top:.4vh;color:var(--paper);font-weight:400}
+  .slide.light .rowline .k .sub{color:var(--ink)}
+  .rowline .v{font-family:var(--sans-zh);font-weight:400;font-size:max(13px,1vw);opacity:.85;line-height:1.5}
+  .rowline .head{font-family:var(--mono);font-size:max(10px,.78vw);letter-spacing:.24em;text-transform:uppercase;opacity:.55;padding-bottom:.4vh}
+
+  #nav{position:fixed;left:50%;bottom:2.6vh;transform:translateX(-50%);z-index:30;display:flex;gap:10px;padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.18);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #nav .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;transition:all .3s ease;border:0;padding:0}
+  #nav .dot:hover{background:rgba(255,255,255,.5);transform:scale(1.15)}
+  #nav .dot.active{background:rgba(255,255,255,.95);width:22px;border-radius:999px}
+  body.light-bg #nav{background:rgba(255,255,255,.25)}
+  body.light-bg #nav .dot{background:rgba(var(--ink-rgb),.25)}
+  body.light-bg #nav .dot.active{background:rgba(var(--ink-rgb),.9)}
+  #hint{position:fixed;bottom:3vh;right:3vw;z-index:30;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;mix-blend-mode:difference;color:#aaa}
+
+  [data-anim]{opacity:0}
+  [data-anim="left"]{transform:translateX(-24px)}
+  [data-anim="right"]{transform:translateX(24px)}
+  [data-anim="line"]{opacity:0;transform:translateY(10px)}
+  [data-animate="pipeline"] [data-anim]{opacity:.15}
+
+  @media (max-width:900px){
+    .h-hero{font-size:14vw}
+    .h-xl{font-size:9vw}
+    .pipeline{grid-template-columns:repeat(2,1fr)}
+    .grid-2-7-5,.grid-2-6-6,.grid-2-8-4{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-dark" class="bg"></canvas>
+<canvas id="bg-light" class="bg"></canvas>
+<div id="hint">← → 翻页 · ESC 索引</div>
+
+<div id="deck">
+
+<!-- ============================================================
+     SLIDE 1 · 封面 · Hero Cover
+     ============================================================ -->
+<section class="slide hero dark">
+  <div class="chrome">
+    <div>BAIC Off-Road · 提案版</div>
+    <div>Vol.01 · 2026.04</div>
+  </div>
+  <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>北京越野 · 板块内容运营</div>
+    <h1 class="h-hero" data-anim>让车主社群<br><span class="gold">持续生长</span></h1>
+    <div class="meta-row" data-anim>
+      <span>兑吧 · 数字营销</span><span>·</span><span>2026.04</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div></div>
+    <div>— BAIC × 兑吧 —</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 2 · 板块运营三道坎 · Big Numbers
+     ============================================================ -->
+<section class="slide light">
+  <div class="chrome">
+    <div>问题侧 · The Three Walls</div>
+    <div>02 / 11</div>
+  </div>
+  <div class="frame" style="padding-top:5vh">
+    <div class="kicker" data-anim>我们观察到</div>
+    <h2 class="h-xl" data-anim>板块要活起来，<br>会员运营每天卡在<span class="gold">三道坎</span>。</h2>
+    <p class="lead" style="margin-top:3vh; max-width:60vw" data-anim>
+      不是车主不爱聊，而是工具没跟上 ——<br>
+      内容做不出爆款的样子、活动玩不出新鲜的钩子、晒车没有可复用的模板。
+    </p>
+
+    <div class="grid-3" style="margin-top:6vh; gap:4vw; align-content:start">
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Wall 01 · 内容侧</div>
+        <div class="stat-nb" style="font-size:4.4vw">内容枯燥</div>
+        <div class="stat-note">每天发车主集合、试驾打卡、新车海报，板块越发越像广告位 —— 没有人愿意停下来看。</div>
+      </div>
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Wall 02 · 活动侧</div>
+        <div class="stat-nb" style="font-size:4.4vw">活动同质</div>
+        <div class="stat-note">积分换券 / 抽奖 / 签到 —— 老三样玩了五年，参与率每年都在掉，年轻车主更不愿意打开 App。</div>
+      </div>
+      <div class="stat-card" data-anim>
+        <div class="stat-label">Wall 03 · 传播侧</div>
+        <div class="stat-nb" style="font-size:4.4vw">传播无钩</div>
+        <div class="stat-note">车主想晒车，但官方没有"模板"可套。结果只有 KOL 出片，普通车主发不出"看着就酷"的内容。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>三道坎 · 板块活跃度的天花板</div>
+    <div>Page 02 · The Three Walls</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 3 · 双引擎 · Quote + Right Frame
+     ============================================================ -->
+<section class="slide dark">
+  <div class="chrome">
+    <div>我们的解法 · Two Engines</div>
+    <div>03 / 11</div>
+  </div>
+  <div class="frame grid-2-6-6" style="padding-top:6vh; align-items:center">
+    <div style="display:flex; flex-direction:column; gap:3vh">
+      <div class="kicker" data-anim>双引擎</div>
+      <h2 class="h-xl" data-anim>从"广告位"<br>到<span class="gold">创作场</span></h2>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:4vh; padding-top:1vh">
+      <div class="pillar" data-anim>
+        <div class="ic">i.</div>
+        <div class="t">内容引擎</div>
+        <div class="d">总部日更周更不掉线——热点中心 + 模板广场 + 自由创作。</div>
+      </div>
+      <div class="pillar" data-anim>
+        <div class="ic">ii.</div>
+        <div class="t">互动引擎</div>
+        <div class="d">车主自己产出"想发朋友圈"的素材——做同款三分钟出片。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 03 · 双引擎</div>
+    <div>Two Engines</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 4 · 行业能力佐证墙 · Hero Light Divider + 4 video tiles
+     ============================================================ -->
+<section class="slide hero light">
+  <div class="chrome">
+    <div>Act II · 行业佐证</div>
+    <div>04 / 11</div>
+  </div>
+  <div class="frame" style="display:grid; grid-template-rows:auto 1fr; gap:4vh; padding-top:4vh">
+    <div>
+      <h2 class="h-xl" style="font-size:5.4vw" data-anim>AI 视频 × <span style="color:#9a7a3c">汽车</span>，已在跑量。</h2>
+    </div>
+
+    <div class="grid-3-3" style="grid-template-rows:1fr; align-items:start">
+      <figure class="frame-img" style="height:42vh" data-anim>
+        <img src="14_1000 AI作品挑战｜福特2026CNY/img_1.webp" alt="福特 2026 CNY">
+        <figcaption class="img-cap">福特 · 2026 CNY 挑战</figcaption>
+      </figure>
+      <figure class="frame-img" style="height:42vh" data-anim>
+        <img src="AI 创魔都跑车花海，氛围感拉满✨/img_1.webp" alt="AI 跑车花海">
+        <figcaption class="img-cap">AI · 魔都跑车花海</figcaption>
+      </figure>
+      <figure class="frame-img" style="height:42vh" data-anim>
+        <img src="上天入地不在话下！就这样一路驶进繁花/img_1.webp" alt="上天入地驶进繁花">
+        <figcaption class="img-cap">越野 · 驶进繁花</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 04 · 行业能力佐证墙</div>
+    <div>Industry Proof</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 5 · 内容方法论 · Pipeline
+     ============================================================ -->
+<section class="slide light" data-animate="pipeline">
+  <div class="chrome">
+    <div>方法论 · Content Pipeline</div>
+    <div>05 / 11</div>
+  </div>
+  <div class="frame" style="padding-top:5vh">
+    <h2 class="h-xl" style="margin-bottom:4vh" data-anim>从<span class="gold">爆款</span>到<span class="gold">上线</span>，四步。</h2>
+
+    <div class="pipeline-section" style="margin-top:0; padding-top:0; border-top:0">
+      <div class="pipeline" data-cols="4">
+        <div class="step" data-anim="step">
+          <div class="step-nb">01</div>
+          <div class="step-title">热点捕捉</div>
+          <div class="step-desc">每日扫抖音/小红书越野话题，识别可二创的爆款骨架。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">02</div>
+          <div class="step-title">结构拆解</div>
+          <div class="step-desc">拆成"钩子 / 反转 / 梗"，套到 BJ40/BJ212 车型场景。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">03</div>
+          <div class="step-title">AI 二创</div>
+          <div class="step-desc">脚本 → 分镜 → 文生图/图生视频 → 配音，产出三个版本。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">04</div>
+          <div class="step-title">合规校验</div>
+          <div class="step-desc">极限驾驶画面自动加风险提示，过合规清单后上线。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-section">
+      <div class="pipeline-label">配套机制</div>
+      <div class="pipeline" data-cols="3">
+        <div class="step" data-anim="step">
+          <div class="step-nb">A</div>
+          <div class="step-title">模板广场</div>
+          <div class="step-desc">跑通的 SOP 沉淀成模板，复用只改文案与素材。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">B</div>
+          <div class="step-title">车型素材库</div>
+          <div class="step-desc">全系车款 3D 资产 + 实拍素材，AI 直接调用。</div>
+        </div>
+        <div class="step" data-anim="step">
+          <div class="step-nb">C</div>
+          <div class="step-title">日更日历</div>
+          <div class="step-desc">AI 每天产出 5-8 条板块用稿，运营只做筛选。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 05 · 内容方法论</div>
+    <div>Content Pipeline</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 6 · Sunrise.AI 平台 · Hero showcase
+     ============================================================ -->
+<section class="slide hero dark">
+  <div class="chrome">
+    <div>Platform · 内容引擎</div>
+    <div>06 / 11</div>
+  </div>
+  <div class="frame" style="display:grid; gap:4vh; align-content:center; min-height:80vh">
+    <div class="kicker" data-anim>给总部团队的一台机器</div>
+    <h1 class="h-hero" style="font-size:8vw" data-anim>Sunrise.AI</h1>
+    <h2 class="h-sub" data-anim>把"会员运营 + 品牌团队"装进一个 PC 端工作台。</h2>
+    <p class="lead" style="max-width:62vw" data-anim>
+      <strong style="color:var(--gold)">热点中心</strong>—— 每日越野赛道热门话题打分；<br>
+      <strong style="color:var(--gold)">模板广场</strong>—— 团队跑通的爆款 SOP 一键复用；<br>
+      <strong style="color:var(--gold)">自由创作</strong>—— 上传素材、调用车型 3D 资产，AI 直出三档成片。
+    </p>
+    <div class="meta-row" data-anim>
+      <span>使用人</span><span>·</span><span>北京越野 总部会员运营 / 品牌内容团队</span><span>·</span><span>PC 端 Web</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 06 · Sunrise.AI</div>
+    <div>Content Engine</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 7 · 抖音爆款 → 做同款 → 板块炸开 · Pipeline / Image grid
+     ============================================================ -->
+<section class="slide light">
+  <div class="chrome">
+    <div>互动引擎 · 做同款机制</div>
+    <div>07 / 11</div>
+  </div>
+  <div class="frame grid-2-6-6" style="padding-top:4vh; align-items:center">
+    <div style="display:flex; flex-direction:column; gap:3vh">
+      <h2 class="h-xl" style="font-size:5vw" data-anim>抖音爆款 →<br><span class="gold">车主做同款</span></h2>
+      <p class="lead" data-anim>
+        上传一张照片 + 选车型 = 三分钟出片。
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:2vh 2vw; margin-top:2vh">
+        <div class="pillar" data-anim>
+          <div class="t" style="font-size:1.5vw">飞驰人生 · 关车门</div>
+          <div class="d">上传开车门照片 → AI 生成同款关门镜头</div>
+        </div>
+        <div class="pillar" data-anim>
+          <div class="t" style="font-size:1.5vw">车门氛围感大片</div>
+          <div class="d">经典抖音模板 → 一键替换为车主 + BJ212</div>
+        </div>
+        <div class="pillar" data-anim>
+          <div class="t" style="font-size:1.5vw">自驾穿越大片</div>
+          <div class="d">几张静态照 → AI 生成 4K 动态短片</div>
+        </div>
+        <div class="pillar" data-anim>
+          <div class="t" style="font-size:1.5vw">极夜霓虹</div>
+          <div class="d">日常行驶画面 → AI 渲染赛博朋克场景</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:2vh">
+      <figure class="frame-img" style="aspect-ratio:9/16; max-height:68vh; width:100%" data-anim>
+        <!-- 视频占位：替换 src 为实际视频文件 -->
+        <video autoplay muted loop playsinline poster="generated/p1_xiezhen.jpg">
+          <source src="" type="video/mp4">
+        </video>
+      </figure>
+      <span class="img-cap">做同款 · 演示视频</span>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 07 · 抖音爆款做同款</div>
+    <div>Make-It-Yours</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 8 · AI 越野写真 · Quote + Image
+     ============================================================ -->
+<section class="slide dark">
+  <div class="chrome">
+    <div>互动玩法 · AI 写真</div>
+    <div>08 / 11</div>
+  </div>
+  <div class="frame grid-2-7-5" style="padding-top:6vh; align-items:center">
+    <div style="display:flex; flex-direction:column; gap:3vh">
+      <h2 class="h-xl" style="font-size:5.6vw" data-anim>"你和你的 BJ40，<br>在<span class="gold">阿尔金山</span>。"</h2>
+      <p class="lead" data-anim>
+        上传一张人像 → AI 把车主放进 12 个越野极限场景。<br>
+        产物：4K 写真 + 手机壁纸 + 5 秒动态视频。
+      </p>
+      <div class="callout" data-anim>
+        "同类玩法已落地分享率 <strong>38%</strong>。"
+        <div class="callout-src">— 兑吧已落地数据</div>
+      </div>
+    </div>
+    <figure class="frame-img" style="aspect-ratio:9/16; max-height:72vh" data-anim>
+      <img src="generated/p1_xiezhen.jpg" alt="AI 越野写真 · BJ40 + 阿尔金山">
+      <figcaption class="img-cap">AI 写真样片 · BJ40 / 阿尔金山</figcaption>
+    </figure>
+  </div>
+  <div class="foot">
+    <div>Page 08 · AI 越野写真</div>
+    <div>Play 01</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 9 · AI 涂装实验室 · Quote + Image
+     ============================================================ -->
+<section class="slide dark">
+  <div class="chrome">
+    <div>互动玩法 · AI 涂装</div>
+    <div>09 / 11</div>
+  </div>
+  <div class="frame grid-2-7-5" style="padding-top:6vh; align-items:center">
+    <div style="display:flex; flex-direction:column; gap:3vh">
+      <h2 class="h-xl" style="font-size:5.6vw" data-anim>一句话，<br>给你的 BJ40<br><span class="gold">换套涂装</span>。</h2>
+      <p class="lead" data-anim>
+        输入"敦煌飞天""赛博朋克""国潮云纹"——AI 当场出 6 套涂装预览 + 分享卡。
+      </p>
+      <div class="callout" data-anim>
+        "同类 AI 换装玩法分享率 <strong>26%</strong>。"
+        <div class="callout-src">— 已落地数据</div>
+      </div>
+    </div>
+    <figure class="frame-img" style="aspect-ratio:9/16; max-height:72vh" data-anim>
+      <img src="generated/p3_tuzhuang_v2.jpg" alt="AI 涂装实验室">
+      <figcaption class="img-cap">AI 涂装样片 · 一句话出 6 套涂装</figcaption>
+    </figure>
+  </div>
+  <div class="foot">
+    <div>Page 09 · AI 涂装实验室</div>
+    <div>Play 02</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 11 · 全系矩阵 × 方案 · Rowline Table
+     ============================================================ -->
+<section class="slide light">
+  <div class="chrome">
+    <div>全系车型 × 方案矩阵</div>
+    <div>10 / 11</div>
+  </div>
+  <div class="frame" style="padding-top:5vh">
+    <div class="kicker" data-anim>全系覆盖 · 不止一台车</div>
+    <h2 class="h-xl" data-anim>北京越野<span class="gold">全系矩阵</span> × 方案适配</h2>
+    <p class="lead" style="max-width:60vw; margin-top:2vh" data-anim>
+      每一款车都有自己的人群和场景。同一个引擎，给四套不同的内容打法 + 互动玩法。
+    </p>
+
+    <div style="margin-top:4vh">
+      <div class="rowline" style="border-top:0; padding-bottom:0">
+        <div class="head">车型</div>
+        <div class="head">人群画像</div>
+        <div class="head">内容打法</div>
+        <div class="head">互动玩法</div>
+      </div>
+      <div class="rowline" data-anim>
+        <div class="k">BJ40<span class="sub">硬派 / 13万</span></div>
+        <div class="v">25-40 岁男性，越野生活方式人群，追求"硬派 + 出片"双重满足。</div>
+        <div class="v">实拍级大片：阿尔金山 / 贡嘎线穿越 / 自驾游剧情。</div>
+        <div class="v">车主"关车门挑战"做同款 + AI 越野写真包。</div>
+      </div>
+      <div class="rowline" data-anim>
+        <div class="k">BJ212<span class="sub">复古 / 12万</span></div>
+        <div class="v">22-35 岁年轻消费者，复古风潮粉丝，颜值优先 + 性价比。</div>
+        <div class="v">配图视频级：城市夜景打卡 / 复古滤镜 / 改装文化。</div>
+        <div class="v">"城市夜挑战"做同款 + AI 缘分签车型推荐。</div>
+      </div>
+      <div class="rowline" data-anim>
+        <div class="k">北京八一<span class="sub">军旅 / 战车</span></div>
+        <div class="v">军迷圈层、有军旅情结的车主，价值认同优先。</div>
+        <div class="v">AI 数字人级：八一历史 / 军车演化 / 致敬叙事。</div>
+        <div class="v">板块军迷圈层话题运营 + 集卡解锁限定徽章。</div>
+      </div>
+      <div class="rowline" data-anim>
+        <div class="k">城市猎人<span class="sub">2027 上市</span></div>
+        <div class="v">30-50 万高端潜客，对标卫士 / 坦克 700，等待中。</div>
+        <div class="v">远期蓄势：对标解读 / 概念预热 / 设计语言科普。</div>
+        <div class="v">潜客预约系统积分玩法 + 内测专享 AI 体验。</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div>Page 10 · 全系矩阵</div>
+    <div>Matrix</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SLIDE 12 · CTA · Hero One-Liner
+     ============================================================ -->
+<section class="slide hero dark">
+  <div class="chrome">
+    <div></div>
+    <div></div>
+  </div>
+  <div class="frame" style="display:grid; align-content:center; justify-items:center; text-align:center; min-height:84vh">
+    <h1 class="h-hero" style="font-size:7.2vw; line-height:1.25; max-width:78vw" data-anim>
+      让每一位车主<br>
+      都成为<span class="gold">出片的人</span>。
+    </h1>
+  </div>
+  <div class="foot">
+    <div></div>
+    <div>— BAIC × 兑吧 —</div>
+  </div>
+</section>
+
+</div>
+
+<div id="nav"></div>
+
+<script>
+const VS = `attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`;
+
+const FS_DARK = `precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+vec3 palette(float t,vec3 a,vec3 b,vec3 c,vec3 d){return a+b*cos(6.28318*(c*t+d));}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv*2.0-1.0;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse*2.0-1.0;m.x*=u_resolution.x/u_resolution.y;
+  float md=length(p-m);
+  float mr=sin(md*15.0-u_time*4.0)*exp(-md*3.0);p+=mr*0.08;
+  vec2 p0=p;
+  for(float i=1.0;i<4.0;i++){
+    p.x+=0.1/i*sin(i*3.0*p.y+u_time*0.4)+0.05;
+    p.y+=0.1/i*cos(i*2.0*p.x+u_time*0.3)-0.05;
+  }
+  float r=length(p);float ang=atan(p.y,p.x);
+  vec3 a=vec3(0.16,0.13,0.09);
+  vec3 b=vec3(0.05,0.04,0.03);
+  vec3 c=vec3(1.0,0.9,0.7);
+  vec3 d=vec3(0.1,0.15,0.3);
+  vec3 col=palette(r*1.5+p0.x*0.5+u_time*0.1,a,b,c,d);
+  float disp=sin(r*25.0-u_time*1.5+ang*2.0)*0.5+0.5;
+  col+=vec3(disp*0.025,disp*0.018,disp*0.005);
+  float hi=pow(sin(p.x*4.0+p.y*3.0+u_time)*0.5+0.5,8.0);
+  col+=hi*0.10;
+  vec3 base=vec3(0.075,0.06,0.045);
+  col=mix(base,col,0.85);
+  gl_FragColor=vec4(col,1.0);
+}`;
+
+const FS_LIGHT = `precision highp float;
+uniform vec2 u_resolution;uniform float u_time;uniform vec2 u_mouse;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float noise(vec2 p){
+  vec2 i=floor(p),f=fract(p);
+  float a=hash(i),b=hash(i+vec2(1,0));
+  float c=hash(i+vec2(0,1)),d=hash(i+vec2(1,1));
+  vec2 u=f*f*(3.0-2.0*f);
+  return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;
+}
+float fbm(vec2 p){
+  float v=0.0,a=0.5;
+  mat2 m=mat2(0.80,0.60,-0.60,0.80);
+  for(int i=0;i<5;i++){v+=a*noise(p);p=m*p*2.02;a*=0.5;}
+  return v;
+}
+void main(){
+  vec2 uv=gl_FragCoord.xy/u_resolution.xy;
+  vec2 p=uv;p.x*=u_resolution.x/u_resolution.y;
+  vec2 m=u_mouse;m.x*=u_resolution.x/u_resolution.y;
+  vec2 md=p-m;float dl=length(md);
+  p+=normalize(md+vec2(0.0001))*exp(-dl*5.0)*0.03;
+  vec2 q=vec2(fbm(p*1.8+u_time*0.07),fbm(p*1.8+vec2(5.2,1.3)+u_time*0.06));
+  vec2 r=vec2(fbm(p*2.0+q*1.3+vec2(1.7,9.2)+u_time*0.05),
+              fbm(p*2.0+q*1.3+vec2(8.3,2.8)+u_time*0.04));
+  float f=fbm(p*2.2+r*1.5);
+  vec3 sand=vec3(0.88,0.83,0.72);
+  vec3 paper=vec3(0.96,0.92,0.84);
+  vec3 col=mix(sand,paper,f);
+  float ph=r.x*2.2+u_time*0.35;
+  col+=vec3(0.85,0.65,0.32)*sin(ph)*0.06;
+  col+=vec3(0.55,0.4,0.2)*sin(ph*0.8+2.0)*0.04;
+  float hl=smoothstep(0.48,0.92,f);
+  col+=hl*0.06;
+  gl_FragColor=vec4(col,1.0);
+}`;
+
+const mouse={x:0.5,y:0.5};
+addEventListener('mousemove',e=>{mouse.x=e.clientX/innerWidth;mouse.y=e.clientY/innerHeight});
+
+function bootGL(canvasId, fsSrc){
+  const canvas=document.getElementById(canvasId);
+  const gl=canvas.getContext('webgl',{alpha:false,antialias:true});
+  if(!gl) return ()=>false;
+  const mk=(t,s)=>{const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);return sh};
+  const prog=gl.createProgram();
+  gl.attachShader(prog,mk(gl.VERTEX_SHADER,VS));
+  gl.attachShader(prog,mk(gl.FRAGMENT_SHADER,fsSrc));
+  gl.linkProgram(prog);gl.useProgram(prog);
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const pos=gl.getAttribLocation(prog,'position');
+  gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+  const lRes=gl.getUniformLocation(prog,'u_resolution');
+  const lT=gl.getUniformLocation(prog,'u_time');
+  const lM=gl.getUniformLocation(prog,'u_mouse');
+  const resize=()=>{
+    const d=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=innerWidth*d;canvas.height=innerHeight*d;
+    gl.viewport(0,0,canvas.width,canvas.height);
+  };
+  addEventListener('resize',resize);resize();
+  return (tSec)=>{
+    gl.uniform2f(lRes,canvas.width,canvas.height);
+    gl.uniform1f(lT,tSec);
+    gl.uniform2f(lM,mouse.x,1-mouse.y);
+    gl.drawArrays(gl.TRIANGLES,0,6);
+    return true;
+  };
+}
+const drawDark=bootGL('bg-dark',FS_DARK);
+const drawLight=bootGL('bg-light',FS_LIGHT);
+const t0=Date.now();
+(function loop(){
+  const t=(Date.now()-t0)/1000;
+  drawDark(t);drawLight(t);
+  requestAnimationFrame(loop);
+})();
+
+const deck=document.getElementById('deck');
+const slides=deck.querySelectorAll('.slide');
+const nav=document.getElementById('nav');
+let idx=0,total=slides.length,lock=false;
+
+deck.style.width=(total*100)+'vw';
+
+slides.forEach((s,i)=>{
+  const b=document.createElement('button');
+  b.className='dot';b.dataset.i=i;b.setAttribute('aria-label','Page '+(i+1));
+  b.onclick=()=>go(i);
+  nav.appendChild(b);
+});
+
+function go(n){
+  if(lock)return;
+  idx=Math.max(0,Math.min(total-1,n));
+  deck.style.transform=`translateX(${-idx*100}vw)`;
+  nav.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  const el=slides[idx];
+  const th=el.dataset.theme || (el.classList.contains('light')?'light':(el.classList.contains('dark')?'dark':'dark'));
+  document.body.classList.toggle('light-bg',th==='light');
+  if(window.__playSlide) setTimeout(()=>window.__playSlide(idx), 450);
+  lock=true;setTimeout(()=>lock=false,700);
+}
+
+let overviewOn=false;
+const ov=document.createElement('div');
+ov.id='overview';
+ov.style.cssText='position:fixed;inset:0;z-index:100;background:rgba(var(--ink-rgb),.92);backdrop-filter:blur(12px);display:none;overflow-y:auto;padding:4vh 4vw';
+document.body.appendChild(ov);
+
+function buildOverview(){
+  ov.innerHTML='';
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:2vh 1.6vw;max-width:90vw;margin:0 auto';
+  slides.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.style.cssText='cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid '+(i===idx?'rgba(var(--paper-rgb),.8)':'rgba(var(--paper-rgb),.15)')+';transition:border-color .2s';
+    const wrap=document.createElement('div');
+    wrap.style.cssText='width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;pointer-events:none;background:'+(s.classList.contains('light')?'var(--paper)':'var(--ink)');
+    const clone=s.cloneNode(true);
+    clone.style.cssText='width:100vw;height:100vh;transform:scale('+(1/4.5)+');transform-origin:top left;position:absolute;top:0;left:0;pointer-events:none';
+    wrap.appendChild(clone);
+    const label=document.createElement('div');
+    label.style.cssText='padding:6px 10px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper);opacity:.7';
+    label.textContent=(i+1)+' / '+total;
+    card.appendChild(wrap);
+    card.appendChild(label);
+    card.onclick=()=>{toggleOverview();go(i)};
+    grid.appendChild(card);
+  });
+  ov.appendChild(grid);
+}
+
+function toggleOverview(){
+  overviewOn=!overviewOn;
+  if(overviewOn){buildOverview();ov.style.display='block';}
+  else{ov.style.display='none';}
+}
+
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();toggleOverview();return;}
+  if(overviewOn)return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '||e.key==='ArrowDown'){
+    if(window.__pipeAdvance && window.__pipeAdvance()) return;
+    go(idx+1);
+    return;
+  }
+  if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='ArrowUp')go(idx-1);
+  if(e.key==='Home')go(0);
+  if(e.key==='End')go(total-1);
+});
+
+let wheelTO=null,wheelAcc=0;
+addEventListener('wheel',e=>{
+  if(lock)return;
+  wheelAcc+=e.deltaY+e.deltaX;
+  if(Math.abs(wheelAcc)>80){
+    if(wheelAcc>0 && window.__pipeAdvance && window.__pipeAdvance()){
+      wheelAcc=0;
+    }else{
+      go(idx+(wheelAcc>0?1:-1));wheelAcc=0;
+    }
+  }
+  clearTimeout(wheelTO);wheelTO=setTimeout(()=>wheelAcc=0,200);
+},{passive:true});
+
+let tx=0,ty=0;
+addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+addEventListener('touchend',e=>{
+  const dx=(e.changedTouches[0].clientX-tx);
+  const dy=(e.changedTouches[0].clientY-ty);
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){
+    if(dx<0 && window.__pipeAdvance && window.__pipeAdvance()) return;
+    go(idx+(dx<0?1:-1));
+  }
+},{passive:true});
+
+go(0);
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+
+<script type="module">
+let motion;
+try {
+  motion = await import('/Users/roseher/.claude/skills/guizang-ppt-skill/assets/motion.min.js');
+} catch(e1) {
+  try {
+    motion = await import('https://cdn.jsdelivr.net/npm/motion@11.11.17/+esm');
+  } catch(e2) {
+    console.warn('[motion] both failed, disabling animations', e1, e2);
+    document.querySelectorAll('[data-anim]').forEach(el=>{el.style.opacity='1';el.style.transform='none'});
+    document.querySelectorAll('[data-animate="pipeline"] [data-anim]').forEach(el=>el.style.opacity='1');
+  }
+}
+
+if(motion){
+  const { animate, stagger } = motion;
+  const EASE = [.22, 1, .36, 1];
+  const slides = [...document.querySelectorAll('.slide')];
+  let pipeStep = -1;
+  let lastIdx = -1;
+
+  function resetAnims(slide){
+    slide.querySelectorAll('[data-anim]').forEach(el=>{
+      el.style.opacity='';
+      el.style.transform='';
+    });
+  }
+
+  function playSlide(i){
+    const slide = slides[i];
+    if(!slide) return;
+    lastIdx = i;
+    const recipe = slide.dataset.animate || (slide.classList.contains('hero') ? 'hero' : 'cascade');
+
+    if(recipe === 'pipeline'){
+      pipeStep = -1;
+      slide.querySelectorAll('[data-anim]').forEach(el=>{
+        el.style.opacity='0.15';
+        el.style.transform='none';
+      });
+      return;
+    }
+
+    resetAnims(slide);
+    const all = [...slide.querySelectorAll('[data-anim]')];
+    if(!all.length) return;
+
+    if(recipe === 'directional'){
+      const lefts  = all.filter(el=>el.dataset.anim==='left');
+      const divs   = all.filter(el=>el.dataset.anim==='divider');
+      const rights = all.filter(el=>el.dataset.anim==='right');
+      const others = all.filter(el=>!['left','right','divider'].includes(el.dataset.anim));
+      if(others.length) animate(others, {opacity:[0,1], y:[12,0]}, {duration:.6, delay:stagger(.1, {start:.15}), easing:EASE});
+      if(lefts.length)  animate(lefts,  {opacity:[0,1], x:[-24,0]}, {duration:.8, delay:.35, easing:EASE});
+      if(divs.length)   animate(divs,   {opacity:[0,.25]},          {duration:.5, delay:.9});
+      if(rights.length) animate(rights, {opacity:[0,1], x:[24,0]},  {duration:.8, delay:1.0, easing:EASE});
+      return;
+    }
+
+    if(recipe === 'quote'){
+      const lines = all.filter(el=>el.dataset.anim==='line');
+      const others = all.filter(el=>el.dataset.anim!=='line');
+      if(others.length) animate(others, {opacity:[0,1], y:[8,0]},    {duration:.6, delay:stagger(.12, {start:.2}), easing:EASE});
+      if(lines.length)  animate(lines,  {opacity:[.35,1], y:[10,0]}, {duration:.8, delay:stagger(.55, {start:.5}), easing:EASE});
+      return;
+    }
+
+    if(recipe === 'hero'){
+      animate(all, {opacity:[0,1], y:[14,0]}, {duration:.9, delay:stagger(.16, {start:.2}), easing:EASE});
+      return;
+    }
+
+    animate(all, {opacity:[0,1], y:[16,0]}, {duration:.75, delay:stagger(.1, {start:.15}), easing:EASE});
+  }
+
+  function pipeAdvance(){
+    const slide = slides[lastIdx];
+    if(!slide || slide.dataset.animate !== 'pipeline') return false;
+    const steps  = [...slide.querySelectorAll('[data-anim="step"]')];
+    const arrows = [...slide.querySelectorAll('[data-anim="arrow"]')];
+    if(pipeStep >= steps.length - 1) return false;
+    pipeStep++;
+    animate(steps[pipeStep], {opacity:[0.15,1], y:[8,0]}, {duration:.5, easing:EASE});
+    if(pipeStep > 0 && arrows[pipeStep-1]){
+      animate(arrows[pipeStep-1], {opacity:[0.15,.7]}, {duration:.3, delay:.15});
+    }
+    return true;
+  }
+
+  window.__playSlide = playSlide;
+  window.__pipeAdvance = pipeAdvance;
+  playSlide(0);
+}
+</script>
+</body>
+</html>

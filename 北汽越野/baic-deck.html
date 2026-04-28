@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 内容引擎 × 北京越野 · 会员运营方案</title>
+<style>
+:root {
+  --bg:#000; --text:#f5f5f7; --text2:#86868b; --text3:#48484a;
+  --gold:#c5a059; --gold-dim:rgba(197,160,89,0.15); --gold-border:rgba(197,160,89,0.3);
+  --card-bg:rgba(255,255,255,0.03); --card-border:rgba(255,255,255,0.08);
+  --radius:16px; --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+canvas#particles{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.4}
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);width:0;z-index:1000;transition:width .3s}
+.nav-dots{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:6px}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(197,160,89,0.25);cursor:pointer;transition:all .3s}
+.nav-dot.active{background:var(--gold);transform:scale(1.5)}
+.nav-dot:hover{background:var(--gold)}
+.slides{height:100vh;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;scrollbar-width:none;position:relative;z-index:1}
+.slides::-webkit-scrollbar{display:none}
+.slide{width:100vw;height:100vh;height:100dvh;scroll-snap-align:start;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:clamp(2rem,5vw,5rem);text-align:center;position:relative}
+.slide-content{position:relative;z-index:1;max-width:1100px;width:100%}
+.anim{opacity:0;transform:translateY(35px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.slide-active .anim{opacity:1;transform:translateY(0)}
+.slide-active .anim:nth-child(1){transition-delay:.05s}
+.slide-active .anim:nth-child(2){transition-delay:.2s}
+.slide-active .anim:nth-child(3){transition-delay:.35s}
+.slide-active .anim:nth-child(4){transition-delay:.5s}
+.slide-active .anim:nth-child(5){transition-delay:.65s}
+.slide-active .anim:nth-child(6){transition-delay:.8s}
+h1{font-size:clamp(2rem,5vw,4rem);font-weight:700;line-height:1.1;letter-spacing:-.02em}
+h2{font-size:clamp(1rem,2.5vw,1.6rem);font-weight:600;color:var(--gold);line-height:1.3}
+p.sub{font-size:clamp(.85rem,1.4vw,1.1rem);color:var(--text2);line-height:1.5;max-width:750px;margin:0 auto}
+.section-label{font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:500}
+.gold{color:var(--gold)}
+.glow{position:absolute;width:600px;height:600px;border-radius:50%;filter:blur(120px);opacity:.12;pointer-events:none}
+.glow-gold{background:radial-gradient(circle,#c5a059,transparent 70%)}
+.ripple-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;pointer-events:none;opacity:.08}
+.ripple{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:1.5px solid var(--gold);border-radius:50%;animation:ripple 4s ease-out infinite}
+.ripple:nth-child(2){animation-delay:1.3s}
+.ripple:nth-child(3){animation-delay:2.6s}
+@keyframes ripple{0%{width:60px;height:60px;opacity:.7}100%{width:700px;height:700px;opacity:0}}
+
+.vid-wrap{position:relative;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--card-border);background:rgba(255,255,255,0.02);cursor:pointer}
+.vid-wrap.gold-border{border-color:var(--gold-border)}
+.vid-wrap video{width:100%;display:block}
+.vid-wrap .vid-label{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:#fff;font-size:.7rem;font-weight:600;padding:5px 12px;border-radius:20px;pointer-events:none;transition:opacity .3s}
+.vid-wrap .vid-label.gold-label{background:rgba(197,160,89,.85);color:#000}
+.vid-wrap.sounding .vid-label{opacity:0}
+
+.img-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--card-border);position:relative;background:rgba(255,255,255,0.02)}
+.img-wrap img{width:100%;display:block}
+.img-label{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);color:#fff;font-size:.7rem;font-weight:600;padding:5px 12px;border-radius:20px}
+
+.highlight-card{background:rgba(197,160,89,.06);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px 18px}
+.highlight-card .title{font-size:.85rem;color:var(--gold);font-weight:600}
+.highlight-card .desc{font-size:.75rem;color:var(--text2);margin-top:4px}
+
+/* Pain points */
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:1.5rem}
+.pain-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;text-align:left}
+.pain-card .num{font-size:1.4rem;color:var(--gold);font-weight:700}
+.pain-card .name{font-size:1.05rem;font-weight:700;margin:6px 0 8px}
+.pain-card .desc{font-size:.78rem;color:var(--text2);line-height:1.6}
+
+/* Dual engine */
+.engine-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:1.5rem;text-align:left}
+.engine-card{background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius);padding:28px;position:relative}
+.engine-card .icon{font-size:2rem;margin-bottom:10px}
+.engine-card .name{font-size:1.2rem;font-weight:700;color:var(--gold);margin-bottom:6px}
+.engine-card .lead{font-size:.85rem;color:var(--text);margin-bottom:14px;line-height:1.5}
+.engine-card ul{list-style:none}
+.engine-card li{font-size:.75rem;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.engine-card li::before{content:"✦ ";color:var(--gold)}
+
+/* Method flow */
+.method-flow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:2rem;flex-wrap:wrap}
+.method-step{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;padding:16px 24px;text-align:center}
+.method-step .icon{font-size:1.5rem;margin-bottom:6px}
+.method-step .name{font-size:.9rem;font-weight:600}
+.method-step .desc{font-size:.7rem;color:var(--text2);margin-top:4px}
+.method-arrow{font-size:1.2rem;color:var(--gold);opacity:.5}
+
+/* Tier cards */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:1.5rem;text-align:left}
+.tier-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;position:relative;transition:border-color .3s}
+.tier-card:hover{border-color:var(--gold-border)}
+.tier-card.featured{border-color:var(--gold-border);background:rgba(197,160,89,.04);box-shadow:0 0 30px rgba(197,160,89,.08)}
+.tier-badge{position:absolute;top:-10px;right:16px;background:var(--gold);color:#000;font-size:.65rem;font-weight:700;padding:3px 12px;border-radius:12px}
+.tier-icon{font-size:2rem;margin-bottom:10px}
+.tier-name{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.tier-desc{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:14px}
+.tier-props{list-style:none}
+.tier-props li{font-size:.75rem;color:var(--text2);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.tier-props li::before{content:"✦ ";color:var(--gold)}
+.tier-cost{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);font-size:.75rem;color:var(--text3)}
+
+/* Sunrise browser chrome */
+.platform-hero{display:flex;flex-direction:column;align-items:center;margin-top:1.2rem}
+.platform-browser{width:100%;max-width:1100px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.02);box-shadow:0 20px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)}
+.browser-bar{height:36px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;padding:0 14px;gap:7px}
+.browser-dot{width:10px;height:10px;border-radius:50%}
+.browser-dot.r{background:#ff5f57}.browser-dot.y{background:#febc2e}.browser-dot.g{background:#28c840}
+.browser-url{flex:1;margin-left:12px;height:22px;border-radius:6px;background:rgba(255,255,255,.06);display:flex;align-items:center;padding:0 10px;font-size:.65rem;color:var(--text3)}
+.platform-browser iframe{width:100%;height:520px;border:none;display:block}
+.tab-group{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.tab-btn{padding:8px 18px;border-radius:980px;border:1px solid var(--card-border);background:transparent;color:var(--text2);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.tab-btn:hover{border-color:var(--gold-border)}
+
+/* Phone mock */
+.phone-section{display:flex;gap:40px;align-items:center;margin-top:1.2rem;justify-content:center}
+.phone-mock{width:300px;height:600px;background:#000;border-radius:36px;padding:8px;flex-shrink:0;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.06),inset 0 0 0 1px rgba(255,255,255,.04)}
+.phone-mock iframe{width:100%;height:100%;border:none;border-radius:30px;background:#0a0a0f}
+.phone-info{flex:1;text-align:left;max-width:480px}
+.step-list{list-style:none;counter-reset:step}
+.step-list li{counter-increment:step;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.8rem;color:var(--text2)}
+.step-list li::before{content:counter(step);display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--gold-dim);color:var(--gold);font-size:.7rem;font-weight:700;align-items:center;justify-content:center;margin-right:10px}
+
+/* Matrix table */
+.matrix-table{width:100%;margin-top:1.2rem;border-collapse:separate;border-spacing:0;font-size:.78rem;text-align:left}
+.matrix-table th{background:rgba(197,160,89,.08);color:var(--gold);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--gold-border);font-size:.75rem}
+.matrix-table td{padding:14px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--text2);vertical-align:top}
+.matrix-table .car-name{color:var(--text);font-weight:600;font-size:.85rem}
+.matrix-table .car-tag{display:inline-block;font-size:.6rem;color:var(--gold);background:var(--gold-dim);padding:2px 8px;border-radius:8px;margin-top:4px}
+.matrix-table tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Pricing */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:1.5rem;text-align:left}
+.price-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;transition:border-color .3s}
+.price-card:hover{border-color:var(--gold-border)}
+.price-type{font-size:.75rem;color:var(--gold);font-weight:600;margin-bottom:6px}
+.price-name{font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.price-fit{font-size:.7rem;color:var(--text3);margin-bottom:14px}
+.price-card ul{list-style:none;flex:1}
+.price-card li{font-size:.75rem;color:var(--text2);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.price-card li::before{content:"✓ ";color:var(--gold)}
+.price-bottom{margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);font-size:.7rem;color:var(--text3)}
+
+/* Video Wall */
+.slide-videowall{padding:0!important}
+.videowall-stage{position:relative;width:100%;height:100%;overflow:hidden}
+.vw-overlay{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;pointer-events:none;transition:opacity .8s ease}
+.vw-overlay h1{font-size:clamp(2.5rem,6vw,5rem);font-weight:700;text-shadow:0 4px 60px rgba(0,0,0,1),0 2px 20px rgba(0,0,0,.9)}
+.vw-overlay h2{font-size:clamp(1.2rem,3vw,2rem);font-weight:600;color:var(--gold);text-shadow:0 2px 30px rgba(0,0,0,1)}
+.vw-overlay p{font-size:clamp(.9rem,1.8vw,1.2rem);color:rgba(245,245,247,.8);text-shadow:0 2px 30px rgba(0,0,0,1);margin-top:.5rem}
+.vw-hero-row{display:flex;gap:16px;justify-content:center;align-items:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;transition:all 1.2s cubic-bezier(.16,1,.3,1)}
+.vw-hero-card{width:140px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.15);opacity:0;transform:scale(.6) translateY(40px);transition:all .8s cubic-bezier(.16,1,.3,1);box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.vw-hero-card video{width:100%;display:block;aspect-ratio:9/16;object-fit:cover}
+.vw-wall{position:absolute;top:-20px;left:-10px;right:-10px;bottom:-20px;display:flex;flex-direction:column;gap:4px;z-index:2;opacity:0;transition:opacity 1s ease}
+.vw-hive-row{display:flex;gap:4px;height:calc(100%/4)}
+.vw-hive-row:nth-child(even){margin-left:60px}
+.vw-wall-cell{flex:0 0 auto;width:120px;height:100%;border-radius:12px;overflow:hidden;position:relative;opacity:0;transform:scale(.7);transition:all .6s cubic-bezier(.16,1,.3,1)}
+.vw-wall-cell:hover{transform:scale(1.08);z-index:5}
+.vw-wall-cell video{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.vw-wall-cell::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.2);transition:background .3s ease}
+.vw-wall-cell:hover::after{background:rgba(0,0,0,0)}
+.vw-wall-vignette{position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,rgba(0,0,0,.55) 0%,rgba(0,0,0,.85) 100%);z-index:3;pointer-events:none}
+
+@media(max-width:900px){
+  .pain-grid,.engine-grid,.tier-grid,.price-grid{grid-template-columns:1fr}
+  .nav-dots{display:none}
+  .phone-section{flex-direction:column;align-items:center}
+  .phone-mock{width:260px;height:520px}
+  .platform-browser iframe{height:350px}
+}
+@media(max-height:700px){
+  .slide{padding:clamp(1.5rem,3vw,3rem)}
+  h1{font-size:clamp(1.6rem,4vw,3rem)}
+}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div id="progress"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="slides" id="slides">
+
+<!-- SLIDE 1: COVER -->
+<section class="slide">
+  <div class="ripple-wrap"><div class="ripple"></div><div class="ripple"></div><div class="ripple"></div></div>
+  <div class="glow glow-gold" style="top:-200px;left:50%;transform:translateX(-50%)"></div>
+  <div class="slide-content">
+    <h2 class="anim" style="font-size:clamp(1.2rem,3vw,2rem)">AI Content × Interactive Engine</h2>
+    <h1 class="anim" style="font-size:clamp(2.4rem,6.5vw,5.2rem)">让 <span class="gold">车主社群</span><br>持续生长</h1>
+    <p class="sub anim" style="font-size:clamp(1rem,1.8vw,1.3rem);margin-top:1rem">AI 内容引擎 × 北京越野 · 会员运营方案</p>
+    <p class="sub anim" style="font-size:.8rem;margin-top:24px;color:var(--text3)">2026 · 综合方案版</p>
+  </div>
+</section>
+
+<!-- SLIDE 2: 板块运营三道坎 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Community Activation Pain Points</div>
+    <h1 class="anim">板块运营的<span class="gold">三道坎</span></h1>
+    <p class="sub anim" style="margin-top:12px">车主在板块里 · 怎么让板块活起来 · 让车主从"看客"变成"参与者"</p>
+    <div class="pain-grid anim">
+      <div class="pain-card">
+        <div class="num">01</div>
+        <div class="name">板块没货</div>
+        <div class="desc">车主社群 / 板块 / 视频号每周要发什么？传统编导拍不过来，硬广发了没人看——板块刷新两屏全是公告，车主越来越懒得点开。</div>
+      </div>
+      <div class="pain-card">
+        <div class="num">02</div>
+        <div class="name">车主不参与</div>
+        <div class="desc">"积分换券、签到打卡、抽奖"——车主只是来薅一下就走。缺一个"参与本身就很酷"的钩子，让车主**愿意自己创作发回板块**。</div>
+      </div>
+      <div class="pain-card">
+        <div class="num">03</div>
+        <div class="name">传播无钩</div>
+        <div class="desc">车主买完车想晒，但官方素材太"广告"，自拍又太朴素。缺一个"既酷又能秀出来"的钩子，让车主朋友圈晒出去就是品牌传播。</div>
+      </div>
+    </div>
+    <p class="sub anim" style="margin-top:1.5rem;font-size:.85rem">三道坎的底层是同一件事：<strong style="color:var(--text)">板块缺"酷的内容钩子"</strong>。我们做的事，就是把这些钩子批量造出来。</p>
+  </div>
+</section>
+
+<!-- SLIDE 3: 双引擎 -->
+<section class="slide">
+  <div class="glow glow-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="slide-content">
+    <div class="section-label anim">Our Approach</div>
+    <h1 class="anim">我们的<span class="gold">双引擎</span></h1>
+    <p class="sub anim">不只做内容，也做"让车主想参与的钩子"</p>
+    <div class="engine-grid anim">
+      <div class="engine-card">
+        <div class="icon">🎬</div>
+        <div class="name">内容引擎</div>
+        <div class="lead">持续给板块产出"有共鸣的"内容——发布会大片、板块日更、热点响应、节气海报，全节奏覆盖。</div>
+        <ul>
+          <li>实拍 / AI 数字人 / 配图视频 三档交付</li>
+          <li>11 种场景 × 500 种风格，永不重复</li>
+          <li>Sunrise.AI 内容创作平台（总部 / 板块小编用）</li>
+          <li>覆盖发布、日常、节气、节日、热点全节奏</li>
+        </ul>
+      </div>
+      <div class="engine-card">
+        <div class="icon">🎁</div>
+        <div class="name">互动引擎</div>
+        <div class="lead">给会员活动加"想分享"的钩子——AI 写真、AI 缘分签、AI 集卡、AI 红包封面，把"积分活动"变成"社交货币"。</div>
+        <ul>
+          <li>AI 写真 / 壁纸 — "你和你的越野" 故事化</li>
+          <li>AI 看手相 / 面相 / 缘分签 — 车型推荐玩法</li>
+          <li>AI 集卡 + 节日红包封面 — 节日营销武器</li>
+          <li>已在金融行业落地，工程能力可承载</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4: 行业能力佐证墙 -->
+<section class="slide" style="padding:clamp(1.5rem,3vw,3rem)">
+  <div class="slide-content" style="text-align:left">
+    <div class="section-label anim">Industry Validation</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">同行<span class="gold">已经在做</span></h1>
+    <p class="sub anim" style="margin-top:6px;font-size:.85rem">福特、问界、极氪、宝马、保时捷、奥迪、奔驰……AI 视频在汽车赛道已被反复验证，这是行业共识，不是技术冒险</p>
+    <div class="anim" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:1rem;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="vid-wrap gold-border" onclick="toggleVid(this)">
+          <video data-src="14_1000 AI作品挑战｜福特2026CNY/video_1.mp4" muted playsinline preload="none" loop style="aspect-ratio:9/16;object-fit:cover;height:auto;max-height:55vh"></video>
+          <div class="vid-label gold-label">福特 2026 CNY</div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text3);text-align:center">AI 春节大片 · 1000 作品挑战</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="vid-wrap" onclick="toggleVid(this)">
+          <video data-src="AI 创魔都跑车花海，氛围感拉满✨/video_1.mp4" muted playsinline preload="none" loop style="aspect-ratio:9/16;object-fit:cover;height:auto;max-height:55vh"></video>
+          <div class="vid-label">魔都跑车花海</div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text3);text-align:center">AI 城市氛围感场景</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="vid-wrap" onclick="toggleVid(this)">
+          <video data-src="上天入地不在话下！就这样一路驶进繁花/video_1.mp4" muted playsinline preload="none" loop style="aspect-ratio:9/16;object-fit:cover;height:auto;max-height:55vh"></video>
+          <div class="vid-label">上天入地驶进繁花</div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text3);text-align:center">AI 越野场景叙事</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="vid-wrap" onclick="toggleVid(this)">
+          <video data-src="你能看出这是AI做的吗？/video_1.mp4" muted playsinline preload="none" loop style="aspect-ratio:9/16;object-fit:cover;height:auto;max-height:55vh"></video>
+          <div class="vid-label">问界 M6 真假</div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text3);text-align:center">AI 内容已可达发布级</div>
+      </div>
+    </div>
+    <p class="sub anim" style="margin-top:1rem;font-size:.78rem">这四段都是同行公开发布的 AI 内容——这是我们能为北京越野做到、且做得更系统的能力底色</p>
+  </div>
+</section>
+
+<!-- SLIDE 5: 内容方法论 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Methodology</div>
+    <h1 class="anim"><span class="gold">AI 内容创作</span>方法论</h1>
+    <p class="sub anim">不是"让 AI 写文案"，是"用 AI 复刻爆款逻辑"——这是两件完全不同的事</p>
+    <div class="method-flow anim">
+      <div class="method-step"><div class="icon">🔥</div><div class="name">热点捕捉</div><div class="desc">实时监测平台爆款</div></div>
+      <div class="method-arrow">→</div>
+      <div class="method-step"><div class="icon">🔍</div><div class="name">结构拆解</div><div class="desc">为什么爆？拆开看</div></div>
+      <div class="method-arrow">→</div>
+      <div class="method-step"><div class="icon">🤖</div><div class="name">AI 二创</div><div class="desc">复刻结构到你的产品</div></div>
+      <div class="method-arrow">→</div>
+      <div class="method-step"><div class="icon">🛡️</div><div class="name">合规校验</div><div class="desc">内置行业红线库</div></div>
+    </div>
+    <p class="sub anim" style="margin-top:1.2rem;font-size:.8rem">越野赛道的热点判断 + 二创策略——比如车主自驾游趋势、新车上市节点、节假日越野场景，每一类我们都有沉淀过的二创结构</p>
+  </div>
+</section>
+
+<!-- SLIDE 6: 一个车型，三档内容 -->
+<section class="slide">
+  <div class="glow glow-gold" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+  <div class="slide-content">
+    <div class="section-label anim">One Vehicle, Three Content Tiers</div>
+    <h1 class="anim">一个车型，<span class="gold">三档内容打法</span></h1>
+    <p class="sub anim">不是品质高低，是节奏不同 · 大片打品、日更养号、KOS 铺面</p>
+    <div class="tier-grid anim">
+      <div class="tier-card">
+        <div class="tier-icon">🖼️</div><div class="tier-name">轻量级 · 配图视频</div>
+        <div class="tier-desc">AI 配图 + AI 配音 + 字幕动效，<strong>单条成本最低</strong>，适合社群日更和节气海报矩阵</div>
+        <ul class="tier-props"><li>AI 生成场景配图</li><li>AI 语音 / 数据图表</li><li>自动字幕 + 转场动效</li><li>适合每周 5-10 条铺量</li></ul>
+        <div class="tier-cost">预算：<strong>低</strong> · 适合社群日更 / 节气矩阵</div>
+      </div>
+      <div class="tier-card featured">
+        <div class="tier-badge">主力打法</div>
+        <div class="tier-icon">🤖</div><div class="tier-name">进阶级 · AI 数字人 · 电影级场景</div>
+        <div class="tier-desc">没有真人 / 没法实拍也能出大片——AI 生成电影级场景 + 数字人 / 实拍合成，<strong>做到实拍做不到的事</strong></div>
+        <ul class="tier-props"><li>AI 生成阿尔金山 / 沙漠 / 雪山 / 都市等场景</li><li>新车保密期内可先做内容</li><li>不受拍摄条件 / 季节 / 演员档期限制</li><li>品牌人设 100% 一致</li></ul>
+        <div class="tier-cost" style="color:var(--gold)">预算：<strong>中</strong> · 适合发布会 / 热点响应 / 周更大片</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-icon">🎬</div><div class="tier-name">旗舰级 · 真人实拍</div>
+        <div class="tier-desc">代言人 + 真人车主 IP？实拍 + AI 后期增强，<strong>品牌大片天花板</strong></div>
+        <ul class="tier-props"><li>真人出镜 + AI 后期特效</li><li>专业编导脚本策划</li><li>适合年度旗舰 campaign</li><li>实拍素材二创衍生 N 条</li></ul>
+        <div class="tier-cost">预算：<strong>高</strong> · 适合年度大片 / 发布会主视觉</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7: Sunrise.AI -->
+<section class="slide" style="padding:clamp(1.5rem,3vw,3rem)">
+  <div class="slide-content">
+    <div class="section-label anim">Platform · PC</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.2rem)">Sunrise.AI <span class="gold">内容创作平台</span></h1>
+    <p class="sub anim" style="font-size:.85rem">总部会员运营 / 品牌团队用 · PC 端 · 一人当一队</p>
+    <div class="tab-group anim" style="margin-top:14px">
+      <button class="tab-btn active" onclick="switchTab(this,'../销售材料3月/sunrise-ux/ux-05-hotspot-v2-zh.html','sunrise.ai / 热点中心')">🔥 热点中心</button>
+      <button class="tab-btn" onclick="switchTab(this,'../销售材料3月/sunrise-ux/ux-03-templates.html','sunrise.ai / 模板广场')">📋 模板广场</button>
+      <button class="tab-btn" onclick="switchTab(this,'../销售材料3月/sunrise-ux/ux-02-quick.html','sunrise.ai / 自由创作')">✨ 自由创作</button>
+    </div>
+    <div class="platform-hero anim">
+      <div class="platform-browser">
+        <div class="browser-bar">
+          <div class="browser-dot r"></div><div class="browser-dot y"></div><div class="browser-dot g"></div>
+          <div class="browser-url" id="browserUrl">sunrise.ai / 热点中心</div>
+        </div>
+        <iframe id="platformFrame" data-src="../销售材料3月/sunrise-ux/ux-05-hotspot-v2-zh.html" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: 抖音爆款做同款 · 板块活跃利器 -->
+<section class="slide" style="padding:clamp(1.5rem,3vw,3rem)">
+  <div class="slide-content">
+    <div class="section-label anim">Trend × Make It Yours</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.6rem)">抖音爆款 → <span class="gold">车主做同款</span> → 板块炸开</h1>
+    <p class="sub anim" style="font-size:.9rem;margin-top:8px">真正激活板块的不是"官方又发了一篇"，是"车主自己拍着玩，还能拍得很酷"</p>
+
+    <div class="anim" style="display:grid;grid-template-columns:1.1fr 1fr;gap:36px;margin-top:1.8rem;text-align:left;align-items:start">
+      <div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:14px">抖音上正在火的"很酷"模板</h3>
+        <ul style="list-style:none">
+          <li style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.86rem;color:var(--text2)"><strong style="color:var(--text)">🎬 飞驰人生 4 · 关车门</strong> · 慢动作 + 转身 + 关门一气呵成，抖音模仿超百万条</li>
+          <li style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.86rem;color:var(--text2)"><strong style="color:var(--text)">🚙 车门一开氛围感拉满</strong> · 灯光 + BGM + 上车镜头，越野场景天然适配</li>
+          <li style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.86rem;color:var(--text2)"><strong style="color:var(--text)">⛰ 自驾穿越大片秒变</strong> · 一镜到底从城市到旷野，抖音越野赛道头部内容</li>
+          <li style="padding:11px 0;font-size:.86rem;color:var(--text2)"><strong style="color:var(--text)">🌃 极夜霓虹 / 雨夜车窗</strong> · 高饱和氛围感，年轻车主最爱的"车主朋友圈大片"</li>
+        </ul>
+        <div class="highlight-card" style="margin-top:18px">
+          <div class="title">这些模板的共性 — "酷"</div>
+          <div class="desc">车主自己很难拍出来，但只要给他一个 AI 模板 + 上传一张自拍 / 一段车的素材，就能产出"看起来很专业"的版本</div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:14px">板块活跃机制 · 闭环</h3>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px 16px">
+            <div style="font-size:.7rem;color:var(--gold);font-weight:600;margin-bottom:4px">STEP 01</div>
+            <div style="font-size:.88rem;color:var(--text);font-weight:600">捕捉 / 生产爆款模板</div>
+            <div style="font-size:.72rem;color:var(--text2);margin-top:3px">从抖音 / 小红书爆款抓结构，AI 复刻成北京越野专属模板</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px 16px">
+            <div style="font-size:.7rem;color:var(--gold);font-weight:600;margin-bottom:4px">STEP 02</div>
+            <div style="font-size:.88rem;color:var(--text);font-weight:600">板块上架"做同款挑战"</div>
+            <div style="font-size:.72rem;color:var(--text2);margin-top:3px">"BJ40 关车门挑战"、"BJ212 城市夜挑战"——配 BGM、手把手引导</div>
+          </div>
+          <div style="background:rgba(197,160,89,.06);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px 16px;box-shadow:0 0 24px rgba(197,160,89,.06)">
+            <div style="font-size:.7rem;color:var(--gold);font-weight:600;margin-bottom:4px">STEP 03 · 核心</div>
+            <div style="font-size:.88rem;color:var(--text);font-weight:600">车主上传素材 · 一键出片</div>
+            <div style="font-size:.72rem;color:var(--text2);margin-top:3px">Starry.AI 三分钟出"看起来很贵"的版本，车主从看客变成创作者</div>
+          </div>
+          <div style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius-sm);padding:14px 16px">
+            <div style="font-size:.7rem;color:var(--gold);font-weight:600;margin-bottom:4px">STEP 04</div>
+            <div style="font-size:.88rem;color:var(--text);font-weight:600">回流板块 · 积分激励 · 二次传播</div>
+            <div style="font-size:.72rem;color:var(--text2);margin-top:3px">车主作品发回板块得积分 → 板块自然热闹 → 朋友圈带话题反向引流</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="sub anim" style="margin-top:1.4rem;font-size:.78rem;text-align:center">把"板块运营"从"小编单方面发"，变成<strong style="color:var(--gold)">"车主自己玩、自己拍、自己秀"</strong>——这是社区活跃唯一可持续的姿势</p>
+  </div>
+</section>
+
+<!-- SLIDE 9: 互动玩法 ① AI 写真 / 壁纸 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Interactive Play · 01</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">互动玩法 ① · <span class="gold">AI 越野写真 / 壁纸</span></h1>
+    <p class="sub anim" style="font-size:.85rem">"你和你的 BJ40 在阿尔金山" · 车主积分兑换 AI 越野场景写真</p>
+    <div class="phone-section anim">
+      <div class="phone-mock">
+        <iframe data-src="../积分兑换AI写真demo.html" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <div class="phone-info">
+        <ul style="list-style:none">
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">⛰ 场景化</strong> — 阿尔金山 / 戈壁 / 雪原 / 城市夜 / 海岛 · 30+ 越野专属场景</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🎯 个性化</strong> — 上传车主本人头像 + 自己的爱车角度，生成"我和我的车"独家大片</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🎁 积分钩子</strong> — 入门款积分免费抽，高阶场景积分兑换，唤醒沉睡积分</li>
+          <li style="padding:10px 0;font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">📲 自带社交</strong> — 直接生成竖版壁纸 + 朋友圈横图，附"我的越野时刻"H5 链接</li>
+        </ul>
+        <div class="highlight-card" style="margin-top:14px">
+          <div class="title">车主自己变成传播节点</div>
+          <div class="desc">每张照片都是品牌内容，朋友圈里 1000 个车主就是 1000 个种草号</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: 互动玩法 ② AI 缘分签 / 看手相 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Interactive Play · 02</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">互动玩法 ② · <span class="gold">AI 越野缘分签</span></h1>
+    <p class="sub anim" style="font-size:.85rem">AI 看手相 / 面相 / MBTI 测试 · 算出"你最适合哪款北京越野"</p>
+    <div class="phone-section anim">
+      <div class="phone-info" style="order:1">
+        <ul style="list-style:none">
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🔮 入口好玩</strong> — 上传一张手掌 / 面部照片，AI 给出风格化"越野签文"</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🚗 输出有价值</strong> — 签文结尾推荐"你的本命车型"——硬核 BJ40 / 复古 BJ212 / 城市猎人 / 北京八一</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">📊 沉淀用户画像</strong> — 后台沉淀车主的兴趣 / 风格偏好，反哺内容推送精准度</li>
+          <li style="padding:10px 0;font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🛡 合规友好</strong> — 仅作娱乐性内容，结果页加"娱乐参考"水印</li>
+        </ul>
+        <div class="highlight-card" style="margin-top:14px">
+          <div class="title">已在金融客户验证（MBTI 测理财人格）</div>
+          <div class="desc">右侧是同款引擎的金融版 demo，可直接改造为越野缘分签</div>
+        </div>
+      </div>
+      <div class="phone-mock" style="order:2">
+        <iframe data-src="../积分兑换AI测MBTI_demo.html" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: 互动玩法 ③ AI 集卡 + 红包封面 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Interactive Play · 03</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">互动玩法 ③ · <span class="gold">AI 红包封面 + 节日玩法</span></h1>
+    <p class="sub anim" style="font-size:.85rem">春节 / 端午 / 七夕 / 中秋 · 节日营销武器包 · 积分变社交货币</p>
+    <div class="phone-section anim">
+      <div class="phone-mock">
+        <iframe data-src="../积分兑换红包封面demo.html" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+      <div class="phone-info">
+        <ul style="list-style:none">
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🧧 AI 红包封面</strong> — 北京越野 × 春节限定，车主积分兑换，每发一个红包都是品牌曝光</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🃏 AI 集卡玩法</strong> — 集齐 BJ40 / BJ212 / 八一 / 城市猎人四张卡，解锁车主专属特权（限量周边 / 试驾权益）</li>
+          <li style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">🎁 AI 节气海报</strong> — 24 节气自动生成北京越野专属车主海报，社群打卡素材</li>
+          <li style="padding:10px 0;font-size:.82rem;color:var(--text2)"><strong style="color:var(--gold)">📣 + 做同款机制</strong> — 车主用品牌模板生成内容，发布即解锁额外积分</li>
+        </ul>
+        <div class="highlight-card" style="margin-top:14px">
+          <div class="title">把"积分换券"升级为"积分换社交货币"</div>
+          <div class="desc">节日 = 自然流量窗口，AI 红包封面是单次活动 ROI 最高的玩法</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12: 北汽全系矩阵 × 内容+互动方案 -->
+<section class="slide" style="padding:clamp(1.5rem,3vw,3rem)">
+  <div class="slide-content" style="text-align:left">
+    <div class="section-label anim">BAIC Off-Road Matrix × Solution</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">北京越野全系 × <span class="gold">方案矩阵</span></h1>
+    <p class="sub anim" style="font-size:.8rem;margin-top:6px;text-align:left;margin-left:0">每款车都有清晰人群 · 每个人群匹配不同的内容打法和互动玩法</p>
+    <table class="matrix-table anim">
+      <thead>
+        <tr>
+          <th style="width:18%">车型</th>
+          <th style="width:22%">人群画像</th>
+          <th style="width:30%">内容侧打法</th>
+          <th style="width:30%">互动玩法</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="car-name">BJ40</div><div class="car-tag">现售主销 · 13万</div></td>
+          <td>硬派越野玩家 / 改装爱好者 / 城市通勤+周末出游</td>
+          <td>越野场景 AI 数字人大片<br>车主"关车门挑战"做同款<br>改装 / 越野技巧短剧</td>
+          <td>AI 越野写真（戈壁/雪原/沙漠）<br>车主自驾打卡 H5</td>
+        </tr>
+        <tr>
+          <td><div class="car-name">BJ212</div><div class="car-tag">新晋网红 · 12万</div></td>
+          <td>复古文化爱好者 / 城市个性玩家 / 年轻新车主</td>
+          <td>怀旧美学短片<br>"北京吉普"文化 IP 内容<br>"城市夜挑战"做同款</td>
+          <td>AI 复古胶片写真<br>"复古越野缘分签"<br>春节限定红包封面</td>
+        </tr>
+        <tr>
+          <td><div class="car-name">北京八一</div><div class="car-tag">概念新车 · 军迷向</div></td>
+          <td>军迷圈层 / 硬核越野发烧友 / 男性高客单价用户</td>
+          <td>军事题材短剧 / 概念车纪录片风<br>板块军迷圈层话题运营</td>
+          <td>AI 军装写真生成器<br>"我的硬核指数"测试</td>
+        </tr>
+        <tr>
+          <td><div class="car-name">城市猎人</div><div class="car-tag">2027 上市 · 30-50万</div></td>
+          <td>豪华 SUV 用户 / 路虎卫士/坦克700 潜客 / 都市精英</td>
+          <td>都市电影级 AI 大片（保密期内可启动）<br>对标卫士/坦克700 解读内容</td>
+          <td>AI 都市画报生成器<br>"高姿态 SUV 性格测试"<br>潜客预约系统积分玩法</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="sub anim" style="margin-top:1rem;font-size:.75rem;text-align:left;margin-left:0">城市猎人 2027 上市，但 AI 内容可以从现在就开始预热——保密期内不能实拍的事，AI 反而可以做</p>
+  </div>
+</section>
+
+<!-- SLIDE 13: 落地佐证 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Proof of Delivery</div>
+    <h1 class="anim" style="font-size:clamp(1.4rem,3vw,2.4rem)">不是 demo，<span class="gold">是已落地的工程能力</span></h1>
+    <p class="sub anim" style="font-size:.85rem">互动玩法 + AI 内容平台，已在金融客户跑通端到端</p>
+    <div class="anim" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:1.5rem;text-align:left">
+      <div style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius);padding:24px">
+        <div style="font-size:1.6rem">🏦</div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin:8px 0">平安银行信用卡 · AI 互动</h3>
+        <p style="font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:12px">从积分商城互动玩法到 AI 内容产出全链路落地——AI 写真、AI 测算、积分兑换工程承载</p>
+        <ul style="list-style:none;font-size:.72rem;color:var(--text2)">
+          <li style="padding:4px 0">✓ 千万级用户量积分商城承载</li>
+          <li style="padding:4px 0">✓ AI 内容 + 互动玩法双引擎闭环</li>
+          <li style="padding:4px 0">✓ 已通过金融行业风控合规审核</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-bg);border:1px solid var(--gold-border);border-radius:var(--radius);padding:24px">
+        <div style="font-size:1.6rem">🎁</div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin:8px 0">兑吧私有化积分商城 · 工程底座</h3>
+        <p style="font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:12px">服务过中行、工行、农行、平安、京东等头部企业的积分运营底层引擎</p>
+        <ul style="list-style:none;font-size:.72rem;color:var(--text2)">
+          <li style="padding:4px 0">✓ 私有化部署，数据安全可控</li>
+          <li style="padding:4px 0">✓ 互动玩法插件化，按需组合</li>
+          <li style="padding:4px 0">✓ 大并发活动稳定性已验证</li>
+        </ul>
+      </div>
+    </div>
+    <p class="sub anim" style="margin-top:1.2rem;font-size:.78rem">互动玩法不是临时拼凑——背后是十年积分运营 SaaS 服务积累的工程底座</p>
+  </div>
+</section>
+
+<!-- SLIDE 14: 三种合作方式 -->
+<section class="slide">
+  <div class="slide-content">
+    <div class="section-label anim">Engagement Models</div>
+    <h1 class="anim">三种<span class="gold">合作方式</span></h1>
+    <p class="sub anim">可独立 · 可组合 · 根据团队和预算灵活选择</p>
+    <div class="price-grid anim">
+      <div class="price-card">
+        <div class="price-type">代运营 · Done-For-You</div>
+        <div class="price-name">帮你做</div>
+        <div class="price-fit">没团队 / 团队忙不过来 · 全流程托管</div>
+        <ul>
+          <li>选题 / 生产 / 审核 / 发布全流程</li>
+          <li>固定产能 + 月度报告</li>
+          <li>含全部内容档位（实拍/数字人/配图）</li>
+          <li>可选：互动玩法策划 + 落地</li>
+        </ul>
+        <div class="price-bottom">月度起投 · 可按车型 / 节点定制套餐</div>
+      </div>
+      <div class="price-card" style="border-color:var(--gold-border);background:rgba(197,160,89,.04)">
+        <div class="price-type" style="color:var(--gold)">SaaS · Do-It-Yourself</div>
+        <div class="price-name">让你自己做</div>
+        <div class="price-fit">已有内容 / 会员运营团队 · 平台化</div>
+        <ul>
+          <li>Sunrise.AI 总部端 + Starry.AI 4S 端</li>
+          <li>账号配额按团队规模配置</li>
+          <li>越野行业模板包 + 越野场景 Prompt 库</li>
+          <li>专属对接人 + SOP 培训</li>
+        </ul>
+        <div class="price-bottom" style="color:var(--gold)">年度订阅 · 按账号数 / 产能阶梯定价</div>
+      </div>
+      <div class="price-card">
+        <div class="price-type">互动玩法 · SDK</div>
+        <div class="price-name">让车主都能玩</div>
+        <div class="price-fit">已有 App / 小程序 / 公众号 · SDK 嵌入</div>
+        <ul>
+          <li>AI 写真 / 缘分签 / 集卡 / 红包封面</li>
+          <li>API + H5 + 小程序插件三种形态</li>
+          <li>可定制北京越野专属皮肤</li>
+          <li>按 PV / 调用量 / 活动包计费</li>
+        </ul>
+        <div class="price-bottom">按活动包 / 按调用量计费 · 可单次也可包年</div>
+      </div>
+    </div>
+    <p class="sub anim" style="margin-top:1rem;font-size:.78rem">综合版推荐：<strong style="color:var(--gold)">SaaS（让团队会用）+ 互动玩法（春节单点击穿）+ 1-2 个代运营旗舰 case</strong></p>
+  </div>
+</section>
+
+<!-- SLIDE 15: CTA -->
+<section class="slide slide-videowall" id="slideVideowall">
+  <div class="videowall-stage" id="videowallStage">
+    <div class="vw-hero-row" id="vwHeroRow">
+      <div class="vw-hero-card"><video data-src="14_1000 AI作品挑战｜福特2026CNY/video_1.mp4" muted playsinline autoplay loop preload="none"></video></div>
+      <div class="vw-hero-card"><video data-src="AI 创魔都跑车花海，氛围感拉满✨/video_1.mp4" muted playsinline autoplay loop preload="none"></video></div>
+      <div class="vw-hero-card"><video data-src="上天入地不在话下！就这样一路驶进繁花/video_1.mp4" muted playsinline autoplay loop preload="none"></video></div>
+      <div class="vw-hero-card"><video data-src="你能看出这是AI做的吗？/video_1.mp4" muted playsinline autoplay loop preload="none"></video></div>
+    </div>
+    <div class="vw-wall" id="vwWall"></div>
+    <div class="vw-wall-vignette" id="vwVignette" style="opacity:0"></div>
+    <div class="vw-overlay" id="vwOverlay" style="opacity:0">
+      <h2>选 1 个车型 · 1 个玩法 · 跑一次 pilot</h2>
+      <h1>让 <span class="gold">车主社群</span> 持续生长</h1>
+      <p>不用现在做大决策 · 一次活动看到产出再深谈</p>
+    </div>
+  </div>
+</section>
+
+</div><!-- /slides -->
+
+<script>
+function ensureVideoLoaded(video) {
+  if (!video || !video.dataset.src || video.getAttribute('src')) return;
+  video.src = video.dataset.src;
+  video.load();
+}
+
+function ensureFrameLoaded(frame, nextSrc) {
+  if (!frame) return;
+  const targetSrc = nextSrc || frame.dataset.src;
+  if (!targetSrc) return;
+  frame.dataset.src = targetSrc;
+  if (frame.getAttribute('src') !== targetSrc) frame.src = targetSrc;
+}
+
+function toggleVid(wrap) {
+  const v = wrap.querySelector('video');
+  ensureVideoLoaded(v);
+  if (wrap.classList.contains('sounding')) {
+    v.muted = true; v.controls = false;
+    wrap.classList.remove('sounding');
+  } else {
+    v.muted = false; v.controls = true;
+    if (v.paused) v.play().catch(()=>{});
+    wrap.classList.add('sounding');
+  }
+}
+
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+const particles = [];
+class Particle {
+  constructor(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.size=Math.random()*1.5+0.5;this.speedX=Math.random()*0.3-0.15;this.speedY=Math.random()*0.3-0.15;this.opacity=Math.random()*0.4+0.1}
+  update(){this.x+=this.speedX;this.y+=this.speedY;if(this.x>canvas.width)this.x=0;if(this.x<0)this.x=canvas.width;if(this.y>canvas.height)this.y=0;if(this.y<0)this.y=canvas.height}
+  draw(){ctx.fillStyle=`rgba(197,160,89,${this.opacity})`;ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill()}
+}
+for(let i=0;i<40;i++)particles.push(new Particle());
+function animP(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.update();p.draw()});requestAnimationFrame(animP)}
+animP();
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
+
+function switchTab(btn,src,url){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ensureFrameLoaded(document.getElementById('platformFrame'),src);
+  document.getElementById('browserUrl').textContent=url;
+}
+
+const container=document.getElementById('slides');
+const slides=container.querySelectorAll('.slide');
+const navDots=document.getElementById('navDots');
+const progress=document.getElementById('progress');
+slides.forEach((_,i)=>{const d=document.createElement('div');d.className='nav-dot';d.addEventListener('click',()=>slides[i].scrollIntoView());navDots.appendChild(d)});
+const dots=navDots.querySelectorAll('.nav-dot');
+
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('slide-active');
+      const idx=[...slides].indexOf(e.target);
+      dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+      progress.style.width=((idx+1)/slides.length*100)+'%';
+      e.target.querySelectorAll('iframe[data-src]').forEach(frame=>ensureFrameLoaded(frame));
+      e.target.querySelectorAll('video[data-src]').forEach(v=>ensureVideoLoaded(v));
+      e.target.querySelectorAll('.vid-wrap:not(.sounding) video').forEach(v=>{v.muted=true;v.play().catch(()=>{})});
+      if(e.target.id==='slideVideowall') startVideoWall();
+    } else {
+      e.target.classList.remove('slide-active');
+      e.target.querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;v.muted=true;v.controls=false});
+      e.target.querySelectorAll('.vid-wrap.sounding').forEach(w=>w.classList.remove('sounding'));
+      if(e.target.id==='slideVideowall') resetVideoWall();
+    }
+  });
+},{root:container,threshold:0.55});
+slides.forEach(s=>observer.observe(s));
+
+document.addEventListener('keydown',e=>{
+  const a=container.querySelector('.slide-active');if(!a)return;
+  const i=[...slides].indexOf(a);
+  if((e.key==='ArrowDown'||e.key===' '||e.key==='PageDown')&&i<slides.length-1){e.preventDefault();slides[i+1].scrollIntoView()}
+  if((e.key==='ArrowUp'||e.key==='PageUp')&&i>0){e.preventDefault();slides[i-1].scrollIntoView()}
+});
+
+const VW_VIDEOS = [
+  '14_1000 AI作品挑战｜福特2026CNY/video_1.mp4',
+  'AI 创魔都跑车花海，氛围感拉满✨/video_1.mp4',
+  '上天入地不在话下！就这样一路驶进繁花/video_1.mp4',
+  '你能看出这是AI做的吗？/video_1.mp4',
+];
+let vwTimeouts = [];
+
+function buildWallGrid() {
+  const wall = document.getElementById('vwWall');
+  if (wall.children.length > 0) return;
+  const rows = 4;
+  const perRow = Math.ceil(window.innerWidth / 124) + 1;
+  let idx = 0;
+  for (let r = 0; r < rows; r++) {
+    const row = document.createElement('div');
+    row.className = 'vw-hive-row';
+    for (let c = 0; c < perRow; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'vw-wall-cell';
+      const vid = document.createElement('video');
+      vid.src = VW_VIDEOS[idx % VW_VIDEOS.length];
+      vid.muted = true; vid.playsInline = true; vid.autoplay = true; vid.loop = true;
+      vid.preload = 'auto';
+      vid.addEventListener('loadedmetadata', () => { vid.currentTime = Math.random() * vid.duration; });
+      cell.appendChild(vid);
+      row.appendChild(cell);
+      idx++;
+    }
+    wall.appendChild(row);
+  }
+}
+
+function startVideoWall() {
+  buildWallGrid();
+  const heroRow = document.getElementById('vwHeroRow');
+  const heroCards = heroRow.querySelectorAll('.vw-hero-card');
+  heroCards.forEach(card=>{
+    const video = card.querySelector('video');
+    ensureVideoLoaded(video);
+    if (video) { video.muted = true; video.play().catch(()=>{}); }
+  });
+  const wall = document.getElementById('vwWall');
+  const overlay = document.getElementById('vwOverlay');
+  const vignette = document.getElementById('vwVignette');
+
+  heroCards.forEach((card, i) => {
+    const t = setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'scale(1) translateY(0)';
+    }, 200 + i * 180);
+    vwTimeouts.push(t);
+  });
+
+  const t2 = setTimeout(() => {
+    heroRow.style.transform = 'translate(-50%, -50%) scale(0.3)';
+    heroRow.style.opacity = '0';
+    wall.style.opacity = '1';
+    const cells = wall.querySelectorAll('.vw-wall-cell');
+    cells.forEach((cell, i) => {
+      const delay = Math.random() * 800;
+      const t = setTimeout(() => {
+        cell.style.opacity = '1';
+        cell.style.transform = 'scale(1)';
+        cell.querySelector('video')?.play().catch(() => {});
+      }, delay);
+      vwTimeouts.push(t);
+    });
+  }, 2800);
+  vwTimeouts.push(t2);
+
+  const t3 = setTimeout(() => {
+    vignette.style.opacity = '1';
+    overlay.style.opacity = '1';
+  }, 4200);
+  vwTimeouts.push(t3);
+}
+
+function resetVideoWall() {
+  vwTimeouts.forEach(t => clearTimeout(t));
+  vwTimeouts = [];
+  const heroRow = document.getElementById('vwHeroRow');
+  const heroCards = heroRow.querySelectorAll('.vw-hero-card');
+  const wall = document.getElementById('vwWall');
+  const overlay = document.getElementById('vwOverlay');
+  const vignette = document.getElementById('vwVignette');
+
+  heroRow.style.transform = 'translate(-50%, -50%)';
+  heroRow.style.opacity = '1';
+  heroCards.forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.6) translateY(40px)';
+  });
+  wall.style.opacity = '0';
+  wall.querySelectorAll('.vw-wall-cell').forEach(cell => {
+    cell.style.opacity = '0';
+    cell.style.transform = 'scale(0.7)';
+  });
+  overlay.style.opacity = '0';
+  vignette.style.opacity = '0';
+}
+</script>
+</body>
+</html>

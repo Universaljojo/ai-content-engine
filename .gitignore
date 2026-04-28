@@ -113,6 +113,11 @@
 !销售材料3月/爆款做同款/雪山飞狐热点截图.jpg
 !销售材料3月/爆款做同款/雪山飞狐视频号数据.jpg
 
+# Allow 北汽越野 deck
+!北汽越野/
+!北汽越野/**
+北汽越野/generated/*.json
+
 # Exclude non-media junk
 *.mov
 *.DS_Store
