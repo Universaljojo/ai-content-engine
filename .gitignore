@@ -121,3 +121,13 @@
 # Exclude non-media junk
 *.mov
 *.DS_Store
+
+# Allow Sunrise deck (2026-05)
+!sales-sunrise/
+!sales-sunrise/*.html
+!sales-sunrise/videos/
+!sales-sunrise/videos/*.mp4
+!sales-sunrise/qr/
+!sales-sunrise/qr/*.jpg
+!sales-sunrise/qr/*.png
+!sales-sunrise/*.pdf
