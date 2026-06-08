@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>好保 · 模板</title>
+<link rel="stylesheet" href="_shared.css?v=v4-fix">
+<style>
+  /* 一级 tab 客户阶段 */
+  .v4-stage-tabs{display:flex;gap:0;margin:4px 16px 8px;border-bottom:1px solid var(--border);padding:0}
+  .v4-stage-tabs button{flex:1;background:transparent;border:none;padding:11px 8px 12px;font-size:14.5px;font-weight:500;color:var(--text3);position:relative;cursor:pointer;letter-spacing:0.1px;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .v4-stage-tabs button.active{color:var(--text);font-weight:600}
+  .v4-stage-tabs button.active::after{content:"";position:absolute;left:25%;right:25%;bottom:-1px;height:2.5px;background:var(--accent);border-radius:2px}
+  .v4-stage-tabs button:active{opacity:0.6}
+  .v4-stage-tabs .vst-count{font-size:10px;color:var(--text3);font-weight:400;letter-spacing:0}
+  .v4-stage-tabs button.active .vst-count{color:var(--accent)}
+
+  /* 阶段说明 */
+  .v4-stage-desc{margin:6px 20px 14px;font-size:11.5px;color:var(--text3);line-height:1.5}
+  .v4-stage-desc b{color:var(--text2);font-weight:500}
+
+  /* 空状态(险种种草/产品测评) */
+  .v4-empty{margin:32px 20px;padding:40px 24px;background:var(--surface-card);border:1px dashed var(--border);border-radius:14px;text-align:center}
+  .v4-empty .ve-icon{width:48px;height:48px;background:var(--gold-bg);color:var(--gold-dark);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
+  .v4-empty .ve-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .v4-empty .ve-sub{font-size:12.5px;color:var(--text3);line-height:1.6}
+  .v4-empty .ve-eta{display:inline-block;margin-top:12px;font-size:11px;background:var(--accent-bg);color:var(--accent);padding:4px 12px;border-radius:50px;font-weight:500}
+
+  .v4-pane{display:none}
+  .v4-pane.active{display:block}
+</style>
+</head>
+<body>
+<!-- v4 / 视觉抄 Claude Design B 方案 + v3 产品判断 -->
+<div class="phone v4">
+
+  <div class="statusbar">
+    <span class="time">9:41</span>
+    <span class="icons">●●●● 5G ⚡</span>
+  </div>
+
+  <div class="v4-appbar">
+    <div class="v4-logo">
+      <div class="v4-logo-mark">✦</div>
+      <span>好保<span style="color:var(--accent);font-weight:700;margin-left:1px">.</span><span style="color:#8E8E93;font-family:'Times New Roman',Georgia,serif;font-weight:500;font-style:normal;letter-spacing:0.3px">ai</span></span>
+    </div>
+    <div class="v4-quota" title="本月配额 · 机构发放 · 约可做 17 条 15-20s 视频"><b>2,232</b> <span style="font-weight:400">积分</span></div>
+  </div>
+
+  <!-- 一级 tab: 客户阶段 -->
+  <div class="v4-stage-tabs">
+    <button class="active" data-stage="awaken" onclick="switchStage('awaken')">
+      <span>意识激发</span>
+      <span class="vst-count">19 条</span>
+    </button>
+    <button data-stage="recommend" onclick="switchStage('recommend')">
+      <span>险种种草</span>
+      <span class="vst-count">本月上线</span>
+    </button>
+    <button data-stage="review" onclick="switchStage('review')">
+      <span>产品测评</span>
+      <span class="vst-count">下月上线</span>
+    </button>
+  </div>
+
+  <!-- ===== Pane 1: 意识激发 (默认显示, 19 张全列) ===== -->
+  <div class="v4-pane active" id="pane-awaken">
+
+  <div class="v4-stage-desc">让<b>没考虑过保险</b>的客户停下来看一眼 · 钩子型短视频</div>
+
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin:4px 20px 12px">
+    <div class="t-17" style="color:var(--text)">今日热推</div>
+    <div class="t-11" style="color:var(--text3)"><span style="color:#FCD34D;font-weight:600">●</span> 本周新增 1 条</div>
+  </div>
+
+  <div class="v4-feed-grid">
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=T02'" style="position:relative">
+      <span style="position:absolute;top:6px;right:6px;z-index:5;background:#FCD34D;color:#5B3A00;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:50px;letter-spacing:0.3px">NEW</span>
+      <div class="v4-cover v4-cover-real">
+        <img src="covers/T02_cover_9_16.png" alt="T02">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">19s</span>
+      </div>
+      <div class="v4-feed-title">考虑考虑 = 最贵的四个字</div>
+      <div class="v4-feed-meta">中式茶馆 · 拖延型客户</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=T03'">
+      <div class="v4-cover v4-cover-real">
+        <img src="covers/T03_cover_9_16.png" alt="T03">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">15s</span>
+      </div>
+      <div class="v4-feed-title">保险反人性?</div>
+      <div class="v4-feed-meta">茶水间 · 段子手风格</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=T04'">
+      <div class="v4-cover v4-cover-real">
+        <img src="covers/T04_cover_9_16.png" alt="T04">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">16s</span>
+      </div>
+      <div class="v4-feed-title">取不出来才叫钱</div>
+      <div class="v4-feed-meta">咖啡馆 · 储蓄替代话题</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=T05'">
+      <div class="v4-cover v4-cover-real">
+        <img src="covers/T05_cover_9_16.png" alt="T05">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">22s</span>
+      </div>
+      <div class="v4-feed-title">利率像渣男</div>
+      <div class="v4-feed-meta">车内副驾 · 长期主义</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=T06'">
+      <div class="v4-cover v4-cover-real">
+        <img src="covers/T06_cover_9_16.png" alt="T06">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">21s</span>
+      </div>
+      <div class="v4-feed-title">股市教我做人</div>
+      <div class="v4-feed-meta">健身房 · 高净值客户</div>
+    </div>
+
+    <!-- 14 张 KOS 模板(AI 海报封面 + 场景设定) -->
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K01'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K01_cover_9_16.png" alt="K01">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">8s</span>
+      </div>
+      <div class="v4-feed-title">60 到 85 岁,你算过这账吗</div>
+      <div class="v4-feed-meta">高级办公室 · 算账篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K02'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K02_cover_9_16.png" alt="K02">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">8s</span>
+      </div>
+      <div class="v4-feed-title">医疗险 = 医院 VIP 通道</div>
+      <div class="v4-feed-meta">咖啡馆 · 反差篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K03'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K03_cover_9_16.png" alt="K03">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">8s</span>
+      </div>
+      <div class="v4-feed-title">退休账,越晚准备越累</div>
+      <div class="v4-feed-meta">办公室 · 算账篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K04'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K04_cover_9_16.png" alt="K04">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">8s</span>
+      </div>
+      <div class="v4-feed-title">就算我不在,生活不会塌</div>
+      <div class="v4-feed-meta">书房 · 温情篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K05'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K05_cover_9_16.png" alt="K05">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">保险怕的不是贵,是没想清楚</div>
+      <div class="v4-feed-meta">公司茶水间 · 段子手</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K06'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K06_cover_9_16.png" alt="K06">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">运动戴保护,生活就不用?</div>
+      <div class="v4-feed-meta">攀岩馆 · 反差篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K07'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K07_cover_9_16.png" alt="K07">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">滑雪关心装备,保险却以后再说?</div>
+      <div class="v4-feed-meta">雪场 · 反差篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K08'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K08_cover_9_16.png" alt="K08">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">保险怕的不是贵,是拖</div>
+      <div class="v4-feed-meta">车内 · 警醒篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K09'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K09_cover_9_16.png" alt="K09">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">先存钱,还是先买保险?</div>
+      <div class="v4-feed-meta">车内 · 反问篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K10'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K10_cover_9_16.png" alt="K10">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">普通家庭,扛不起一次意外</div>
+      <div class="v4-feed-meta">车内 · 反差篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K11'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K11_cover_9_16.png" alt="K11">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">抗拒的不是保险,是承认风险</div>
+      <div class="v4-feed-meta">公司走廊 · 警醒篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K12'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K12_cover_9_16.png" alt="K12">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">保险最尴尬的"还早"</div>
+      <div class="v4-feed-meta">地铁车厢 · 警醒篇</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K13'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K13_cover_9_16.png" alt="K13">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">给嘴硬的自己留条后路</div>
+      <div class="v4-feed-meta">脱口秀舞台 · 段子手</div>
+    </div>
+
+    <div class="v4-feed-card" onclick="location='02-upload.html?tpl=K14'">
+      <div class="v4-cover v4-cover-real">
+        <img src="../data/kos/covers/K14_cover_9_16.png" alt="K14">
+        <span class="v4-cover-tag">意识激发</span>
+        <span class="v4-cover-duration">10s</span>
+      </div>
+      <div class="v4-feed-title">月薪 5000,该不该买保险?</div>
+      <div class="v4-feed-meta">街头 · 反问篇</div>
+    </div>
+
+  </div><!-- /v4-feed-grid -->
+
+  </div><!-- /pane-awaken -->
+
+  <!-- ===== Pane 2: 险种种草 ===== -->
+  <div class="v4-pane" id="pane-recommend">
+    <div class="v4-stage-desc">客户<b>已经开始考虑</b>哪类保险时 · 险种介绍型短视频</div>
+    <div class="v4-chip-row" style="margin-top:4px">
+      <button class="v4-chip active">全部</button>
+      <button class="v4-chip">增额寿</button>
+      <button class="v4-chip">重疾</button>
+      <button class="v4-chip">医疗</button>
+      <button class="v4-chip">储蓄</button>
+      <button class="v4-chip">年金</button>
+      <button class="v4-chip">寿险</button>
+    </div>
+    <div class="v4-empty">
+      <div class="ve-icon">📝</div>
+      <div class="ve-title">险种种草内容筹备中</div>
+      <div class="ve-sub">编导团队本月上线 8-10 个险种介绍模板 ·<br>覆盖增额寿 / 重疾 / 医疗 / 储蓄 / 年金 / 寿险</div>
+      <span class="ve-eta">📅 本月底前上线</span>
+    </div>
+  </div>
+
+  <!-- ===== Pane 3: 产品测评 ===== -->
+  <div class="v4-pane" id="pane-review">
+    <div class="v4-stage-desc">客户<b>在挑具体产品</b>时 · 产品对比/测评型短视频</div>
+    <div class="v4-chip-row" style="margin-top:4px">
+      <button class="v4-chip active">全部</button>
+      <button class="v4-chip" style="opacity:0.5">具体产品(待上线)</button>
+    </div>
+    <div class="v4-empty">
+      <div class="ve-icon">🔍</div>
+      <div class="ve-title">产品测评内容筹备中</div>
+      <div class="ve-sub">编导团队下月上线产品测评模板 ·<br>客户咨询热度 TOP 10 具体产品对比</div>
+      <span class="ve-eta">📅 下月初上线</span>
+    </div>
+  </div>
+
+  <div style="padding:32px 16px 8px"></div>
+
+</div>
+
+<script>
+function switchStage(stage){
+  document.querySelectorAll('.v4-stage-tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.stage === stage);
+  });
+  document.querySelectorAll('.v4-pane').forEach(p => {
+    p.classList.toggle('active', p.id === 'pane-' + stage);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+
+<nav class="v4-tabbar" style="grid-template-columns:repeat(4,1fr)">
+  <a href="01-home.html" class="active">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>模板</span>
+  </a>
+  <a href="02b-creation-input.html"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 3l1 14 5.5 1L15 16z"/><path d="M2 3l7.586 7.586"/></svg><span>创作</span></a>
+  <a href="04-generating.html">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7 V 12 L 15.5 14"/></svg>
+    <span>任务</span>
+    <span class="red-dot"></span>
+  </a>
+  <a href="06-history.html">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21 C 4 16, 8 14, 12 14 C 16 14, 20 16, 20 21"/></svg>
+    <span>我</span>
+  </a>
+</nav>
+
+<script>
+  document.querySelectorAll('.v4-chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('.v4-chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  }));
+</script>
+</body>
+</html>

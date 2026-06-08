@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunrise · AI 内容生产平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .home-shell { display: grid; grid-template-columns: 70px 1fr; min-height: calc(100vh - 53px); }
+  .home-v2 h1.greet { font-size: 26px; margin-bottom: 18px; }
+  .home-v2 h1.greet em { font-size: 16px; font-weight: 400; }
+
+  /* ============ 顶部：合规 + 数据 两张 hero 卡（保司客户视角最关心） ============ */
+  .home-trust-hero {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 36px;
+  }
+  .trust-card {
+    background: #fff; border: 1px solid var(--ink-line); border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow-1);
+    text-decoration: none; color: inherit;
+    transition: all .18s;
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+  .trust-card::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, var(--accent-bg) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .trust-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); border-color: var(--accent-line); }
+  .trust-card .tc-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; position: relative;
+  }
+  .trust-card .tc-ic {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .trust-card .tc-ic svg { width: 22px; height: 22px; }
+  .trust-card.compliance .tc-ic { background: rgba(180,83,9,0.12); color: var(--gold-2); }
+  .trust-card.data .tc-ic { background: rgba(46,93,166,0.12); color: var(--blue); }
+  .trust-card .tc-title {
+    font-family: var(--serif); font-size: 22px; font-weight: 600;
+    color: var(--ink); letter-spacing: -0.3px;
+  }
+  .trust-card .tc-sub { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+  .trust-card .tc-kpis {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin-bottom: 14px; position: relative;
+  }
+  .trust-card .kpi {
+    background: var(--paper-2); border-radius: 10px; padding: 12px 14px;
+  }
+  .trust-card .kpi .v {
+    font-family: var(--serif); font-size: 22px; font-weight: 700;
+    color: var(--ink); line-height: 1.1;
+    display: flex; align-items: baseline; gap: 3px;
+  }
+  .trust-card .kpi .v .u {
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-weight: 500;
+  }
+  .trust-card .kpi .k { font-size: 11px; color: var(--ink-3); margin-top: 3px; }
+  .trust-card .tc-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--accent);
+  }
+  .trust-card .tc-cta svg { width: 12px; height: 12px; transition: transform .15s; }
+  .trust-card:hover .tc-cta svg { transform: translateX(3px); }
+  .trust-card .tc-extra {
+    margin-top: 8px;
+    font-size: 11px; color: var(--ink-3);
+    line-height: 1.5;
+  }
+  .trust-card.data .tc-cta { color: var(--blue); }
+
+  /* ============ Agent 矩阵 · 中等大小 ============ */
+  .home-agent-hero { margin-bottom: 36px; }
+  .home-agent-hero .agent-grid-v2 { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .home-agent-hero .agent-card-v2 {
+    padding: 18px 18px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 110px;
+    position: relative;
+    overflow: hidden;
+  }
+  .home-agent-hero .agent-card-v2::after {
+    content: '进入 →';
+    position: absolute; bottom: 12px; right: 16px;
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-3);
+    opacity: 0;
+    transition: opacity .15s, transform .15s;
+    transform: translateX(-4px);
+  }
+  .home-agent-hero .agent-card-v2:hover::after { opacity: 1; transform: translateX(0); color: var(--accent); }
+  .home-agent-hero .agent-card-v2 .ic { width: 42px; height: 42px; border-radius: 11px; }
+  .home-agent-hero .agent-card-v2 .ic svg { width: 20px; height: 20px; }
+  .home-agent-hero .agent-card-v2 .meta { flex: 1; min-width: 0; }
+  .home-agent-hero .agent-card-v2 .nm {
+    font-family: var(--serif); font-size: 15.5px; font-weight: 600;
+    letter-spacing: -0.2px; color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .home-agent-hero .agent-card-v2 .role {
+    font-size: 11.5px; line-height: 1.55; color: var(--ink-2); margin-top: 0;
+  }
+  .home-agent-hero .agent-card-v2.featured {
+    background: linear-gradient(135deg, #fff 0%, #fdf2e0 100%);
+    border-color: var(--accent);
+  }
+  .home-agent-hero .agent-card-v2.featured .ic {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+    color: #fff !important;
+  }
+  .home-agent-hero .agent-card-v2.featured .feat-tag {
+    position: absolute; top: 12px; right: 14px;
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px;
+    background: var(--accent); color: #fff;
+    letter-spacing: 0.4px;
+  }
+  .home-agent-hero .agent-card-v2.coming {
+    background: var(--paper-2); border-style: dashed; opacity: 0.7; cursor: not-allowed;
+  }
+  .home-agent-hero .agent-card-v2.coming::after { content: '规划中'; opacity: 1; color: var(--ink-3); }
+  .home-agent-hero .agent-card-v2.coming:hover { transform: none; box-shadow: none; }
+
+  /* ============ 自由创作模块 ============ */
+  .home-quickgen { margin-bottom: 36px; }
+  .quickgen-card {
+    background: #fff; border: 1px solid var(--ink-line); border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow-1);
+  }
+  .quickgen-card .qg-head {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .quickgen-card .qg-head h3 {
+    font-family: var(--serif); font-size: 18px; font-weight: 600;
+    color: var(--ink); letter-spacing: -0.2px;
+  }
+  .quickgen-card .qg-head .qg-sub {
+    font-size: 12px; color: var(--ink-3); margin-left: 4px;
+  }
+  .quickgen-card .qg-head .points {
+    margin-left: auto;
+    font-family: var(--mono); font-size: 11.5px;
+    padding: 3px 10px; border-radius: 999px;
+    background: var(--accent-bg); color: var(--accent);
+    font-weight: 600;
+  }
+  .qg-prompt-wrap {
+    background: var(--paper-2); border: 1px solid var(--ink-line);
+    border-radius: 12px; padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+  .qg-prompt-wrap textarea {
+    flex: 1; resize: none; min-height: 38px; max-height: 100px;
+    background: transparent; border: 0; outline: 0;
+    font-size: 13.5px; line-height: 1.55; color: var(--ink);
+    font-family: inherit;
+  }
+  .qg-prompt-wrap .qg-go {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--ink); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 0; flex-shrink: 0;
+  }
+  .qg-prompt-wrap .qg-go:hover { background: var(--accent); }
+  .qg-prompt-wrap .qg-go svg { width: 15px; height: 15px; }
+  .qg-types {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .qg-types .qg-tab {
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 12.5px; font-weight: 600;
+    background: var(--paper-2); color: var(--ink-2);
+    border: 1px solid var(--ink-line);
+    cursor: pointer;
+  }
+  .qg-types .qg-tab.active {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .qg-models {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  }
+  .qg-model {
+    background: var(--paper-2); border: 1px solid var(--ink-line);
+    border-radius: 10px; padding: 11px 13px;
+    cursor: pointer; transition: all .15s;
+  }
+  .qg-model:hover { background: #fff; border-color: var(--accent-line); }
+  .qg-model.selected { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .qg-model .mn {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .qg-model .mn .name { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+  .qg-model .mn .pt { font-family: var(--mono); font-size: 10px; color: var(--accent); font-weight: 600; }
+  .qg-model .mdesc { font-size: 11px; color: var(--ink-3); line-height: 1.45; }
+
+  /* 所有 section h3 字号保持一致（继承 shared.css 的 18px serif）*/
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span>Sunrise<span class="dot">.</span><em>ai</em></span>
+  </div>
+
+  <div class="top-spacer"></div>
+
+  <div class="search-pill">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+    搜索项目 · 模板 · Agent
+    <span class="k">⌘ K</span>
+  </div>
+
+  <button class="icon-btn" title="通知">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <span class="pip"></span>
+  </button>
+
+  <div class="user-chip">
+    <div class="user-ava"><img src="assets/agents/xiaocao.svg" alt="小草"></div>
+    <div class="meta"><b>小草</b><span>内容运营</span></div>
+  </div>
+</header>
+
+<div class="home-shell">
+
+  <aside class="rail">
+    <div class="ri active" title="首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="lbl">首页</span>
+    </div>
+    <a class="ri" href="屏5-Agent总览.html" title="Agent 总览">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="lbl">Agent</span>
+    </a>
+    <div class="ri" title="项目">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <span class="lbl">项目</span>
+    </div>
+    <a class="ri" href="屏4-资产.html" title="合规">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span class="lbl">合规</span>
+    </a>
+    <div class="div"></div>
+    <a class="ri" href="屏8-数据战报.html" title="数据 · 战报">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg>
+      <span class="lbl">数据</span>
+    </a>
+    <div style="flex:1"></div>
+    <div class="ri" title="设置">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+      <span class="lbl">设置</span>
+    </div>
+  </aside>
+
+  <main class="home-v2">
+
+    <h1 class="greet">小草，午安。<em>本月生产 128 条 · 合规通过率 99% · 一切顺利。</em></h1>
+
+    <!-- ============ 自由创作 · 顶部入口（最高频，不走 Agent 工作流）============ -->
+    <section class="home-quickgen">
+      <div class="section-h">
+        <h3>自由创作</h3>
+        <span class="right">不想走完整 Agent 流程？输入提示词直接生成图 / 视频 / 配音</span>
+      </div>
+
+      <div class="quickgen-card">
+        <div class="qg-head">
+          <h4 style="font-family:var(--serif);font-size:15px;font-weight:600;color:var(--ink);">说一句话，让 Agent 直接生成</h4>
+          <span class="qg-sub">用于做物料 / 海报 / 短视频片段 / 配音克隆</span>
+          <span class="points">剩余 8,753 点</span>
+        </div>
+
+        <div class="qg-prompt-wrap">
+          <textarea placeholder="例：阳光人寿 LOGO 出现在金色光晕中，画面整体暖橘色调，左上角写「五一战报 · 我们一起赢」"></textarea>
+          <button class="qg-go" title="生成">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+
+        <div class="qg-types">
+          <button class="qg-tab active" data-type="image">图片</button>
+          <button class="qg-tab" data-type="video">视频</button>
+          <button class="qg-tab" data-type="audio">音频</button>
+        </div>
+
+        <div class="qg-models" id="qg-models-image">
+          <div class="qg-model selected">
+            <div class="mn"><span class="name">gpt-image-2</span><span class="pt">5 点/张</span></div>
+            <div class="mdesc">中文文字渲染最准 · 海报 / 战报封面</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Seedream 4.5</span><span class="pt">1 点/张</span></div>
+            <div class="mdesc">电影级画质，光影细腻</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Imagen 4</span><span class="pt">2 点/张</span></div>
+            <div class="mdesc">Prompt 理解最强，复杂构图</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Nano Banana Pro</span><span class="pt">5 点/张</span></div>
+            <div class="mdesc">多语言文字 · 14 张参考图</div>
+          </div>
+        </div>
+
+        <div class="qg-models" id="qg-models-video" style="display:none;">
+          <div class="qg-model selected">
+            <div class="mn"><span class="name">Wan 2.2 Fast</span><span class="pt">2 点/5s</span></div>
+            <div class="mdesc">最便宜 · 快速预览 · 图生视频</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Seedance 1.5 Pro</span><span class="pt">13 点/5s</span></div>
+            <div class="mdesc">复杂指令 · 多比例 · 有声</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Kling v2.6</span><span class="pt">9 点/5s</span></div>
+            <div class="mdesc">人脸一致性顶级 · 真人出镜</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Veo 3.1 Fast</span><span class="pt">31 点/5s</span></div>
+            <div class="mdesc">电影级画质 · 原生音频</div>
+          </div>
+        </div>
+
+        <div class="qg-models" id="qg-models-audio" style="display:none;">
+          <div class="qg-model selected">
+            <div class="mn"><span class="name">Qwen3-TTS</span><span class="pt">1 点/次</span></div>
+            <div class="mdesc">中文最强 · 3 秒声音克隆</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">MiniMax 2.8 HD</span><span class="pt">2 点/次</span></div>
+            <div class="mdesc">音质第一 · 7 种情感控制</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">MiniMax 2.8 Turbo</span><span class="pt">1 点/次</span></div>
+            <div class="mdesc">极速 · &lt; 250ms 延迟</div>
+          </div>
+          <div class="qg-model">
+            <div class="mn"><span class="name">Edge TTS</span><span class="pt">0 点/次</span></div>
+            <div class="mdesc">免费 · 中英日多语言</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 第二层 · 合规 + 数据 hero（保司决策者关心的背书）============ -->
+    <section class="home-trust-hero">
+
+      <a class="trust-card compliance" href="屏4-资产.html">
+        <div class="tc-head">
+          <div class="tc-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div>
+            <div class="tc-title">合规</div>
+            <div class="tc-sub">5 份监管法规预置 + 你公司私有规则</div>
+          </div>
+        </div>
+        <div class="tc-kpis">
+          <div class="kpi">
+            <div class="v">142 <span class="u">次</span></div>
+            <div class="k">本周合规改写</div>
+          </div>
+          <div class="kpi">
+            <div class="v">36 <span class="u">条</span></div>
+            <div class="k">私有红线词</div>
+          </div>
+          <div class="kpi">
+            <div class="v">99% <span class="u" style="color:var(--green);">↑</span></div>
+            <div class="k">合规通过率</div>
+          </div>
+        </div>
+        <div class="tc-extra">合规手册 4 / 品牌手册 6 / 产品资料 6 / Agent 记忆 · 自动叠加调用</div>
+        <div class="tc-cta" style="margin-top:10px;">进入合规中心 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+
+      <a class="trust-card data" href="屏8-数据战报.html">
+        <div class="tc-head">
+          <div class="tc-ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg>
+          </div>
+          <div>
+            <div class="tc-title">数据 · 战报</div>
+            <div class="tc-sub">一键生成本月战报海报 · 方便向上汇报</div>
+          </div>
+        </div>
+        <div class="tc-kpis">
+          <div class="kpi">
+            <div class="v">128 <span class="u">条</span></div>
+            <div class="k">本月生产</div>
+          </div>
+          <div class="kpi">
+            <div class="v">1,847 <span class="u">人次</span></div>
+            <div class="k">代理人复用</div>
+          </div>
+          <div class="kpi">
+            <div class="v">28.4 <span class="u">万</span></div>
+            <div class="k">累计曝光</div>
+          </div>
+        </div>
+        <div class="tc-extra">🎨 一键生成战报海报（gpt-image-2 · 自动嵌品牌 logo · 8.4s 出图）</div>
+        <div class="tc-cta" style="margin-top:10px;">进入数据看板 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+
+    </section>
+
+    <!-- ============ Agent 矩阵 · 7 个（删除 App 推送） ============ -->
+    <section class="home-agent-hero">
+      <div class="section-h">
+        <h3>Agent</h3>
+        <span class="right">7 个 Agent · 共享上面的资产·合规库</span>
+      </div>
+
+      <div class="agent-grid-v2">
+
+        <a class="agent-card-v2 featured" href="屏2-KOS·对话工作台-v2.html">
+          <span class="feat-tag">主推</span>
+          <div class="ic">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">KOS 短视频</div>
+            <div class="role">需求激发 / 险种 / 产品种草 · 9 节点全流程</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2" href="屏7-小红书Agent工作台.html">
+          <div class="ic" style="background:var(--rose-bg);color:var(--rose);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">小红书图文</div>
+            <div class="role">选题 · 文案 · 配图 · 引流</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2" href="屏6-热点中心.html">
+          <div class="ic" style="background:rgba(217,119,6,0.10);color:var(--gold-2);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">热点捕捉分析</div>
+            <div class="role">跨平台趋势 · 选题灵感前置</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2 coming">
+          <div class="ic" style="background:var(--blue-bg);color:var(--blue);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">视频号运营</div>
+            <div class="role">官号矩阵 · 横屏 · 投放</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2 coming">
+          <div class="ic" style="background:var(--violet-bg);color:var(--violet);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">公众号推文</div>
+            <div class="role">长文 · 头条 · 推送时段</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2 coming">
+          <div class="ic" style="background:var(--green-bg);color:var(--green);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">客户触达话术</div>
+            <div class="role">朋友圈 9 图 · 配文 · 群发</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2 coming">
+          <div class="ic" style="background:rgba(202,138,4,0.10);color:#a16207;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="6" y1="8" x2="14" y2="8"/><line x1="6" y1="12" x2="11" y2="12"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">PPT 制作</div>
+            <div class="role">内训大纲 · 单页 · 演讲稿</div>
+          </div>
+        </a>
+
+        <a class="agent-card-v2 coming">
+          <div class="ic" style="background:rgba(42,110,107,0.10);color:var(--teal);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 4 3 6 3s6-1.34 6-3v-5"/></svg>
+          </div>
+          <div class="meta">
+            <div class="nm">产品培训</div>
+            <div class="role">产品档案 → 讲师 PPT / 学员手册 / 测试题 / 短视频教学</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ============ 最近项目 · 次要 ============ -->
+    <section class="home-recent-sub">
+      <div class="section-h">
+        <h3>最近项目 · 继续</h3>
+        <span class="right">
+          <button class="btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>新建项目</button>
+          <span style="cursor:pointer;">查看全部 →</span>
+        </span>
+      </div>
+
+      <div class="recent-grid" id="recent-grid"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="shared.js"></script>
+<script>
+function renderRecent() {
+  const projects = [
+    {
+      id: 'P-2026-Q2-001',
+      name: '养老金压力 · 需求激发 × 3',
+      date: '2026 / 05 / 14',
+      stage: '待你审核',
+      stageCls: '',
+      covers: ['沙', '车', '床'],
+      tplType: 'KOS · 需求激发 · 15s',
+      href: '屏2-KOS·对话工作台.html',
+    },
+    {
+      id: 'P-2026-Q2-002',
+      name: '阳光臻爱重疾 · 产品种草',
+      date: '2026 / 05 / 13',
+      stage: '业务校准',
+      stageCls: 'warn',
+      covers: ['臻', '爱', '深'],
+      tplType: 'KOS · 产品种草 · 3 min',
+    },
+    {
+      id: 'P-2026-Q1-003',
+      name: '春季健康主题 · 公众号',
+      date: '2026 / 05 / 09',
+      stage: '已发布',
+      stageCls: 'done',
+      covers: ['春', '健', '康'],
+      tplType: '公众号 · 长文',
+    },
+    {
+      id: 'P-2026-Q2-004',
+      name: '亲子保障 · 小红书种草 × 6',
+      date: '2026 / 05 / 07',
+      stage: '修订中 2',
+      stageCls: 'warn',
+      covers: ['亲', '子', '保'],
+      tplType: '小红书 · 图文',
+    },
+  ];
+
+  document.getElementById('recent-grid').innerHTML = projects.map(p => `
+    <a class="recent-proj" ${p.href ? `href="${p.href}"` : ''}>
+      <div class="collage">
+        ${p.covers.map(c => `<div class="frame">${c}</div>`).join('')}
+      </div>
+      <div class="info">
+        <b>${p.name}</b>
+        <div class="row">
+          <span>${p.date}</span>
+          <span style="margin-left:auto;" class="stage ${p.stageCls}">${p.stage}</span>
+        </div>
+        <div class="row" style="margin-top:6px;font-size:10.5px;">${p.tplType}</div>
+      </div>
+    </a>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', renderRecent);
+
+// 自由创作 · 类型 tab 切换
+document.querySelectorAll('.qg-types .qg-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.qg-types .qg-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const type = tab.dataset.type;
+    ['image', 'video', 'audio'].forEach(t => {
+      document.getElementById('qg-models-' + t).style.display = (t === type) ? 'grid' : 'none';
+    });
+  });
+});
+// 模型卡选中
+document.querySelectorAll('.qg-models').forEach(grid => {
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.qg-model');
+    if (!card) return;
+    grid.querySelectorAll('.qg-model').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  });
+});
+</script>
+
+</body>
+</html>

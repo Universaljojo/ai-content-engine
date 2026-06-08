@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunrise · 热点捕捉分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span>Sunrise<span class="dot">.</span><em>ai</em></span>
+  </div>
+  <div class="crumbs">
+    <a href="屏1-首页.html">首页</a>
+    <span class="sep">/</span>
+    <a href="屏5-Agent总览.html">Agent</a>
+    <span class="sep">/</span>
+    <span class="here">热点捕捉分析</span>
+  </div>
+  <div class="top-spacer"></div>
+  <div class="search-pill">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+    搜索热点 · 关键词
+    <span class="k">⌘ K</span>
+  </div>
+  <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button>
+  <div class="user-chip">
+    <div class="user-ava"><img src="assets/agents/xiaocao.svg" alt="小草"></div>
+    <div class="meta"><b>小草</b><span>内容运营</span></div>
+  </div>
+</header>
+
+<div class="hot-shell" id="shell">
+
+  <aside class="rail">
+    <a class="ri" href="屏1-首页.html" title="首页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="lbl">首页</span></a>
+    <a class="ri active" href="屏5-Agent总览.html" title="Agent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="lbl">Agent</span></a>
+    <div class="ri" title="项目"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span class="lbl">项目</span></div>
+    <a class="ri" href="屏4-资产.html" title="合规"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span class="lbl">合规</span></a>
+    <div class="div"></div>
+    <div class="ri" title="数据"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg><span class="lbl">数据</span></div>
+    <div style="flex:1"></div>
+    <div class="ri" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg><span class="lbl">设置</span></div>
+  </aside>
+
+  <main class="hot-main">
+
+    <!-- Agent 介绍 banner -->
+    <div class="hot-banner">
+      <div class="ic">🔥</div>
+      <div>
+        <b>热点捕捉分析 Agent</b> · 实时扫描抖音/小红书/微博,识别本周与保险相关或可嫁接的舆情热点。每条热点都附带 <em>梗解释 / 二创规律 / Top 10 爆款</em>,选定后可直接<em>带参考素材跳到 KOS 工作台</em>开做同款视频。
+      </div>
+    </div>
+
+    <!-- 顶部统计条 + 排序 -->
+    <div class="hot-pbar">
+      <div class="total">本期入库 <b>27</b> 条热点 <span class="meta">· 采集 2026-05-15 · 抖音</span></div>
+      <div class="sort-bar">
+        <button class="sort-chip active">按累计浏览</button>
+        <button class="sort-chip">按 7 天新增</button>
+        <button class="sort-chip">按参与人数</button>
+        <button class="sort-chip">按新鲜度</button>
+      </div>
+    </div>
+
+    <!-- 热点卡网格 -->
+    <div class="hot-grid" id="hot-grid"></div>
+
+  </main>
+</div>
+
+<!-- 右侧大抽屉 -->
+<div class="scrim" id="scrim"></div>
+<aside class="right-drawer" id="drawer">
+  <div class="right-drawer-head">
+    <div>
+      <div class="crumb">热点中心 · 详情</div>
+      <h2 id="dTitle">拍手变装</h2>
+    </div>
+    <div class="ops">
+      <button class="op active" id="dStar" title="收藏">★</button>
+      <button class="op close" id="dClose" title="关闭">×</button>
+    </div>
+  </div>
+  <div class="right-drawer-body" id="dBody"></div>
+  <div class="right-drawer-foot">
+    <div class="ft-text">已选 <b id="refCount">3 条</b>作为参考</div>
+    <div class="acts">
+      <button class="btn" id="btnClear">全部取消</button>
+      <button class="btn gold" id="btnGo">✨ 用参考素材生成 →</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+const HOTSPOTS = [
+  {
+    id: 'hs-wc', title: '误闯天家',
+    explain: '网友仿拍"凡人意外闯入不属于自己的场合"的反差戏 — 小孩走进婚礼、打工人混进顶流派对、自己误入亲戚聚会。核心是"我不该出现在这里"的懵圈感。',
+    covers: ['linear-gradient(145deg,#1a1a2e,#4a2c4e)','linear-gradient(145deg,#312e81,#6366f1)','linear-gradient(145deg,#7c2d12,#fb923c)'],
+    titles: ['这谁放进来的?','第一次参加表姐婚礼','走错片场了兄弟们'],
+    cumView: '87.8 亿', cumJoin: '43.3 万',
+    delta7View: '+22 亿', delta7Join: '+12 万',
+    age: '9 天前', saved: false, muted: false,
+    insurance: '可嫁接:理赔现场闯入"我以为不能赔"反差,引出实际能赔的责任'
+  },
+  {
+    id: 'hs-ph', title: '拍手变装',
+    explain: '固定套路:一拍手 → 镜头一切 → 人已变装完成。可以是朴素装变晚礼服、上班装变度假装、两人互换。门槛极低,谁都能拍,靠前后反差制造爽感。',
+    covers: ['linear-gradient(145deg,#be185d,#f472b6)','linear-gradient(145deg,#6b21a8,#a855f7)','linear-gradient(145deg,#831843,#ec4899)'],
+    titles: ['朴素 vs 爆炸','姐妹组合也来了','上班 → 度假'],
+    cumView: '30.5 亿', cumJoin: '13 万',
+    delta7View: '+4.8 亿', delta7Join: '+2.1 万',
+    age: '12 天前', saved: true, muted: false,
+    insurance: '可嫁接:无保障 vs 有保障的"换装"反差(同一场景两个状态)'
+  },
+  {
+    id: 'hs-cz', title: '禅者行脚',
+    explain: '"放下一切去走路"主题标签。画面是第一视角 + 山林/古寺/海边,低饱和运镜。不是宗教内容,是都市人给"班味太重"开的精神 SPA 处方。',
+    covers: ['linear-gradient(145deg,#064e3b,#10b981)','linear-gradient(145deg,#1e3a8a,#3b82f6)','linear-gradient(145deg,#365314,#84cc16)'],
+    titles: ['我辞职了','第 14 天我看见了','山里醒来 今日记'],
+    cumView: '19.9 亿', cumJoin: '6.5 万',
+    delta7View: '+1.2 亿', delta7Join: '+3,200',
+    age: '18 天前', saved: false, muted: false,
+    insurance: '可嫁接:养老/年金主题(后半生稳稳的依靠)'
+  },
+  {
+    id: 'hs-rs', title: '燃烧我的卡路里',
+    explain: '火箭少女 101 同名歌翻红成了万能 BGM,视频集中在"运动/减肥/决心" — 健身前后对比、饮食挑战、一百天 vlog。"燃烧我的卡路里"变成口号式口头禅。',
+    covers: ['linear-gradient(145deg,#fb923c,#ea580c)','linear-gradient(145deg,#c2410c,#f97316)','linear-gradient(145deg,#9a3412,#fb923c)'],
+    titles: ['坚持 100 天','办公室运动','新手版不踩坑'],
+    cumView: '12 亿', cumJoin: '15 万',
+    delta7View: '+3.4 亿', delta7Join: '+4.2 万',
+    age: '11 天前', saved: false, muted: false,
+    insurance: '可嫁接:重疾险"对未来负责"主题(健康投资 = 保险)'
+  },
+  {
+    id: 'hs-eo', title: '地球 online',
+    explain: '把现实生活当成一款大型多人联机游戏来吐槽。常见句式:"今日地球 online 更新了一个离谱版本"、"NPC 今天台词特别奇怪"。情绪是对日常荒诞感的戏谑抽离。',
+    covers: ['linear-gradient(145deg,#0c4a6e,#0ea5e9)','linear-gradient(145deg,#1e1b4b,#6366f1)','linear-gradient(145deg,#134e4a,#14b8a6)'],
+    titles: ['今日离谱 bug 合集','NPC 台词也太抽象','新手村攻略指南'],
+    cumView: '41.6 亿', cumJoin: '13.6 万',
+    delta7View: '+6.7 亿', delta7Join: '+1.8 万',
+    age: '15 天前', saved: false, muted: false,
+    insurance: '可嫁接:意外险"游戏 BUG 防护包"概念,新手村必备'
+  },
+  {
+    id: 'hs-bb', title: 'BonBon Girls',
+    explain: '韩国女团 BonBon Girls 303 同名歌节奏片段成为爆款 BGM。视频几乎不讲剧情,靠"卡点 + 反差表情 / 服装"。节奏和表情管理是门槛,浏览大但跟拍不多。',
+    covers: ['linear-gradient(145deg,#b45309,#fbbf24)','linear-gradient(145deg,#92400e,#f59e0b)','linear-gradient(145deg,#78350f,#d97706)'],
+    titles: ['节奏一响就停不下','学韩女团一秒破功','姐妹版默契挑战'],
+    cumView: '3.2 亿', cumJoin: '4,673',
+    delta7View: '+600 万', delta7Join: '+78',
+    age: '22 天前', saved: false, muted: true,
+    insurance: '热度递减,本周不建议跟'
+  }
+];
+
+const TOP10 = [
+  { cover: 'linear-gradient(145deg,#be185d,#f472b6)', title: '拍手! 朴素 vs 爆炸', ref: true },
+  { cover: 'linear-gradient(145deg,#6b21a8,#a855f7)', title: '姐妹组合也来了', ref: false },
+  { cover: 'linear-gradient(145deg,#831843,#ec4899)', title: '上班 → 度假 一拍就到', ref: true },
+  { cover: 'linear-gradient(145deg,#7e22ce,#c084fc)', title: '卫生间镜前挑战', ref: false },
+  { cover: 'linear-gradient(145deg,#9f1239,#fb7185)', title: '同事群办公室版', ref: false },
+  { cover: 'linear-gradient(145deg,#a21caf,#e879f9)', title: '两口子联手', ref: false },
+  { cover: 'linear-gradient(145deg,#581c87,#9333ea)', title: '通勤 vs 晚宴 优雅度', ref: false },
+  { cover: 'linear-gradient(145deg,#c026d3,#f0abfc)', title: '挑战失败现场 bhh', ref: false },
+  { cover: 'linear-gradient(145deg,#4a044e,#a21caf)', title: '姐妹四人 同步挑战', ref: false },
+  { cover: 'linear-gradient(145deg,#701a75,#d946ef)', title: '姑娘 vs 老爸 反差版', ref: true }
+];
+
+const PATTERNS = {
+  stable: ['拍手动作本身','镜头在拍手瞬间切换','变身前后强烈视觉反差','BGM 在拍手节点卡重音'],
+  variable: ['变装主题(朴素 → 华丽)','人数(单 / 双 / 多人同步)','场景(室内 / 室外)','BGM(Unstoppable / 抖音神曲)'],
+  saturated: ['通勤变晚宴(3 条)','闺蜜互换造型(2 条)'],
+  blank: ['宠物参与拍手换装','父子 / 母女同框变装','工作装 → 运动装(健身场景)']
+};
+
+function renderGrid() {
+  document.getElementById('hot-grid').innerHTML = HOTSPOTS.map(h => `
+    <div class="hot-card" data-id="${h.id}">
+      <button class="star ${h.saved ? 'active' : ''}" data-star="${h.id}" title="收藏">${h.saved ? '★' : '☆'}</button>
+      <div class="ttl-row"><div class="ttl">${h.title}</div></div>
+      <div class="explain">${h.explain}</div>
+      <div class="videos">
+        <div class="vstrip">
+          ${h.covers.map((c, i) => `
+            <div class="hot-vmini">
+              <div class="cover" style="background:${c}"></div>
+              <span class="play"></span>
+              <div class="vt">${h.titles[i]}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="data">
+        <div class="row ${h.muted ? 'muted' : ''}"><span class="label">浏览</span><span class="v">累计 <b>${h.cumView}</b></span><span class="delta">▲ 7 天 ${h.delta7View}</span></div>
+        <div class="row ${h.muted ? 'muted' : ''}"><span class="label">参与</span><span class="v">累计 <b>${h.cumJoin}</b></span><span class="delta">▲ 7 天 ${h.delta7Join}</span></div>
+        <div class="age-row">冒头 ${h.age} · ${h.insurance}</div>
+      </div>
+    </div>`).join('');
+
+  // 绑事件
+  document.querySelectorAll('.hot-card').forEach(c => {
+    c.addEventListener('click', e => {
+      if (e.target.closest('.star') || e.target.closest('.play') || e.target.closest('.hot-vmini')) return;
+      openDrawer(c.dataset.id);
+    });
+  });
+  document.querySelectorAll('[data-star]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = b.dataset.star;
+      const h = HOTSPOTS.find(x => x.id === id);
+      h.saved = !h.saved;
+      b.classList.toggle('active');
+      b.textContent = h.saved ? '★' : '☆';
+      // 同步抽屉里的星星
+      if (drawerOpenId === id) {
+        const ds = document.getElementById('dStar');
+        ds.classList.toggle('active', h.saved);
+      }
+    });
+  });
+}
+
+let drawerOpenId = null;
+
+function openDrawer(id) {
+  const h = HOTSPOTS.find(x => x.id === id);
+  if (!h) return;
+  drawerOpenId = id;
+
+  document.querySelectorAll('.hot-card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+  document.getElementById('dTitle').textContent = h.title;
+  document.getElementById('dStar').classList.toggle('active', h.saved);
+  renderDrawerBody(h);
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('shell').classList.add('drawer-open');
+}
+
+function closeDrawer() {
+  drawerOpenId = null;
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('show');
+  document.getElementById('shell').classList.remove('drawer-open');
+  document.querySelectorAll('.hot-card').forEach(c => c.classList.remove('selected'));
+}
+
+function renderDrawerBody(h) {
+  document.getElementById('dBody').innerHTML = `
+    <div class="d-explain">${h.explain}</div>
+
+    <div class="d-sec">
+      <div class="d-sec-h">
+        <div class="lbl">AI 拆出来的</div>
+        <h3>二创规律</h3>
+        <div class="sub">基于本期采集 Top 10 自动拆解 · 骨架必须保留 / 变的是你的空间 / 饱和的避开 / 空白的是机会</div>
+      </div>
+      <div class="pattern-quad">
+        <div class="pcard stable">
+          <div class="ph"><span class="pic">🦴</span><span class="pn">不变的</span><span class="pmeta">10/10</span></div>
+          <ul>${PATTERNS.stable.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="pcard variable">
+          <div class="ph"><span class="pic">🎨</span><span class="pn">变的</span><span class="pmeta">各不相同</span></div>
+          <ul>${PATTERNS.variable.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="pcard saturated">
+          <div class="ph"><span class="pic">⚠</span><span class="pn">已做烂</span><span class="pmeta">Top 10 撞车</span></div>
+          <ul>${PATTERNS.saturated.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+        <div class="pcard blank">
+          <div class="ph"><span class="pic">✨</span><span class="pn">暂未有人做</span><span class="pmeta">建议切入</span></div>
+          <ul>${PATTERNS.blank.map(x => `<li>${x}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-sec">
+      <div class="d-sec-h">
+        <div class="lbl">Top 10 爆款</div>
+        <h3>看完这 10 条,你会更懂这梗</h3>
+        <div class="sub">点封面播放 · 右上角勾选"作为参考",生成视频时这些路径会作为 context 喂给制作组</div>
+      </div>
+      <div class="top10-grid" id="top10Grid">
+        ${TOP10.map((v, i) => `
+          <div class="top10-cell ${v.ref ? 'ref' : ''}" data-idx="${i}">
+            <div class="cover" style="background:${v.cover}"></div>
+            <span class="rank">${i + 1}</span>
+            <button class="ref-btn">${v.ref ? '✓' : '+'}</button>
+            <span class="play"></span>
+            <div class="vt">${v.title}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="d-databar">
+      <div class="row"><span class="label">浏览</span><span class="v">累计 <b>${h.cumView}</b></span><span class="delta">▲ 7 天 ${h.delta7View}</span></div>
+      <div class="row"><span class="label">参与</span><span class="v">累计 <b>${h.cumJoin}</b></span><span class="delta">▲ 7 天 ${h.delta7Join}</span></div>
+      <div class="row age">冒头 ${h.age} · 话题 ID ${h.id}</div>
+    </div>`;
+
+  // ref 勾选
+  document.querySelectorAll('.top10-cell .ref-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const cell = btn.closest('.top10-cell');
+      cell.classList.toggle('ref');
+      btn.textContent = cell.classList.contains('ref') ? '✓' : '+';
+      updateRefCount();
+    });
+  });
+  updateRefCount();
+}
+
+function updateRefCount() {
+  const n = document.querySelectorAll('.top10-cell.ref').length;
+  document.getElementById('refCount').textContent = `${n} 条`;
+  document.getElementById('btnGo').disabled = n === 0;
+}
+
+document.getElementById('btnClear').addEventListener('click', () => {
+  document.querySelectorAll('.top10-cell').forEach(c => {
+    c.classList.remove('ref');
+    c.querySelector('.ref-btn').textContent = '+';
+  });
+  updateRefCount();
+});
+
+document.getElementById('btnGo').addEventListener('click', () => {
+  const n = document.querySelectorAll('.top10-cell.ref').length;
+  if (n === 0) return;
+  const t = document.getElementById('dTitle').textContent;
+  toast(`已携带 ${n} 条参考视频 + 热点【${t}】跳到 KOS 工作台`);
+  setTimeout(() => {
+    window.location.href = '屏2-KOS·对话工作台.html';
+  }, 900);
+});
+
+document.getElementById('dClose').addEventListener('click', closeDrawer);
+document.getElementById('scrim').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+// 抽屉头部星星
+document.getElementById('dStar').addEventListener('click', () => {
+  if (!drawerOpenId) return;
+  const h = HOTSPOTS.find(x => x.id === drawerOpenId);
+  h.saved = !h.saved;
+  document.getElementById('dStar').classList.toggle('active', h.saved);
+  // 同步列表
+  const card = document.querySelector(`.hot-card[data-id="${drawerOpenId}"]`);
+  if (card) {
+    const star = card.querySelector('.star');
+    star.classList.toggle('active', h.saved);
+    star.textContent = h.saved ? '★' : '☆';
+  }
+});
+
+// 排序 chip
+document.querySelectorAll('.sort-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.sort-chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    toast(`已切换排序: ${c.textContent}`);
+  });
+});
+
+// 简易 toast (复用 SUNRISE 提供的或者自己写)
+function toast(text) {
+  let host = document.querySelector('.toast-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.className = 'toast-host';
+    document.body.appendChild(host);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast success';
+  el.innerHTML = `<span class="ic">✓</span>${text}`;
+  host.appendChild(el);
+  setTimeout(() => { el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2400);
+}
+
+renderGrid();
+</script>
+
+</body>
+</html>

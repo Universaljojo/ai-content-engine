@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunrise · Agent 设计原则与踩坑沉淀（产研对齐文档）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+html, body { height: auto; overflow: auto; }
+body { background: var(--paper); }
+
+/* ============================================================
+   排版：长文档样式
+   ============================================================ */
+.doc {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 60px 48px 80px;
+}
+
+/* ---------- 顶部 banner ---------- */
+.banner {
+  display: grid; grid-template-columns: auto 1fr; gap: 18px;
+  align-items: center;
+  padding: 22px 26px;
+  background: linear-gradient(135deg, rgba(201,100,66,0.07), rgba(180,83,9,0.04));
+  border: 1px solid var(--accent-line);
+  border-radius: 16px;
+  margin-bottom: 36px;
+}
+.banner .brand-mark {
+  width: 56px; height: 56px; border-radius: 14px;
+  background:
+    radial-gradient(circle at 70% 30%, #fde6c4 0 28%, transparent 30%),
+    linear-gradient(135deg, #d97706 0%, #c96442 50%, #92400e 100%);
+  box-shadow: 0 4px 14px rgba(180,83,9,0.28);
+}
+.banner h1 {
+  font-family: var(--serif); font-size: 24px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.4px; margin-bottom: 4px;
+}
+.banner .sub {
+  font-size: 13px; color: var(--ink-2); line-height: 1.55;
+}
+.banner .meta {
+  display: flex; gap: 14px; margin-top: 8px;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+}
+.banner .meta span { display: inline-flex; align-items: center; gap: 5px; }
+.banner .meta b { color: var(--accent); font-weight: 600; }
+
+/* ---------- 文档结构 ---------- */
+.section { margin-bottom: 56px; }
+.section .num {
+  font-family: var(--mono); font-size: 11.5px; color: var(--accent);
+  letter-spacing: 0.5px; font-weight: 700; margin-bottom: 4px;
+}
+.section h2 {
+  font-family: var(--serif); font-size: 26px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.4px;
+  margin-bottom: 6px;
+}
+.section .lede {
+  font-size: 14px; color: var(--ink-3); line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+h3 {
+  font-family: var(--serif); font-size: 17px; font-weight: 600;
+  color: var(--ink); margin: 22px 0 8px;
+  letter-spacing: -0.2px;
+}
+h4 {
+  font-family: var(--serif); font-size: 14px; font-weight: 600;
+  color: var(--ink); margin: 16px 0 6px;
+}
+
+p { font-size: 14px; line-height: 1.78; color: var(--ink-2); margin-bottom: 10px; }
+p em.hl { font-style: normal; color: var(--accent); font-weight: 600; }
+p strong { color: var(--ink); font-weight: 600; }
+ul, ol { margin: 8px 0 12px 22px; }
+li { font-size: 14px; line-height: 1.78; color: var(--ink-2); margin-bottom: 3px; }
+li strong { color: var(--ink); font-weight: 600; }
+
+code {
+  font-family: var(--mono); font-size: 12.5px;
+  background: var(--paper-2); padding: 1px 6px; border-radius: 4px;
+  color: var(--ink); border: 1px solid var(--ink-line);
+}
+
+/* ---------- callout ---------- */
+.callout {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px;
+  padding: 14px 18px; border-radius: 10px;
+  margin: 14px 0;
+  font-size: 13.5px; line-height: 1.7;
+}
+.callout .lb {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.4px; padding: 2px 7px; border-radius: 4px;
+  align-self: flex-start; margin-top: 1px;
+  white-space: nowrap;
+}
+.callout.ok { background: var(--green-bg); border-left: 3px solid var(--green); }
+.callout.ok .lb { background: var(--green); color: #fff; }
+.callout.bad { background: var(--red-bg); border-left: 3px solid var(--red); }
+.callout.bad .lb { background: var(--red); color: #fff; }
+.callout.warn { background: var(--gold-bg); border-left: 3px solid var(--gold-2); }
+.callout.warn .lb { background: var(--gold-2); color: #fff; }
+.callout.tip { background: rgba(46,93,166,0.06); border-left: 3px solid var(--blue); }
+.callout.tip .lb { background: var(--blue); color: #fff; }
+.callout strong { color: var(--ink); font-weight: 600; }
+.callout em.kw { font-style: normal; color: var(--accent); font-weight: 600; }
+
+/* ---------- 卡片：Agent 介绍 ---------- */
+.agent-cards {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin: 20px 0;
+}
+.agent-card {
+  background: #fff; border: 1px solid var(--ink-line);
+  border-radius: 14px; padding: 18px 20px;
+  box-shadow: var(--shadow-1);
+}
+.agent-card .head {
+  display: flex; align-items: center; gap: 12px;
+  padding-bottom: 12px; margin-bottom: 12px;
+  border-bottom: 1px solid var(--ink-line);
+}
+.agent-card .head .ic {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.agent-card .head .ic svg { width: 18px; height: 18px; }
+.agent-card .head .nm {
+  font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--ink);
+  letter-spacing: -0.2px;
+}
+.agent-card .head .role { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+.agent-card .row {
+  display: grid; grid-template-columns: 78px 1fr; gap: 10px;
+  font-size: 12.5px; line-height: 1.65;
+  margin-bottom: 6px;
+}
+.agent-card .row .k {
+  color: var(--ink-3); font-weight: 500;
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: 0.3px; text-transform: uppercase;
+  padding-top: 2px;
+}
+.agent-card .row .v { color: var(--ink-2); }
+.agent-card .row .v strong { color: var(--ink); font-weight: 600; }
+
+/* ---------- 原则编号 ---------- */
+.principle {
+  display: grid; grid-template-columns: 44px 1fr; gap: 16px;
+  padding: 18px 20px; margin-bottom: 14px;
+  background: #fff; border: 1px solid var(--ink-line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-1);
+}
+.principle .pnum {
+  font-family: var(--serif); font-size: 32px; font-weight: 600;
+  color: var(--accent); line-height: 1; opacity: 0.7;
+}
+.principle h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.principle .why {
+  font-size: 12.5px; color: var(--ink-3); line-height: 1.65;
+  margin-bottom: 8px;
+}
+.principle .imp {
+  font-size: 12.5px; line-height: 1.7;
+  padding: 8px 12px; border-radius: 6px;
+  background: var(--paper-2);
+}
+.principle .imp strong { color: var(--ink); }
+
+/* ---------- 角色对比表 ---------- */
+.role-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px; margin: 12px 0;
+  background: #fff; border: 1px solid var(--ink-line); border-radius: 10px;
+  overflow: hidden;
+}
+.role-table th, .role-table td {
+  padding: 9px 12px; text-align: left;
+  border-bottom: 1px solid var(--ink-line);
+}
+.role-table th {
+  background: var(--paper-2); font-size: 11.5px;
+  font-weight: 600; color: var(--ink-2);
+  letter-spacing: 0.3px;
+}
+.role-table td .nm { font-weight: 600; color: var(--ink); }
+.role-table td code { font-size: 11px; }
+.role-table tr:last-child td { border-bottom: 0; }
+.role-table .av {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-block; vertical-align: middle; margin-right: 6px;
+  background: var(--paper-2);
+}
+
+/* ---------- 坑分类卡 ---------- */
+.pit-card {
+  background: #fff; border: 1px solid var(--ink-line);
+  border-radius: 12px; padding: 18px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-1);
+}
+.pit-card .ph {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; margin-bottom: 10px;
+  border-bottom: 1px dashed var(--ink-line-2);
+}
+.pit-card .ph h4 {
+  margin: 0; font-size: 15px;
+}
+.pit-card .ph .badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--red-bg); color: var(--red);
+  border: 1px solid var(--red-line);
+  letter-spacing: 0.4px;
+}
+.pit-card .grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 8px;
+}
+.pit-card .col {
+  padding: 10px 12px; border-radius: 8px;
+  font-size: 12.5px; line-height: 1.65;
+}
+.pit-card .col.bad { background: rgba(177,74,68,0.05); border-left: 2px solid var(--red); }
+.pit-card .col.good { background: var(--green-bg); border-left: 2px solid var(--green); }
+.pit-card .col .lb {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  color: var(--ink-3); letter-spacing: 0.4px;
+  margin-bottom: 4px; text-transform: uppercase;
+}
+.pit-card .col.bad .lb { color: var(--red); }
+.pit-card .col.good .lb { color: var(--green); }
+.pit-card .col p { font-size: 12.5px; margin-bottom: 4px; color: var(--ink-2); }
+.pit-card .col p strong { color: var(--ink); font-weight: 600; }
+.pit-card .pquote {
+  margin-top: 8px; padding: 8px 12px;
+  font-family: var(--serif); font-style: italic;
+  font-size: 12.5px; color: var(--ink-3);
+  border-left: 2px solid var(--accent-line);
+  background: var(--paper-2);
+  border-radius: 0 6px 6px 0;
+}
+.pit-card .pquote b { color: var(--accent); font-style: normal; }
+
+/* ---------- 起手 checklist ---------- */
+.checklist {
+  background: #fff; border: 1px solid var(--ink-line);
+  border-radius: 12px; padding: 18px 22px;
+  box-shadow: var(--shadow-1);
+  margin-bottom: 14px;
+}
+.checklist .ch-step {
+  display: grid; grid-template-columns: 24px 1fr; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--paper-3);
+  font-size: 13px; line-height: 1.65;
+  color: var(--ink-2);
+}
+.checklist .ch-step:last-child { border-bottom: 0; }
+.checklist .ch-step .n {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--paper-2); color: var(--ink-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.checklist .ch-step strong { color: var(--ink); font-weight: 600; }
+.checklist .ch-step code { font-size: 11.5px; }
+
+/* ---------- 术语表 ---------- */
+.glossary {
+  background: #fff; border: 1px solid var(--ink-line);
+  border-radius: 10px; padding: 6px 0;
+  font-size: 13px;
+  box-shadow: var(--shadow-1);
+}
+.glossary .g {
+  display: grid; grid-template-columns: 140px 1fr;
+  gap: 14px; padding: 9px 18px;
+  border-bottom: 1px solid var(--paper-3);
+  line-height: 1.6;
+}
+.glossary .g:last-child { border-bottom: 0; }
+.glossary .g .term { color: var(--ink); font-weight: 600; }
+.glossary .g .def { color: var(--ink-2); font-size: 12.5px; }
+.glossary .g .def em { font-style: normal; color: var(--accent); font-weight: 500; }
+
+/* ---------- TOC ---------- */
+.toc {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid var(--ink-line); border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 40px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px;
+  font-size: 12.5px;
+}
+.toc a {
+  display: block; padding: 4px 0;
+  color: var(--ink-2);
+}
+.toc a:hover { color: var(--accent); }
+.toc a .n {
+  font-family: var(--mono); font-size: 10.5px; color: var(--accent);
+  font-weight: 700; margin-right: 8px;
+}
+
+/* ---------- 引用 KOS 实例图 ---------- */
+.demo-block {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  margin: 12px 0;
+}
+.demo-img {
+  background: var(--paper-2); border: 1px solid var(--ink-line);
+  border-radius: 10px; padding: 14px;
+  text-align: center;
+  font-size: 11.5px; color: var(--ink-3);
+}
+.demo-img .ttl {
+  font-family: var(--serif); font-size: 13.5px; font-weight: 600;
+  color: var(--ink); margin-bottom: 6px;
+}
+
+/* ---------- 底部 ---------- */
+.foot {
+  margin-top: 60px;
+  padding: 22px 26px;
+  background: var(--paper-2);
+  border-radius: 12px;
+  font-size: 12px; color: var(--ink-3); line-height: 1.75;
+}
+.foot strong { color: var(--ink); font-weight: 600; }
+.foot .kv {
+  display: grid; grid-template-columns: 90px 1fr;
+  gap: 4px 14px;
+  margin-top: 8px;
+  font-family: var(--mono); font-size: 11.5px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="doc">
+
+  <!-- ================== 顶部 banner ================== -->
+  <div class="banner">
+    <div class="brand-mark"></div>
+    <div>
+      <h1>Sunrise · Agent 设计原则与踩坑沉淀</h1>
+      <div class="sub">给产研同学（含 AI Agent）的产品对齐 brief — 启动一个新 Agent 前请先读完本文。<br>本文档随每次 Agent 迭代更新，目标是让我们不重复踩同一个坑。</div>
+      <div class="meta">
+        <span>📅 更新于 <b>2026-05-18</b></span>
+        <span>📝 v1.0</span>
+        <span>👥 适用：所有 Sunrise Agent 团队 / Cursor / Claude Code / 其它 AI 协作工具</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================== TOC ================== -->
+  <div class="toc">
+    <a href="#s1"><span class="n">01</span>产品定位 · Sunrise 是什么</a>
+    <a href="#s2"><span class="n">02</span>已建 Agent · 用户用例对齐</a>
+    <a href="#s3"><span class="n">03</span>10 条核心设计原则</a>
+    <a href="#s4"><span class="n">04</span>必须复用的资产</a>
+    <a href="#s5"><span class="n">05</span>我们踩过的坑（按类）</a>
+    <a href="#s6"><span class="n">06</span>新 Agent 起手 Checklist</a>
+    <a href="#s7"><span class="n">07</span>术语对齐表</a>
+    <a href="#s8"><span class="n">08</span>给 AI Agent 的特别说明</a>
+  </div>
+
+  <!-- ============================================================
+       01 · 产品定位
+       ============================================================ -->
+  <section class="section" id="s1">
+    <div class="num">SECTION 01</div>
+    <h2>Sunrise 是什么</h2>
+    <p class="lede">在我们做任何一个具体的 Agent 之前，请先理解 Sunrise 整体是什么，它服务谁，它的"通用性"体现在哪里。</p>
+
+    <p><strong>一句话定义</strong>：Sunrise 是<em class="hl">面向金融/品牌行业内容生产团队</em>的 AI 多 Agent 工作台。它不是单一工具，是<em class="hl">一组 Agent 矩阵 + 一套客户专属资产库 + 一套底层合规护栏</em>组成的内容生产基础设施。</p>
+
+    <div class="callout tip">
+      <span class="lb">关键认知</span>
+      <div>Sunrise 是<strong>多 Agent 平台</strong>，每个具体 Agent（KOS 短视频、小红书图文、视频号、公众号…）都是这个平台上的一个"工种 Agent"。它们<strong>共享</strong>客户资产库、合规规则库、品牌护栏；<strong>独立</strong>生产路径、产物形态、UI 表达。</div>
+    </div>
+
+    <h3>三层结构（请记住）</h3>
+    <ol>
+      <li><strong>底座层</strong>：客户身份 / 资产库 / 合规规则库 / 共享设计 token / 共享对话组件</li>
+      <li><strong>Agent 层</strong>：KOS 短视频 / 小红书图文 / 视频号 / 公众号 / 客户触达 / 热点中心 / PPT / App 推送 …<br><em style="color:var(--ink-3);font-size:12px;font-style:normal;">注：合规不是独立 Agent，是「资产·合规」底座的一部分，所有 Agent 共享调用。</em></li>
+      <li><strong>产物层</strong>：模板 / 笔记 / 文章 / 话术 / 视频 / 推送（按 Agent 形态各异）</li>
+    </ol>
+
+    <h3>商业前提（务必先知道）</h3>
+    <ul>
+      <li><strong>客户类型 1 · 保司</strong>：人保、农银人寿、太保 → <em class="hl">项目制采购（150 万级）</em>，KOS 短视频是首发 Agent</li>
+      <li><strong>客户类型 2 · 区域银行</strong>：泰隆银行、城商行、农商行 → <em class="hl">培训 + 工具复合采购</em>，小红书图文是首发 Agent</li>
+      <li><strong>客户类型 3 · 品牌方</strong>：贵州中烟、消费品牌 → <em class="hl">项目制内容生产</em>，小红书图文 / 视频号是首发 Agent</li>
+      <li><strong>不是 SaaS 订阅</strong>：保司/银行/品牌方<em class="hl">日常发需求给乙方做内容</em>，Sunrise 的价值是"我们就是那个乙方 + 自带 AI 工具链 + 单价更低"，不是卖订阅 license</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       02 · 已建 Agent · 用户用例
+       ============================================================ -->
+  <section class="section" id="s2">
+    <div class="num">SECTION 02</div>
+    <h2>已建 Agent · 用户用例对齐</h2>
+    <p class="lede">每个 Agent 必须能用一段话说清"谁打开它，要解决什么任务，产出什么"。如果说不清，先停下来对齐再开工。</p>
+
+    <div class="agent-cards">
+
+      <!-- KOS 短视频 -->
+      <div class="agent-card">
+        <div class="head">
+          <div class="ic" style="background:var(--accent);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="nm">KOS 短视频 Agent</div>
+            <div class="role">兑吧内容团队 · 替保司做模板 → 代理人一键做同款</div>
+          </div>
+        </div>
+        <div class="row"><span class="k">付费方</span><span class="v"><strong>保司</strong>（人保、农银人寿、太保）· 项目制采购（150 万级）</span></div>
+        <div class="row"><span class="k">工具用户</span><span class="v"><strong>兑吧内容团队</strong>（我们自己 · 替保司做内容的乙方）<br>例：小草 · 兑吧内容运营<br><em style="color:var(--accent);font-style:normal;font-size:11.5px;">关键认知：保司自己没人力做内容，日常发需求给乙方。我们就是那个乙方，自带 AI 工具链。</em></span></div>
+        <div class="row"><span class="k">做什么</span><span class="v">替保司生产<strong>短视频模板</strong> → 交付上架"好保 App" → 保司代理人选模板一键改文案/换主播/合成自己的短视频</span></div>
+        <div class="row"><span class="k">关键节点</span><span class="v">选题 · 起稿 · 业务校准 · 合规审核 · 品牌审核 · 选角 · 分镜 · 样片 · 样片再审 · 上架</span></div>
+        <div class="row"><span class="k">核心产物</span><span class="v">9:16 竖屏短视频 + 文案模板 + 主播声纹卡 + 上架元数据</span></div>
+        <div class="row"><span class="k">合规重点</span><span class="v">保险销售管理办法 + 各保司品牌护栏 + 短视频平台规则</span></div>
+      </div>
+
+      <!-- 小红书图文 -->
+      <div class="agent-card">
+        <div class="head">
+          <div class="ic" style="background:var(--rose);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/></svg>
+          </div>
+          <div>
+            <div class="nm">小红书图文 Agent</div>
+            <div class="role">双场景 · 兑吧替品牌方做 / 银行客户经理自己做 IP</div>
+          </div>
+        </div>
+        <div class="row"><span class="k">付费方</span><span class="v"><strong>品牌方</strong>（贵州中烟、太保）· 项目制<br><strong>银行</strong>（泰隆等城商行 / 农商行）· 培训 + 工具复合采购</span></div>
+        <div class="row"><span class="k">工具用户</span><span class="v"><strong>场景 A · 兑吧内容团队</strong>替品牌方做种草/产品介绍笔记<br><strong>场景 B · 银行客户经理本人</strong>做个人 IP（如泰隆余杭支行小张）<br>例：小草 · 兑吧内容运营 / 小张 · 泰隆客户经理</span></div>
+        <div class="row"><span class="k">做什么</span><span class="v">生产<strong>一条可直接发布的小红书图文笔记</strong>（封面+5段正文+10标签+6张配图+引流路径）</span></div>
+        <div class="row"><span class="k">关键节点</span><span class="v">选题 · 撰写文案 · 配图风格 · 文生图关键词 · 生图预览 · 小红书帖子预览（手机端）</span></div>
+        <div class="row"><span class="k">核心产物</span><span class="v">小红书原生格式：1 篇封面+正文+标签 · 6 张 3:4 配图 · 账号/分类/定位元数据</span></div>
+        <div class="row"><span class="k">合规重点</span><span class="v">行业广告法（保险/银行/烟草） + 小红书社区规则 + 品牌护栏（轻量）</span></div>
+      </div>
+
+    </div>
+
+    <div class="callout warn">
+      <span class="lb">商业模式</span>
+      <div><strong>付费方 ≠ 工具用户</strong>。Sunrise 的真实使用者大多数情况下是<em class="hl">兑吧内容团队</em>（我们自己），替客户做内容。少数场景客户自己用（如银行客户经理做个人 IP）。<br>所以"谁用"必须区分两层：<strong>谁付费</strong>（保司/品牌方/银行）、<strong>谁打开 Agent</strong>（兑吧内容团队 / 个别客户运营）。<br>UI 上"我" = 工具用户；资产库 = 付费方的资产。两者必须区分清楚，否则产品就做错了。</div>
+    </div>
+
+    <div class="callout ok">
+      <span class="lb">共性</span>
+      <div>两个 Agent 在 <strong>UI 范式</strong>、<strong>资产调用方式</strong>、<strong>角色协作方式</strong>、<strong>合规呈现方式</strong>上完全一致。差异只在「产物形态」和「关键节点序列」—— 这是判断"是不是好 Agent"的核心标准之一：<em class="hl">框架一致，节点不同</em>。</div>
+    </div>
+
+    <h3>下一批待建 Agent（已规划，未开工）</h3>
+    <table class="role-table">
+      <thead><tr><th>Agent</th><th>付费方</th><th>工具用户</th><th>核心产物</th><th>优先级</th></tr></thead>
+      <tbody>
+        <tr><td><span class="nm">视频号运营</span></td><td>保司/品牌方</td><td>兑吧内容团队</td><td>视频号横屏视频 + 投放材料</td><td>P1</td></tr>
+        <tr><td><span class="nm">公众号推文</span></td><td>保司/银行/品牌方</td><td>兑吧内容团队</td><td>公众号长文 + 头条配图 + 推送时段</td><td>P2</td></tr>
+        <tr><td><span class="nm">客户触达话术</span></td><td>保司/银行</td><td>代理人/客户经理本人</td><td>朋友圈 9 图 + 配文 + 群发话术</td><td>P1</td></tr>
+        <tr><td><span class="nm">热点捕捉分析</span></td><td>所有客户</td><td>兑吧 + 客户运营共用</td><td>跨平台热点 Top N + 借势建议</td><td>P0（已部分实现）</td></tr>
+        <tr><td><span class="nm">PPT 制作</span></td><td>保司/银行</td><td>内训讲师 / 客户经理本人</td><td>PPT 大纲 + 单页 + 演讲稿</td><td>P3</td></tr>
+        <tr><td><span class="nm">产品培训</span></td><td>保司</td><td>保司培训部 / 兑吧内容团队</td><td>从产品档案 → 讲师 PPT + 学员手册 + 测试题 + 短视频教学</td><td>P2</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       03 · 10 条核心设计原则
+       ============================================================ -->
+  <section class="section" id="s3">
+    <div class="num">SECTION 03</div>
+    <h2>10 条核心设计原则</h2>
+    <p class="lede">每条原则后面都给出「为什么」+「具体落地」+「反例」。这是从过去 8+ 版迭代血淋淋打磨出来的，不要绕过。</p>
+
+    <div class="principle">
+      <div class="pnum">01</div>
+      <div>
+        <h4>视角永远是「我」第一人称 · 不是甲乙方</h4>
+        <div class="why">用户打开 Agent 时，"我"就是这个内容的生产者。不要在 UI 上出现"客户 / 运营者 / 甲方需求"这类<em class="hl">乙方做项目</em>的视角字段。</div>
+        <div class="imp"><strong>落地</strong>：顶栏右上是"我"的身份（如小草·贵州中烟新媒体运营）；项目条只写"新笔记 · DRAFT" 或"养老金压力 · 需求激发 × 3"。<br><strong>反例</strong>：「客户 = 泰隆银行 / 运营者 = 小张」这种就是把产品做成了乙方项目管理系统。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">02</div>
+      <div>
+        <h4>客户资产自动绑定 · 不要做"场景切换器"</h4>
+        <div class="why">真实产品里，登录就已经知道我是谁、我属于哪家客户、我有什么资产。<em class="hl">不要在 UI 上做"贵烟 / 泰隆 / 太保"的 demo 切换器</em>——那是 demo 思维。</div>
+        <div class="imp"><strong>落地</strong>：登录态绑定客户，Agent 自动加载该客户的「产品档案 / 品牌规范 / 合规规则 / 历史爆款 / 账号身份」五类资产。<br><strong>反例</strong>：右上角放一个下拉选客户，每选一个换一套数据 —— 这是给评委看的 demo，不是给用户用的产品。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">03</div>
+      <div>
+        <h4>Agent 必须显性引用资产 · 像学术引用</h4>
+        <div class="why">"基于客户画像跑出来"是泛泛话。要在<em class="hl">每条 Agent 消息里点名引用</em>："参考你的 <code>产品档案 v2.1 第 3 节</code>"。这才让用户感受到 Agent 真在调用资产而不是瞎编。</div>
+        <div class="imp"><strong>落地</strong>：消息气泡内嵌"资产引用块"（蓝边框 + 资产名 + 版本 + 引用片段）；右上"已调用 N 份资产"chip 可展开看清单。<br><strong>反例</strong>：只说"根据你的品牌调性…" 但不点名是哪份品牌资产、哪个版本。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">04</div>
+      <div>
+        <h4>角色像真实工种 · 不要叫"XX Agent"</h4>
+        <div class="why">用户脑子里的协作对象是"<em class="hl">同事</em>"，不是"<em class="hl">系统模块</em>"。叫"选题策划 Agent"是 SaaS 厂商腔，叫"编导"才像同事。</div>
+        <div class="imp"><strong>落地</strong>：两到三字命名 · 像真实工种（<code>编导 / 文案 / 美术 / 合规审核 / 品牌审核 / 业务校准 / 选角导演 / 制作组 / 质检师</code>）。<br><strong>反例</strong>：「选题策划 Agent」「视觉风格 Agent」「提示词工程师 Agent」—— 一眼就知道是工程师起的名，不是用户视角。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">05</div>
+      <div>
+        <h4>头像用真 SVG 人物 · 不要首字色块</h4>
+        <div class="why">首字+色块头像让 Agent 看起来像"系统通知者"。圆形真人头像让 Agent 看起来像"同事"。<em class="hl">情感连接差异巨大</em>。</div>
+        <div class="imp"><strong>落地</strong>：复用 <code>docs/Sunrise双屏原型/assets/agents/*.svg</code>（已有 9 个 SVG：小草/编导/文案/业务校准/合规审核/品牌审核/选角导演/制作组/质检师）。新角色用相近 SVG 或新画。<br><strong>反例</strong>：自己生成 <code>&lt;rect+text&gt;</code> 用"选"字+绿底色块当头像，丑且廉价。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">06</div>
+      <div>
+        <h4>对话框照搬 KOS · 不要自己生造</h4>
+        <div class="why">KOS 短视频 Agent 的对话布局已经磨了 8+ 版，<em class="hl">.bubble / .stream / .compose / .evidence</em> 是磨好的范式。新 Agent 必须复用，不要自己生造组件。</div>
+        <div class="imp"><strong>落地</strong>：直接 <code>&lt;link rel="stylesheet" href="shared.css"&gt;</code>，结构用 <code>.topbar / .rail / .chat / .stream / .bubble / .compose</code>。气泡 = 头像 + .body(.head + .msg) + .evidence。<br><strong>反例</strong>：自己定义 <code>.msg-row .avatar .body .bubble</code> 一套相似但不同的命名，最后跟 KOS 视觉不统一。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">07</div>
+      <div>
+        <h4>每条 Agent 消息必须带工具调用证据</h4>
+        <div class="why">没有证据 = Agent 在装饰自己。<em class="hl">证据 chip 是 Agent "真的在干活"的视觉锚点</em>。</div>
+        <div class="imp"><strong>落地</strong>：消息底部 <code>.evidence</code> 区放 <code>.ev / .ev.warn / .ev.risk / .ev.law</code> 椭圆 chip（mono 字体）。例："已读 42 篇爆款"、"禁用词 0"、"广告法 5/5 通过"、"质量 7.4 建议重生"。<br><strong>反例</strong>：Agent 只说"已经帮你跑完选题了"，没有任何可量化的工具痕迹。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">08</div>
+      <div>
+        <h4>合规是底线护栏 · 不是主角</h4>
+        <div class="why">合规<em class="hl">作为节点存在</em>、<em class="hl">作为引用资产存在</em>、<em class="hl">作为发布前清单存在</em>，但不要做成"合规雷达占满首页"那种喧宾夺主。</div>
+        <div class="imp"><strong>落地</strong>：首页合规中心是 1 张卡 + 1 个 rail 入口；Agent 工作流里合规是 1 个节点 + 1 个 Agent 角色；发布前是 1 个清单卡（绿/黄两色）。<br><strong>反例</strong>：首页 1/3 高度用来做合规叙事 / 工作流里合规雷达占全画板。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">09</div>
+      <div>
+        <h4>左右联动 · 对话驱动画板状态</h4>
+        <div class="why">对话和画板不是两个独立面板，是<em class="hl">一对联动</em>：Agent 说"看右边" → 画板切节点 → 节点上的操作回到对话流。</div>
+        <div class="imp"><strong>落地</strong>：每条带产物的 Agent 消息底部加 <code>"去看 XXX →"</code> 链接（橙色 mono 字 + 箭头）；点击后画板切到对应节点 + 高亮 + 滚动。<br><strong>反例</strong>：左边只是消息流，右边只是产物展示，互相不知道对方在干什么。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">11</div>
+      <div>
+        <h4>全局组件 1:1 复用 · 不要"精简"任何一项</h4>
+        <div class="why"><strong>rail / topbar / 用户区</strong> 是平台级契约组件，不是页面级装饰。用户在所有 Agent 之间穿梭时，导航的每一项位置必须稳定。任何"当前页面不直接相关，省掉吧"的念头都是错的。</div>
+        <div class="imp"><strong>落地</strong>：从 <code>屏1-首页.html</code> 或 <code>屏2-KOS·对话工作台-v2.html</code> 把 <code>&lt;header.topbar&gt;</code> + <code>&lt;aside.rail&gt;</code> 字节级拷过来，<em class="hl">不增不减不改顺序</em>。仅修改 <code>.ri.active</code> 高亮项 + 用户身份信息。<br><strong>反例</strong>：写 <code>&lt;!-- rail（精简版）--&gt;</code>，省掉"项目""数据"两项。<em class="hl">"精简 / 简化 / 省略" 这三个词出现在注释里都是危险信号</em>。</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="pnum">10</div>
+      <div>
+        <h4>数据中性 · 不要厂商自嗨指标</h4>
+        <div class="why">"省人力 ¥4,500 / ROI 5 倍 / 自动化 88%"这种是<em class="hl">乙方供应商对甲方做的 PUA 话术</em>，客户一眼识破。</div>
+        <div class="imp"><strong>落地</strong>：只展示中性事实 ——"本周扫描 412 条"、"红线触发 142 次"、"token 消耗 ¥124.5"、"7 天趋势"。让客户自己得出结论。<br><strong>反例</strong>："我们帮你<strong>节省了</strong>X 元 / <strong>提升了</strong>Y% 效率"—— 加任何形容词都是自嗨。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       04 · 必须复用的资产
+       ============================================================ -->
+  <section class="section" id="s4">
+    <div class="num">SECTION 04</div>
+    <h2>必须复用的资产</h2>
+    <p class="lede">为了让 Sunrise 是一个产品而不是一堆零散原型，下面这些资产<strong>必须复用</strong>。新建一个 Agent 前先确认这些都用上了再说。</p>
+
+    <h3>设计 token & 共用 CSS</h3>
+    <div class="callout tip">
+      <span class="lb">必读</span>
+      <div>路径：<code>docs/Sunrise双屏原型/shared.css</code><br>核心 token：<code>--paper / --paper-2 / --ink / --accent / --gold / --green / --blue / --red / --rose / --teal / --serif / --mono</code><br>核心组件：<code>.topbar / .rail / .chat / .stream / .bubble / .bubble.me / .compose / .evidence / .ev / .sys-event / .think-card / .welcome-card / .decision-v2 / .canvas-v2 / .anchor-strip</code></div>
+    </div>
+
+    <h3>全局组件契约（必须 1:1 复用，禁止精简）</h3>
+    <div class="callout bad">
+      <span class="lb">硬规定</span>
+      <div>以下 3 个组件是平台级契约，从已建页面字节级拷贝，<strong>不增不减不改顺序</strong>：<br>
+      ① <strong>topbar</strong>：Sunrise 品牌 + 面包屑 + 搜索 + 通知 + 用户区<br>
+      ② <strong>rail</strong>（7 项 + 分隔符）：<code>首页 · Agent · 项目 · [div] · 合规 · 资产 · [div] · 数据 · [flex:1 spacer] · 设置</code><br>
+      ③ <strong>user-chip</strong>：头像 + 名字 + 职务（用户身份动态填充，但结构不动）<br>
+      复制源：<code>屏1-首页.html</code> 或 <code>屏2-KOS·对话工作台-v2.html</code>。仅允许修改 <code>.ri.active</code> 高亮项、用户身份字段、面包屑文字。</div>
+    </div>
+
+    <h3>角色目录（沿用 KOS 体系）</h3>
+    <table class="role-table">
+      <thead><tr><th>角色 key</th><th>显示名</th><th>职能</th><th>SVG 头像</th></tr></thead>
+      <tbody>
+        <tr><td><code>xiaocao</code></td><td><span class="nm">小草</span></td><td>用户身份（"我"）· 内容运营</td><td><code>assets/agents/xiaocao.svg</code></td></tr>
+        <tr><td><code>director</code></td><td><span class="nm">编导</span></td><td>选题 · 视觉方向 · 内容偏好</td><td><code>assets/agents/director.svg</code></td></tr>
+        <tr><td><code>copy</code></td><td><span class="nm">文案</span></td><td>脚本 · 台词 · 标题 · 正文</td><td><code>assets/agents/copy.svg</code></td></tr>
+        <tr><td><code>art</code></td><td><span class="nm">美术</span></td><td>封面风格 · 图片提示词（小红书新增）</td><td><code>assets/agents/production.svg</code></td></tr>
+        <tr><td><code>biz</code></td><td><span class="nm">业务校准</span></td><td>产品事实匹配（保司专用）</td><td><code>assets/agents/biz.svg</code></td></tr>
+        <tr><td><code>compliance</code></td><td><span class="nm">合规审核</span></td><td>行业监管硬红线</td><td><code>assets/agents/compliance.svg</code></td></tr>
+        <tr><td><code>brand</code></td><td><span class="nm">品牌审核</span></td><td>客户品牌护栏</td><td><code>assets/agents/brand.svg</code></td></tr>
+        <tr><td><code>casting</code></td><td><span class="nm">选角导演</span></td><td>代理人形象 · 声纹（KOS 专用）</td><td><code>assets/agents/casting.svg</code></td></tr>
+        <tr><td><code>production</code></td><td><span class="nm">制作组</span></td><td>场景 · 配音 · 合成（KOS 专用）</td><td><code>assets/agents/production.svg</code></td></tr>
+        <tr><td><code>qa</code></td><td><span class="nm">质检师</span></td><td>技术规格 · 稳定性压测</td><td><code>assets/agents/qa.svg</code></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--ink-3);margin-top:6px;">⚠️ <strong>需要新角色？</strong>先看现有 SVG 是否能复用（参考职能近似）。需要画新 SVG，请保持风格统一：圆形 80×80 viewBox，radialGradient 背景，简笔人物，特征装饰（如小草的嫩芽、编导的眼镜、文案的耳边铅笔）。</p>
+
+    <h3>资产·合规库（每个客户绑定的"我的资产"）</h3>
+    <p>每个客户登录后 Sunrise 自动加载以下 5 类资产，Agent 在工作时显性引用。<strong>2026-05-19 起合规与资产已合并在「资产·合规」一个页面管理</strong>（旧"合规中心"已 redirect）：</p>
+    <ol>
+      <li><strong>公司合规手册</strong>（带版本号）—— 公司私有的合规红线、行业潜规则、内审规范（区别于平台预置的监管法规）</li>
+      <li><strong>品牌手册</strong>（带版本号）—— 品牌 VI、话语手册、内容铁律、调性、禁用词、必用元素</li>
+      <li><strong>产品资料</strong>（带版本号）—— 产品档案、条款、价格、卖点、实拍图、发布会 PPT</li>
+      <li><strong>红线词库</strong>（公司私有禁用词，36 条起步）—— Agent 扫每句台词时先匹配，命中触发改写或退回</li>
+      <li><strong>Agent 记忆</strong>（持续学习）—— 选题采纳偏好 / 文案风格强偏好 / 主角调性 / 合规改写历史</li>
+    </ol>
+    <p style="font-size:12.5px;color:var(--ink-3);margin-top:6px;">⚠️ <strong>注</strong>：平台已预置行业合规基线（广告法 / 保险销售办法 / 银保监等 5 份监管法规 + 90 天滚动更新），不在客户资产里。客户只需上传<em class="hl">公司私有</em>的合规手册和红线词，跟平台基线叠加调用。</p>
+
+    <h3>已建参考实现</h3>
+    <table class="role-table">
+      <thead><tr><th>文件</th><th>说明</th><th>是否对外演示</th></tr></thead>
+      <tbody>
+        <tr><td><code>屏1-首页.html</code></td><td>Sunrise 首页 · Agent 矩阵入口</td><td>✓</td></tr>
+        <tr><td><code>屏2-KOS·对话工作台-v2.html</code></td><td>KOS 短视频 Agent 主入口 · 9 节点完整流程 + 合规雷达增强版</td><td>✓ 主推</td></tr>
+        <tr><td><code>屏3-合规中心.html</code></td><td><em style="color:var(--ink-3);">已废弃 · 自动 redirect 到 屏4-资产.html（合规与资产已合并）</em></td><td>—</td></tr>
+        <tr><td><code>屏4-资产.html</code></td><td><strong>资产·合规</strong> · 5 类资产合一（合规手册 / 品牌 / 产品 / 红线词 / Agent 记忆）</td><td>✓ 主推</td></tr>
+        <tr><td><code>屏7-小红书Agent工作台.html</code></td><td>小红书图文 Agent 主入口 · 6 节点完整流程 + 手机预览</td><td>✓ 主推</td></tr>
+        <tr><td><code>合规扫描-playground.html</code></td><td>合规雷达三方案 playground · 选定 B PLUS 暖纸方案</td><td>仅内部</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================
+       05 · 我们踩过的坑（按类）
+       ============================================================ -->
+  <section class="section" id="s5">
+    <div class="num">SECTION 05</div>
+    <h2>我们踩过的坑（按类）</h2>
+    <p class="lede">下面是从 2026 年 3 月到现在 8+ 版迭代里踩过的真坑。每个坑都附「错误做法 / 正确做法 / 用户原话」三段，方便你判断你正在走的路是不是又掉进去了。</p>
+
+    <!-- 坑 1 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #1 · 视角</span>
+        <h4>把"我打开 Agent"做成了"乙方为客户做项目"</h4>
+      </div>
+      <p>这是<strong>最容易反复掉的坑</strong>。工程师/AI 默认会把客户名/项目编号/负责人/协作人这些项目管理字段放到顶栏。一放就错。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>顶栏「客户 = 泰隆银行 余杭支行 / 运营者 = 小张（综合管理岗）/ 协作人 = X / 项目编号 = P-2026-Q2-007」</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>顶栏：「小草 · 贵州中烟新媒体运营」（我自己的身份）；项目条：「新笔记 · DRAFT」或「养老金压力 · 需求激发 × 3」（我手头的任务）</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："为什么在这个页面中还出现了客户，运营者，根本不是同一个视角啊"</div>
+    </div>
+
+    <!-- 坑 2 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #2 · 通用性</span>
+        <h4>用"场景切换器"假装通用性 · 实则 demo 思维</h4>
+      </div>
+      <p>当我们说"Agent 是通用的、贵烟泰隆太保都能用"时，工程师/AI 的第一反应是<em class="hl">"加个下拉切换 demo 数据"</em>。这是 demo 思维。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>右上角放「场景：贵烟 ▾ / 泰隆 / 太保」下拉，切换时整个对话+画板换一套数据。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>登录态绑定客户。当前页面只展示当前客户的内容。"通用"体现在「不同客户登录看到的是<em class="hl">自己的资产</em>跑出来的<em class="hl">自己的内容</em>」，不是 UI 上的切换。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："为什么要出现场景切换？你直接按照不同客户，都调用客户的资产这样的设定不就好了？"</div>
+    </div>
+
+    <!-- 坑 3 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #3 · 命名</span>
+        <h4>角色叫"XX Agent" · SaaS 厂商腔</h4>
+      </div>
+      <p>"选题策划 Agent / 视觉风格 Agent / 提示词工程师 Agent" —— 这种命名出自工程师视角而不是用户视角。用户脑子里这些是"<em class="hl">同事</em>"。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>「选题策划 Agent」「文案 Agent」「视觉风格 Agent」「提示词工程师 Agent」「合规 & 平台规则 Agent」</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>「编导」「文案」「美术」「合规审核」—— 极简两到三字、像真实工种、不带 Agent 后缀。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："什么叫选题策划 agent，这对吗？你看 kos 那边的角色是怎么描述的呢？"</div>
+    </div>
+
+    <!-- 坑 4 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #4 · 头像</span>
+        <h4>头像用首字色块占位 · 不是真人</h4>
+      </div>
+      <p>偷懒用 <code>&lt;svg&gt;&lt;rect&gt;&lt;text&gt;选&lt;/text&gt;&lt;/svg&gt;</code> 这种首字色块当头像，整个对话区马上就降级为"系统通知中心"，失去 IM 协作感。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>动态生成的"选/文/视/图/规"色块头像。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>用 <code>assets/agents/*.svg</code> 里的 9 个真实人物头像（圆形背景+人脸+特征装饰），新角色用相近 SVG 或按风格新画。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："还是没有头像啊"</div>
+    </div>
+
+    <!-- 坑 5 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #5 · 自嗨数据</span>
+        <h4>厂商自嗨指标 · 客户一眼识破</h4>
+      </div>
+      <p>"省人力 ¥4,500 / ROI 5 倍 / 留痕减负 88%"—— 一看就是甲方 PPT 套路，<em class="hl">真客户根本不信</em>。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>合规中心右栏放「省人力 ¥4,500 / ROI 5 倍 / Agent 帮你节省 X 小时」</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>只展示中性事实：「本周扫描 412 条 / 7 天趋势曲线 / 处理分布 4 类 / 红线触发 142 次 TOP3 / token 消耗 ¥124.5」让客户自己得出结论。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："避险还说得过去，但是省人力和成本都非常的自嗨"</div>
+    </div>
+
+    <!-- 坑 6 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #6 · 商业模式</span>
+        <h4>把 ToB SaaS 思维套在金融行业内容生产上</h4>
+      </div>
+      <p>金融行业（保司/银行）内容生产<em class="hl">不是 SaaS 订阅</em>。它们日常就是发需求给乙方做内容。我们要做的不是卖订阅，是<em class="hl">"做乙方 + 自带 AI 工具链 + 卖项目"</em>。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>设计「月度订阅 / 年度授权」付费墙、按席位计价、按 Agent 用量计费。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>项目制：150 万采购给保司做一年的短视频模板包 / 50 万给银行做小红书培训+工具+代运营。<strong>客户买的是产物，不是工具</strong>。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："但是作为保司，我的日常就是找服务商下需求，我为什么要自己使用这个平台做呢？"</div>
+    </div>
+
+    <!-- 坑 7 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #7 · 合规喧宾夺主</span>
+        <h4>把合规当主角而不是底线护栏</h4>
+      </div>
+      <p>合规很重要，但<em class="hl">不要让它占用首屏 1/3</em>。客户关心的是内容生产本身，合规是 reassurance（让我放心），不是 hero（让我激动）。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>首页 1/3 高度做"合规贯穿全流程"叙事 banner / 工作流里合规雷达占满整个画板。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>首页合规中心是 1 张 Agent 卡 + 1 个 rail 入口；Agent 工作流里合规是 1 个节点 + 1 个 Agent 角色 + 1 个发布前清单。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："Sunrise 定位锚点 — 主轴是营销内容生产 agent，合规+品牌一致性做底线护栏不当主角"</div>
+    </div>
+
+    <!-- 坑 8 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #8 · 自己生造组件</span>
+        <h4>不复用 KOS 已经磨好的对话组件 · 自己另起一套</h4>
+      </div>
+      <p>看到要做对话，第一反应是"我自己写 .msg-row .avatar .bubble"。KOS 那边已经磨了 8+ 版 <code>.bubble / .stream / .compose / .evidence</code>，<em class="hl">直接拿来用</em>。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>在新 Agent 里自己定义 <code>.chat-col / .msg / .body / .text-bubble</code> 一套相似但不同的命名和样式。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p><code>&lt;link rel="stylesheet" href="shared.css"&gt;</code>，结构直接用 <code>.topbar / .rail / .chat / .stream / .bubble / .compose / .evidence</code>。需要新组件再加，不要替换已有的。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："对话框你学下 kos短视频的布局呢，现在的布局我根本看不懂"</div>
+    </div>
+
+    <!-- 坑 9 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #9 · Agent 装饰化</span>
+        <h4>Agent 只有头像和名字 · 没有工具调用证据</h4>
+      </div>
+      <p>"AI Agent 帮你跑完了"这种话用户不信。<em class="hl">证据 chip</em>是 Agent 真在干活的视觉锚点。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>"选题策划 Agent：已经帮你跑完选题了，请查看右侧。" 一句话光秃秃。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>消息底部带 <code>.evidence</code>：「已读 42 篇爆款」「禁用词 0/142」「广告法 5/5 通过」「TOP 打分 9.2」<br>+ 内嵌 <code>.asset-quote</code>：「参考你的「产品档案 v2.1」第 3 节核心卖点」</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>：（项目早期）"agent 在为我们工作多少这个很牵强啊"</div>
+    </div>
+
+    <!-- 坑 13 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #13 · 用户身份</span>
+        <h4>把"付费方"当成"工具用户"· 商业模式认知错位</h4>
+      </div>
+      <p>2026-05-19 的最新错误，且是<strong>自相矛盾</strong>：Section 01 已经写了"保司/银行/品牌方日常发需求给乙方做内容，我们就是那个乙方"，但 Section 02 又写"谁用 = 保司新媒体运营" —— 同一份文档前后打架，因为我没把<em class="hl">付费方</em>和<em class="hl">工具用户</em>区分清楚。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>看到"客户是人保/太保"就以为"工具用户是人保新媒体运营员工"。实际上保司没有/不愿意投入这种人力，<strong>真正打开 Agent 在用的是兑吧内容团队</strong>（我们自己）。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>每个 Agent 必须分两层说清楚：① <strong>付费方</strong>（谁掏钱、买什么）② <strong>工具用户</strong>（谁打开 Agent、产物给谁用）。UI 上"我" = 工具用户，资产库 = 付费方的资产。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："这里应该改成，兑吧内容团队，目前来看保司自己没有人力去做这个事"</div>
+      <p style="margin-top:10px;font-size:12.5px;"><strong>根本原因</strong>：AI 看到 B2B 产品时下意识假设"客户员工 = 工具用户"。这是 SaaS 时代的默认模型，但 Sunrise 是<em class="hl">"AI 工具链 + 内容代生产"</em>的复合模式 —— 付费方买的是产物，不是工具席位。<br><strong>规避机制</strong>：① 每个 Agent 卡必须有「付费方 / 工具用户」两行，<em class="hl">不能合并成一行"谁用"</em>；② 大多数 Agent 的工具用户是"兑吧内容团队"，少数是客户本人（如银行客户经理做个人 IP / 代理人发朋友圈）；③ 新建 Agent 前先问"这个 Agent 是兑吧打开用，还是客户员工打开用？"，再定 UI。</p>
+    </div>
+
+    <!-- 坑 12 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #12 · 反向入口</span>
+        <h4>建了新 Agent 但没回去把"指向它"的入口接通</h4>
+      </div>
+      <p>这是 2026-05-19 的最新错误。我建好了「屏7-小红书Agent工作台.html」后，去首页改了"小红书图文"卡的 <code>href</code>，<em class="hl">但忘了改「屏5-Agent总览.html」里同一张卡的 href</em>。用户从总览页点小红书 → 死链。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>新建一个 Agent 后，只在自己常 demo 的页面（首页）改链接，忘了项目里其他指向同一 Agent 的入口。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>新建 Agent 后，<strong>grep 一遍全项目</strong>找所有指向同名 Agent 的卡片入口（首页/总览/资产页/推荐位等），一次性全部接通。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："agent 的二级页面的小红书也点不进去"</div>
+      <p style="margin-top:10px;font-size:12.5px;"><strong>根本原因</strong>：思维只覆盖了"用户最常用的入口"，没意识到产品里同一个 Agent 有<em class="hl">多个反向入口</em>（首页 Agent 矩阵 / Agent 总览 / 资产页推荐位 / 最近项目卡 / 跨 Agent 跳转…）。<br><strong>规避机制</strong>：① 建完 Agent 跑一条 <code>grep -rn '小红书\|新Agent名' *.html</code> 找出所有提到该 Agent 的位置；② 每处 <code>href="#"</code> 都判断是接通还是改为"规划中"灰态；③ 在 Checklist 第 10 步明确"反向入口扫描"。</p>
+    </div>
+
+    <!-- 坑 11 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #11 · 全局导航</span>
+        <h4>擅自"精简"全局 rail 导航 · 把平台契约当成页面装饰</h4>
+      </div>
+      <p>这是 2026-05-18 在小红书 Agent 上犯的最新错误。<strong>rail / topbar / 用户区是平台级全局组件</strong>，每个页面必须 1:1 一致，不能基于"当前页面不直接相关"为由省略任何一项。用户在所有 Agent 工作台之间穿梭时，导航的每一项位置都必须稳定。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>在新 Agent 页面里写 <code>&lt;!-- rail（精简版）--&gt;</code>，自作主张去掉"项目"和"数据"两项，只保留"首页/Agent/合规/资产/设置" 5 项。</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>从首页或 KOS-v2 完整拷贝 rail，<strong>1:1 不改</strong>。完整 7 项：「首页 / Agent / 项目 / 合规 / 资产（div 分隔）/ 数据 / 设置」。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："这左边的栏也跟首页对不上啊，这种错误为什么会犯，下次如何避免呢"</div>
+      <p style="margin-top:10px;font-size:12.5px;"><strong>根本原因</strong>：AI 倾向"做得更轻"，但<em class="hl">全局一致性 &gt; 单页面视觉精简</em>。"轻"是 reflex，"一致"是契约。<br><strong>规避机制</strong>：① 在新 Agent 起手 Checklist 里加一步「diff 一遍 rail/topbar/用户区，必须与首页字节一致」；② shared.css 旁配套 <code>shared-shell.html</code> 片段作为复制源；③ 任何形如「精简版/简化/省略」的注释都是危险信号，必须重新审视。</p>
+    </div>
+
+    <!-- 坑 10 -->
+    <div class="pit-card">
+      <div class="ph">
+        <span class="badge">坑 #10 · 范围蔓延</span>
+        <h4>把多个 Agent 的能力混在一个工作台里</h4>
+      </div>
+      <p>看到"代理人做同款"就想在 KOS 里嵌入"App 端代理人入口"，看到"出客转化"就想在小红书里嵌入"私信 SOP 编辑器"。<em class="hl">克制</em>。每个 Agent 只做它的核心产物，承接由别的 Agent / App 完成。</p>
+      <div class="grid">
+        <div class="col bad">
+          <div class="lb">✗ 错误做法</div>
+          <p>KOS 短视频 Agent 里加"模拟代理人切素材"演示 / 小红书 Agent 里加"企微 SOP 设计器"</p>
+        </div>
+        <div class="col good">
+          <div class="lb">✓ 正确做法</div>
+          <p>KOS 只产出模板 + 元数据，"代理人做同款"是好保 App 的事；小红书只产出可发布笔记，"出客转化"是另一个 Agent / 已挂载的 SOP 配置项的事。</p>
+        </div>
+      </div>
+      <div class="pquote"><b>用户原话</b>："好保 App 端是单一物料部署，不做个性化"</div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       06 · 新 Agent 起手 Checklist
+       ============================================================ -->
+  <section class="section" id="s6">
+    <div class="num">SECTION 06</div>
+    <h2>新 Agent 起手 Checklist</h2>
+    <p class="lede">如果你正在启动一个新 Agent（视频号、公众号、客户触达、PPT…），按以下顺序走一遍。每一步都不要跳。</p>
+
+    <div class="checklist">
+      <div class="ch-step"><span class="n">01</span><span><strong>用一段话说清这个 Agent</strong>：谁用（具体职位）、解决什么任务、产出什么形态。说不清就先去对齐，不要写代码。</span></div>
+      <div class="ch-step"><span class="n">02</span><span><strong>列出关键节点序列</strong>（5-10 个）。参考 KOS 的 10 节点和小红书的 6 节点。节点是"用户能感知的工作步骤"，不是工程模块。</span></div>
+      <div class="ch-step"><span class="n">03</span><span><strong>列出参与的 Agent 角色</strong>（4-7 个）。优先复用 <code>director / copy / art / compliance / brand / qa</code>，避免造新角色。需要新角色就用现有 SVG 风格新画一张。</span></div>
+      <div class="ch-step"><span class="n">04</span><span><strong>列出客户资产</strong>（5 类）。这个 Agent 工作时会调用哪些产品档案 / 品牌规范 / 历史数据 / 合规规则 / 账号身份？在画板右上"已调用 N 份资产" chip 显式展出。</span></div>
+      <div class="ch-step"><span class="n">05</span><span><strong>新建文件</strong>：<code>docs/Sunrise双屏原型/屏N-XXAgent工作台.html</code>。<code>&lt;link rel="stylesheet" href="shared.css"&gt;</code>。骨架直接拷小红书 Agent 的 <code>.topbar / .rail / .chat / .canvas</code>。</span></div>
+      <div class="ch-step"><span class="n">5.5</span><span><strong>⚠️ 全局组件 diff 自检</strong>：把新文件的 <code>&lt;header.topbar&gt;</code> 和 <code>&lt;aside.rail&gt;</code> 与 <code>屏1-首页.html</code> diff 一遍。<em style="color:var(--red);">必须字节一致，rail 必须 7 项不能省略</em>。如果出现 <code>&lt;!-- 精简版/简化/省略 --&gt;</code> 注释，立刻删掉重拷。</span></div>
+      <div class="ch-step"><span class="n">06</span><span><strong>写对话流</strong>：第一条「我」发起任务 → 系统事件「已加载 X 份资产」 → 每个 Agent 一条，必须带 evidence chip + 资产引用块 + 「去画板看 →」链接。</span></div>
+      <div class="ch-step"><span class="n">07</span><span><strong>写画板节点</strong>：每个节点一个 render 函数。节点点击切换画板内容；左侧"去画板看 →"链接联动切节点。</span></div>
+      <div class="ch-step"><span class="n">08</span><span><strong>写产物预览</strong>：最后一个节点必须是"最终产物的真实形态预览"（KOS 是上架卡 / 小红书是手机帖子 / 视频号该是横屏视频播放器 / 公众号该是手机长文预览）。</span></div>
+      <div class="ch-step"><span class="n">09</span><span><strong>合规清单</strong>：发布前清单卡 5 条（4 绿 + 1 黄软提醒）。规则来自客户资产里的"合规规则库"。</span></div>
+      <div class="ch-step"><span class="n">10</span><span><strong>反向入口全扫描</strong>：跑 <code>grep -rn '新Agent名' docs/Sunrise双屏原型/*.html</code>，把所有提到该 Agent 名字的卡片入口的 <code>href="#"</code> 都接通。常见位置：① 首页 Agent 矩阵 ② Agent 总览页 ③ 资产页推荐位 ④ 最近项目卡 ⑤ 跨 Agent 跳转链接。<em style="color:var(--red);">少接一处用户就会点死链一次</em>。</span></div>
+      <div class="ch-step"><span class="n">11</span><span><strong>自测 5 步</strong>：① 打开页面无 console error ② 切换所有节点画板都有内容 ③ 点对话里"去画板看 →"能正确切节点 ④ 资产 chip 展开能看清单 ⑤ 最后节点的产物预览不空</span></div>
+      <div class="ch-step"><span class="n">12</span><span><strong>对照本文 10 条原则自查</strong>：每条原则都过一遍，确认你没掉进任何坑。</span></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       07 · 术语对齐表
+       ============================================================ -->
+  <section class="section" id="s7">
+    <div class="num">SECTION 07</div>
+    <h2>术语对齐表</h2>
+    <p class="lede">下面这些词在我们的语境里有<em class="hl">特定的含义</em>，跟通用 SaaS 行业的定义不太一样。沟通时请按这个对齐。</p>
+
+    <div class="glossary">
+      <div class="g"><span class="term">Sunrise</span><span class="def">平台底座 + Agent 矩阵的整体产品名 · <em>不是某一个 Agent</em></span></div>
+      <div class="g"><span class="term">兑吧内容团队</span><span class="def">我们自己（公司内容生产团队）· <em>大多数 Agent 的真实工具用户</em>。Sunrise 是我们生产内容时用的 AI 工具链</span></div>
+      <div class="g"><span class="term">付费方</span><span class="def">采购我们项目/服务的企业（保司/银行/品牌方）· <em>不一定是工具用户</em>。付费方买的是产物，不是工具席位</span></div>
+      <div class="g"><span class="term">工具用户</span><span class="def">真正打开 Agent 在用的人 · 大多是兑吧内容团队，少数是客户本人（如银行客户经理做个人 IP、代理人发朋友圈）</span></div>
+      <div class="g"><span class="term">KOS 短视频</span><span class="def">Sunrise 的首发 Agent，面向<em>保司新媒体运营</em>，产物是代理人可一键做同款的短视频模板</span></div>
+      <div class="g"><span class="term">小红书图文</span><span class="def">Sunrise 的第 2 个 Agent，面向<em>行业品牌方 / 账号运营</em>，产物是一篇可直接发布的小红书笔记</span></div>
+      <div class="g"><span class="term">好保 App</span><span class="def">代理人端 App，承接 KOS 产出的模板 · 代理人在这里选模板一键做同款 · <em>不在 Sunrise 工作台里做</em></span></div>
+      <div class="g"><span class="term">资产</span><span class="def">客户登录后自动绑定的 5 类内容：产品档案 / 品牌规范 / 历史已发布 / 合规规则库 / 账号身份 · <em>不是"模板素材"</em></span></div>
+      <div class="g"><span class="term">资产引用块</span><span class="def">Agent 消息里内嵌的蓝边框引用框，明确点名"这条输出基于哪份资产 / 哪个版本 / 哪个条款"</span></div>
+      <div class="g"><span class="term">小草</span><span class="def">用户的通用化身（"我"的形象）· 不是某一个具体客户公司的员工</span></div>
+      <div class="g"><span class="term">节点</span><span class="def">工作流里的一个可感知工作步骤（如"选题"、"撰写文案"）· 不是工程模块</span></div>
+      <div class="g"><span class="term">证据 chip</span><span class="def">Agent 消息底部的工具调用痕迹（mono 字体椭圆 chip），有 ev / warn / risk / law 四种状态</span></div>
+      <div class="g"><span class="term">画板</span><span class="def">右侧 62% 区域，承载当前节点的可视产物 · 不叫"画布" / "工作区" / "右侧面板"</span></div>
+      <div class="g"><span class="term">客户</span><span class="def">采购我们项目的企业（人保、农银人寿、贵州中烟、泰隆银行）· <em>不出现在产品 UI 里</em>，只在登录态绑定身份</span></div>
+      <div class="g"><span class="term">项目制</span><span class="def">客户一次性采购一个项目（如 150 万一年的短视频模板包），<em>不是 SaaS 订阅</em></span></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       08 · 给 AI Agent 的特别说明
+       ============================================================ -->
+  <section class="section" id="s8">
+    <div class="num">SECTION 08</div>
+    <h2>给 AI Agent 的特别说明</h2>
+    <p class="lede">如果你正在用 Claude Code / Cursor / 其它 AI 协作工具做 Sunrise 的 Agent，请把下面这段读进上下文。</p>
+
+    <div class="callout tip">
+      <span class="lb">FOR AI</span>
+      <div>本项目<strong>不是普通的 SaaS 原型</strong>。它是面向特定 B 端客户的项目制内容生产工具。请<strong>禁用</strong>以下默认行为：<br>
+      ① 不要主动加"客户 / 项目编号 / 协作人"等项目管理字段到 UI<br>
+      ② 不要为不同客户做"场景切换器"，客户身份由登录态绑定<br>
+      ③ 不要把任何角色命名为"XX Agent / XX 助手 / XX Bot"，用"编导 / 文案 / 美术"这种工种名<br>
+      ④ 不要用首字色块当头像，用 <code>assets/agents/*.svg</code> 里的真人头像<br>
+      ⑤ 不要自己生造对话组件，用 <code>shared.css</code> 已有的 <code>.bubble / .compose / .evidence</code><br>
+      ⑥ 不要用"省人力 / ROI / 提升效率"这类自嗨指标，只用中性事实<br>
+      ⑦ 不要把合规放在 hero 位置，它是底线护栏不是主角<br>
+      ⑧ 不要把多个 Agent 的能力混在一个工作台里（克制范围）<br>
+      ⑨ 不要"精简"全局 rail / topbar / user-chip，必须从已建页面字节级 1:1 拷贝。任何"精简版/简化版"注释都是危险信号。<br>
+      ⑩ 建完新 Agent 后必须 grep 全项目找所有提到该 Agent 的入口，一次性接通。<em class="kw">"反向入口"思维</em>：不只是改你刚才打开的页面，是改所有指向新 Agent 的地方。<br>
+      ⑪ 不要把"付费方"当成"工具用户"。Sunrise 大多数 Agent 的工具用户是<em class="kw">兑吧内容团队</em>（我们自己），不是保司/品牌方员工。新 Agent 必须分两层说清「付费方」和「工具用户」，不能合并成一行"谁用"。</div>
+    </div>
+
+    <h3>给 AI 的工作流建议</h3>
+    <ol>
+      <li>开工前先读完本文档（尤其 Section 03 / 05 / 06）</li>
+      <li>读完后用一句话向用户复述："我理解这次要做的是 [X Agent]，<strong>付费方是 [P]、工具用户是 [U]</strong>（必须区分两层），产物是 [Z 形态]，节点是 [N1→N2→…→Nn]，会用到的 Agent 角色是 [A1, A2, …]，会调用的资产是 [R1, R2, …]。"</li>
+      <li>用户确认后再写代码</li>
+      <li>写完后对照 Section 06 的 12 步 Checklist 自查</li>
+      <li>把自查结果发给用户，让他点页面看（启动 <code>python3 -m http.server</code>）</li>
+    </ol>
+
+    <h3>常见误判 · AI 容易做错的事</h3>
+    <ul>
+      <li><strong>"用户没说要 XX 但应该有"</strong> → 多数情况是 AI 自己脑补的。先问，再做。</li>
+      <li><strong>"做一个 demo 切换器方便演示"</strong> → 99% 是错的。客户身份由登录态绑定。</li>
+      <li><strong>"加个数据看板显示生产效率"</strong> → 大概率是自嗨指标。问清楚要展示什么中性事实。</li>
+      <li><strong>"为每个客户单独做一份 UI"</strong> → 错。同一份 UI，资产不同。</li>
+      <li><strong>"我自己写一套对话气泡更轻"</strong> → 错。必须复用 shared.css。</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       底部
+       ============================================================ -->
+  <div class="foot">
+    <strong>本文档维护说明</strong><br>
+    每次 Sunrise Agent 迭代后，请把<em>新踩的坑</em>追加到 Section 05、把<em>新沉淀的原则</em>追加到 Section 03。保持原有内容稳定，只追加不重写。
+    <div class="kv">
+      <span>路径</span><span>docs/Sunrise双屏原型/产研对齐-Sunrise-Agent设计原则.html</span>
+      <span>版本</span><span>v1.0 · 2026-05-18 · 基于小红书图文 Agent 的迭代沉淀</span>
+      <span>对齐对象</span><span>Sunrise 全体产研同学 + 使用 Claude Code / Cursor / 其它 AI 工具的协作伙伴</span>
+      <span>下一次更新</span><span>下一个 Agent（视频号 / 客户触达）建完后</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合规扫描动画 · 3 方案 Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper:       #faf9f5;
+  --paper-card:  #fdfbf6;
+  --paper-2:     #f5efe4;
+  --ink:         #1f1d1a;
+  --ink-2:       #2c2a26;
+  --ink-3:       #5a5650;
+  --ink-4:       #a09a8e;
+  --ink-line:    #e8e2d4;
+  --accent:      #c96442;
+  --vermilion:   #c8362b;
+  --gold:        #b8881a;
+  --green:       #2f6b3f;
+  --rose:        #b73c4f;
+  --serif:       'Source Serif 4', 'Noto Serif SC', 'Songti SC', serif;
+  --sans:        'Inter', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  --mono:        'JetBrains Mono', 'SF Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  margin: 0;
+  min-height: 100vh;
+  padding: 32px 40px 80px;
+}
+.hd { max-width: 1020px; margin: 0 auto 22px; }
+.hd h1 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 4px;
+  letter-spacing: 0.3px;
+}
+.hd .sub { font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+.hd .sub b { color: var(--accent); }
+
+.chips {
+  display: flex; gap: 6px;
+  background: var(--paper-2);
+  border: 1px solid var(--ink-line);
+  border-radius: 12px;
+  padding: 5px;
+  max-width: 1020px;
+  margin: 0 auto 22px;
+}
+.chips .chip {
+  flex: 1; text-align: center;
+  padding: 12px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--ink-3);
+  font-weight: 500;
+  transition: all .2s;
+  border: 1px solid transparent;
+}
+.chips .chip:hover { color: var(--ink); background: rgba(255,255,255,.4); }
+.chips .chip.active {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  border-color: var(--ink-line);
+  font-weight: 600;
+}
+.chips .chip b {
+  display: block;
+  font-size: 10px;
+  color: var(--ink-4);
+  font-weight: 500;
+  margin-top: 4px;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.chips .chip.active b { color: var(--accent); }
+
+.stage { max-width: 1020px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.replay-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.replay-bar button {
+  padding: 8px 18px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  transition: all .15s;
+}
+.replay-bar button:hover { opacity: 0.92; transform: translateY(-1px); }
+.replay-bar .pill {
+  background: var(--paper-2);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+/* ============================================================
+   方案 A · 朱砂印章 + 暖纸底(SUNRISE NATIVE)
+   ============================================================ */
+.scheme-a {
+  background: var(--paper-card);
+  border: 1px solid var(--ink-line);
+  border-radius: 18px;
+  padding: 32px 38px 32px;
+  position: relative;
+}
+.scheme-a::before {
+  content: '阳光人寿 内审专用';
+  position: absolute;
+  top: 20px; right: 28px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-4);
+  letter-spacing: 1px;
+}
+.scheme-a .a-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 2px;
+  color: var(--ink);
+}
+.scheme-a .a-meta {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-bottom: 26px;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--ink-line);
+}
+.scheme-a #a-rows { display: flex; flex-direction: column; gap: 8px; }
+.scheme-a .a-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 100px;
+  gap: 16px;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--ink-line);
+  border-left: 4px solid var(--ink-line);
+  padding: 14px 16px;
+  border-radius: 3px;
+  font-family: var(--serif);
+  position: relative;
+  transition: all .25s;
+}
+.scheme-a .a-row.scanning {
+  border-left-color: var(--accent);
+  background: rgba(201, 100, 66, 0.02);
+}
+.scheme-a .a-row.done.ok   { border-left-color: var(--green); }
+.scheme-a .a-row.done.warn { border-left-color: var(--gold); }
+.scheme-a .a-row.done.fail { border-left-color: var(--vermilion); }
+
+.scheme-a .a-row .n {
+  width: 28px; height: 28px;
+  border: 1px solid var(--ink-line);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 26px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.scheme-a .a-row .law-cell .lname {
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.4px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.scheme-a .a-row .law-cell .ldesc { font-size: 13.5px; line-height: 1.4; }
+.scheme-a .a-row .a-stamp-zone {
+  height: 64px; width: 100px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.scheme-a .a-row.scanning .a-stamp-zone::after {
+  content: '审 中 …';
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--accent);
+  animation: aScanBlink 0.7s ease-in-out infinite;
+  letter-spacing: 1.5px;
+}
+@keyframes aScanBlink {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.scheme-a .a-stamp {
+  position: absolute;
+  width: 64px; height: 64px;
+  border: 2.5px solid var(--vermilion);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--vermilion);
+  font-family: var(--serif);
+  font-weight: 700;
+  background: rgba(200, 54, 43, 0.04);
+  opacity: 0;
+  transform: scale(2.4) rotate(-30deg);
+  transition: transform 0.4s cubic-bezier(.4, 0, .2, 1), opacity 0.3s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+.scheme-a .a-stamp.ok   { color: var(--green); border-color: var(--green); background: rgba(47, 107, 63, 0.05); }
+.scheme-a .a-stamp.warn { color: var(--gold);  border-color: var(--gold);  background: rgba(184, 136, 26, 0.05); }
+.scheme-a .a-stamp.fail { color: var(--vermilion); border-color: var(--vermilion); background: rgba(200, 54, 43, 0.12); border-width: 3.5px; }
+.scheme-a .a-stamp .ic { font-size: 22px; line-height: 1; }
+.scheme-a .a-stamp .tx { font-size: 9.5px; letter-spacing: 1px; margin-top: 2px; }
+.scheme-a .a-stamp.show {
+  opacity: 0.95;
+  transform: scale(1) rotate(-10deg);
+  animation: aStampShake 0.35s ease-out 0.4s;
+}
+@keyframes aStampShake {
+  0%, 100% { transform: scale(1) rotate(-10deg); }
+  35%      { transform: scale(1.1) rotate(-14deg); }
+  70%      { transform: scale(1.04) rotate(-7deg); }
+}
+
+.scheme-a .a-hit {
+  grid-column: 2 / 4;
+  margin-top: 8px;
+  padding: 7px 12px;
+  background: rgba(184, 136, 26, 0.07);
+  border-left: 2px solid var(--gold);
+  border-radius: 0 4px 4px 0;
+  font-size: 11.5px;
+  color: var(--gold);
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+.scheme-a .a-summary {
+  margin-top: 24px;
+  padding: 26px 30px 30px;
+  background: #fff;
+  border: 1px solid var(--ink-line);
+  border-radius: 4px;
+  text-align: center;
+  position: relative;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s;
+}
+.scheme-a .a-summary.show { opacity: 1; transform: translateY(0); }
+.scheme-a .a-summary .title {
+  font-family: var(--serif);
+  font-size: 18px;
+  margin-bottom: 18px;
+  letter-spacing: 1.5px;
+}
+.scheme-a .a-summary .stats {
+  display: flex; justify-content: center; gap: 56px;
+}
+.scheme-a .a-summary .stat .num {
+  font-family: var(--serif);
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1;
+}
+.scheme-a .a-summary .stat.ok   .num { color: var(--green); }
+.scheme-a .a-summary .stat.warn .num { color: var(--gold); }
+.scheme-a .a-summary .stat.fail .num { color: var(--vermilion); }
+.scheme-a .a-summary .stat .lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-top: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.scheme-a .a-final-stamp {
+  position: absolute;
+  top: -14px; right: 30px;
+  width: 96px; height: 96px;
+  border: 3.5px solid var(--vermilion);
+  border-radius: 50%;
+  color: var(--vermilion);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: var(--serif);
+  background: rgba(200, 54, 43, 0.09);
+  transform: scale(3) rotate(-30deg);
+  opacity: 0;
+  transition: all 0.55s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 3px 10px rgba(200, 54, 43, .18);
+}
+.scheme-a .a-final-stamp.show {
+  opacity: 0.96;
+  transform: scale(1) rotate(-12deg);
+}
+.scheme-a .a-final-stamp.show.warn-mode { border-color: var(--gold); color: var(--gold); background: rgba(184, 136, 26, 0.1); }
+.scheme-a .a-final-stamp .x { font-size: 22px; font-weight: 700; letter-spacing: 2px; }
+.scheme-a .a-final-stamp .y { font-size: 10.5px; letter-spacing: 1.5px; margin-top: 2px; font-family: var(--mono); }
+
+/* ============================================================
+   方案 B · 雷达 360° 扫描 + 仪表盘(SCI-FI)
+   ============================================================ */
+/* B PLUS · 暖深底 + 大雷达 + 实时日志 + 6 数据卡 */
+.scheme-b {
+  background: radial-gradient(ellipse at center, #2a1f15 0%, #1a1612 100%);
+  border: 1px solid rgba(212, 160, 86, 0.18);
+  border-radius: 18px;
+  padding: 22px 26px 24px;
+  position: relative;
+  overflow: hidden;
+  color: #d4ccbe;
+  font-family: var(--mono);
+  box-shadow: 0 16px 48px rgba(0,0,0,.25);
+}
+.scheme-b::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(212, 160, 86, 0.06) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 22px, rgba(212, 160, 86, 0.025) 22px, rgba(212, 160, 86, 0.025) 23px),
+    repeating-linear-gradient(90deg, transparent 0, transparent 22px, rgba(212, 160, 86, 0.025) 22px, rgba(212, 160, 86, 0.025) 23px);
+  pointer-events: none;
+}
+
+/* 顶部状态条 */
+.scheme-b .b-statusbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 14px 12px;
+  border-bottom: 1px solid rgba(212, 160, 86, .12);
+  margin-bottom: 18px;
+  position: relative; z-index: 2;
+}
+.scheme-b .b-statusbar .left {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #d4a056;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.scheme-b .b-statusbar .left::before {
+  content: '◉';
+  color: #ef4444;
+  animation: bLiveBlink 1.4s ease-in-out infinite;
+}
+@keyframes bLiveBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.scheme-b .b-statusbar .right {
+  display: flex; gap: 18px;
+  font-size: 10.5px;
+  color: rgba(212, 204, 190, .55);
+}
+.scheme-b .b-statusbar .right span { letter-spacing: 0.4px; }
+.scheme-b .b-statusbar .right b { color: #d4a056; font-weight: 600; }
+
+/* 主区:左大雷达 + 右日志流 */
+.scheme-b .b-main {
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  gap: 24px;
+  position: relative; z-index: 2;
+  margin-bottom: 18px;
+}
+
+.scheme-b .b-radar-wrap {
+  position: relative;
+  width: 460px;
+  height: 460px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scheme-b .b-radar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  background:
+    radial-gradient(circle, rgba(212, 160, 86, 0.04) 0%, transparent 65%),
+    repeating-radial-gradient(circle, transparent 0, transparent 38px, rgba(212, 160, 86, .07) 38px, rgba(212, 160, 86, .07) 39px);
+  border: 1px solid rgba(212, 160, 86, .22);
+  box-shadow:
+    inset 0 0 60px rgba(212, 160, 86, .08),
+    0 0 60px rgba(0, 0, 0, .35);
+}
+/* 6 条放射状刻度线(每 60°) */
+.scheme-b .b-radar .b-spoke {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 50%; height: 1px;
+  background: linear-gradient(90deg, rgba(212, 160, 86, .03) 0%, rgba(212, 160, 86, .18) 100%);
+  transform-origin: 0 50%;
+}
+/* 角度刻度数字 */
+.scheme-b .b-radar .b-deg {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(212, 160, 86, .35);
+  letter-spacing: 0.5px;
+}
+
+/* 扫描扇形(尾迹) */
+.scheme-b .b-sweep-trail {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 50%; height: 50%;
+  transform-origin: 0 0;
+  background: conic-gradient(
+    from -90deg,
+    rgba(212, 160, 86, .5) 0deg,
+    rgba(212, 160, 86, .3) 25deg,
+    rgba(212, 160, 86, .12) 55deg,
+    rgba(212, 160, 86, .04) 80deg,
+    transparent 100deg);
+  border-radius: 0 100% 0 0;
+  opacity: 0;
+  transition: opacity .3s, transform .03s linear;
+  pointer-events: none;
+}
+.scheme-b .b-sweep-trail.run { opacity: 1; }
+
+/* 扫描线主体 */
+.scheme-b .b-sweep {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 50%; height: 2.5px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg,
+    rgba(255, 220, 150, 1) 0%,
+    rgba(212, 160, 86, 0.85) 50%,
+    rgba(212, 160, 86, 0) 100%);
+  box-shadow: 0 0 18px rgba(212, 160, 86, .8), 0 0 30px rgba(212, 160, 86, .5);
+  transform: rotate(-90deg);
+  border-radius: 0 4px 4px 0;
+  transition: transform .03s linear;
+  z-index: 6;
+}
+
+/* 中心 widget */
+.scheme-b .b-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a1f15 0%, #1a1612 100%);
+  border: 1px solid rgba(212, 160, 86, .35);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: var(--mono);
+  z-index: 10;
+  box-shadow:
+    inset 0 0 24px rgba(212, 160, 86, .12),
+    0 4px 22px rgba(0,0,0,.5);
+  padding: 4px 8px;
+}
+.scheme-b .b-center .ring {
+  position: absolute;
+  inset: -8px;
+  border: 1px dashed rgba(212, 160, 86, .25);
+  border-radius: 50%;
+  animation: bCenterRing 12s linear infinite;
+}
+@keyframes bCenterRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.scheme-b .b-center .num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffdb96;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 12px rgba(212, 160, 86, .6);
+}
+.scheme-b .b-center .num .slash { color: rgba(212, 160, 86, .45); }
+.scheme-b .b-center .lbl {
+  font-size: 8.5px;
+  color: rgba(212, 204, 190, .55);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.scheme-b .b-center .sub {
+  font-size: 9.5px;
+  color: #d4a056;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+}
+.scheme-b .b-center .sub .v { color: #fff; font-weight: 700; }
+
+/* 7 个雷达节点 */
+.scheme-b .b-node {
+  position: absolute;
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: rgba(42, 31, 21, .85);
+  border: 1.5px solid rgba(212, 160, 86, .35);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(212, 204, 190, .65);
+  transform: translate(-50%, -50%);
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  z-index: 8;
+  backdrop-filter: blur(4px);
+}
+.scheme-b .b-node .nlbl {
+  font-size: 7.5px;
+  color: rgba(212, 204, 190, .5);
+  letter-spacing: 0.3px;
+  margin-top: 1px;
+  font-weight: 500;
+}
+.scheme-b .b-node.scanning {
+  border-color: #d4a056;
+  background: rgba(212, 160, 86, .15);
+  color: #ffdb96;
+  box-shadow: 0 0 0 4px rgba(212, 160, 86, .15), 0 0 24px rgba(212, 160, 86, .55);
+  transform: translate(-50%, -50%) scale(1.15);
+  animation: bNodeScan 0.8s ease-in-out infinite;
+}
+.scheme-b .b-node.scanning .nlbl { color: #ffdb96; }
+@keyframes bNodeScan {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(212, 160, 86, .15), 0 0 24px rgba(212, 160, 86, .55); }
+  50%      { box-shadow: 0 0 0 8px rgba(212, 160, 86, .08), 0 0 36px rgba(212, 160, 86, .8); }
+}
+.scheme-b .b-node.ok {
+  border-color: #4a9d6e;
+  background: rgba(74, 157, 110, .18);
+  color: #b8f5cd;
+  box-shadow: 0 0 14px rgba(74, 157, 110, .35);
+}
+.scheme-b .b-node.ok .nlbl { color: #b8f5cd; }
+.scheme-b .b-node.warn {
+  border-color: #e9b341;
+  background: rgba(233, 179, 65, .22);
+  color: #ffe48a;
+  box-shadow: 0 0 0 4px rgba(233, 179, 65, .12), 0 0 24px rgba(233, 179, 65, .6);
+  animation: bWarnPing 1s ease-out 4;
+}
+.scheme-b .b-node.warn .nlbl { color: #ffe48a; }
+@keyframes bWarnPing {
+  0%   { box-shadow: 0 0 0 0 rgba(233, 179, 65, .55), 0 0 24px rgba(233, 179, 65, .6); }
+  100% { box-shadow: 0 0 0 36px rgba(233, 179, 65, 0), 0 0 24px rgba(233, 179, 65, .6); }
+}
+.scheme-b .b-node.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, .22);
+  color: #fecaca;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, .15), 0 0 28px rgba(239, 68, 68, .7);
+}
+.scheme-b .b-node.fail .nlbl { color: #fecaca; }
+
+/* 命中 popup */
+.scheme-b .b-hitpop {
+  position: absolute;
+  background: linear-gradient(180deg, #1e1611, #2a1f15);
+  color: #ffdb96;
+  padding: 8px 12px;
+  border: 1px solid rgba(233, 179, 65, .5);
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-family: var(--mono);
+  white-space: nowrap;
+  z-index: 12;
+  opacity: 0;
+  transform: scale(0.7) translateY(8px);
+  transition: all .35s cubic-bezier(.5, 1.5, .5, 1);
+  pointer-events: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .5), 0 0 0 4px rgba(233, 179, 65, .1);
+  line-height: 1.4;
+}
+.scheme-b .b-hitpop b { color: #fff; }
+.scheme-b .b-hitpop.show { opacity: 1; transform: scale(1) translateY(0); }
+
+/* 右侧:实时日志 ticker */
+.scheme-b .b-log {
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid rgba(212, 160, 86, .15);
+  border-radius: 8px;
+  padding: 12px 0 8px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  height: 100%;
+  min-height: 460px;
+}
+.scheme-b .b-log .lhead {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 14px 8px;
+  border-bottom: 1px solid rgba(212, 160, 86, .12);
+  margin-bottom: 6px;
+}
+.scheme-b .b-log .lhead .t {
+  font-size: 10.5px;
+  color: #d4a056;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.scheme-b .b-log .lhead .speed {
+  font-size: 9.5px;
+  color: rgba(212, 204, 190, .55);
+  letter-spacing: 0.5px;
+}
+.scheme-b .b-log .lhead .speed b { color: #4a9d6e; }
+.scheme-b .b-log .lstream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px;
+  font-size: 11px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+.scheme-b .b-log .lstream::-webkit-scrollbar { width: 4px; }
+.scheme-b .b-log .lstream::-webkit-scrollbar-track { background: transparent; }
+.scheme-b .b-log .lstream::-webkit-scrollbar-thumb { background: rgba(212, 160, 86, .18); border-radius: 2px; }
+
+.scheme-b .b-log .lrow {
+  display: grid;
+  grid-template-columns: 60px 16px 1fr;
+  gap: 6px;
+  align-items: baseline;
+  color: rgba(212, 204, 190, .85);
+  padding: 1px 0;
+  animation: bLogFade .25s ease;
+}
+@keyframes bLogFade { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: translateX(0); } }
+.scheme-b .b-log .lrow .ts {
+  color: rgba(212, 204, 190, .35);
+  font-size: 9.5px;
+}
+.scheme-b .b-log .lrow .tag {
+  text-align: center;
+  font-weight: 700;
+  font-size: 11px;
+}
+.scheme-b .b-log .lrow.info  .tag { color: rgba(212, 204, 190, .5); }
+.scheme-b .b-log .lrow.scan  .tag { color: #d4a056; }
+.scheme-b .b-log .lrow.ok    .tag { color: #4a9d6e; }
+.scheme-b .b-log .lrow.warn  .tag { color: #e9b341; }
+.scheme-b .b-log .lrow.fail  .tag { color: #ef4444; }
+.scheme-b .b-log .lrow.detail .tag { color: rgba(212, 204, 190, .3); }
+.scheme-b .b-log .lrow.scan  .msg { color: #d4a056; }
+.scheme-b .b-log .lrow.ok    .msg { color: #b8f5cd; }
+.scheme-b .b-log .lrow.warn  .msg { color: #ffe48a; }
+.scheme-b .b-log .lrow.fail  .msg { color: #fecaca; font-weight: 600; }
+.scheme-b .b-log .lrow.detail .msg { color: rgba(212, 204, 190, .45); font-size: 10.5px; padding-left: 8px; }
+.scheme-b .b-log .lrow.boom .msg { color: #ffdb96; font-weight: 700; letter-spacing: 0.5px; }
+.scheme-b .b-log .lrow.progress {
+  background: rgba(212, 160, 86, .08);
+  border-left: 2px solid #d4a056;
+  padding: 3px 8px;
+  margin: 3px -8px;
+  border-radius: 2px;
+}
+.scheme-b .b-log .lrow.progress .tag { color: #d4a056; }
+.scheme-b .b-log .lrow.progress .msg { color: #ffdb96; font-weight: 600; font-size: 10.5px; letter-spacing: 0.5px; }
+
+/* ============ 数据卡 6 个 ============ */
+.scheme-b .b-cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  position: relative; z-index: 2;
+}
+.scheme-b .b-card {
+  background: rgba(0, 0, 0, .25);
+  border: 1px solid rgba(212, 160, 86, .18);
+  border-radius: 8px;
+  padding: 12px 14px 13px;
+  position: relative;
+  overflow: hidden;
+}
+.scheme-b .b-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d4a056, transparent);
+  opacity: 0.5;
+}
+.scheme-b .b-card .h {
+  font-size: 9px;
+  color: rgba(212, 204, 190, .55);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.scheme-b .b-card .v {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffdb96;
+  line-height: 1.1;
+  text-shadow: 0 0 8px rgba(212, 160, 86, .35);
+}
+.scheme-b .b-card .v .u {
+  font-size: 10px;
+  color: rgba(212, 204, 190, .55);
+  margin-left: 3px;
+  font-weight: 500;
+}
+.scheme-b .b-card .v .pct {
+  font-size: 11px;
+  color: #4a9d6e;
+  margin-left: 4px;
+  font-weight: 600;
+}
+.scheme-b .b-card .d {
+  font-size: 9.5px;
+  color: rgba(212, 204, 190, .5);
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+.scheme-b .b-card.ok   .v { color: #b8f5cd; text-shadow: 0 0 8px rgba(74, 157, 110, .35); }
+.scheme-b .b-card.warn .v { color: #ffe48a; text-shadow: 0 0 8px rgba(233, 179, 65, .45); }
+.scheme-b .b-card.fail .v { color: #fecaca; text-shadow: 0 0 8px rgba(239, 68, 68, .5); }
+
+/* 微型进度条 (data card 里) */
+.scheme-b .b-card .mini-bar {
+  margin-top: 6px;
+  height: 3px;
+  background: rgba(212, 160, 86, .1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.scheme-b .b-card .mini-bar .fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #d4a056, #ffdb96);
+  border-radius: 2px;
+  transition: width .35s ease;
+}
+
+/* 最终结论横条 */
+.scheme-b .b-verdict {
+  margin-top: 14px;
+  padding: 14px 20px;
+  background: rgba(0, 0, 0, .28);
+  border-radius: 10px;
+  border: 1px solid rgba(212, 160, 86, .2);
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 17px;
+  color: #ffdb96;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all .5s;
+  position: relative; z-index: 2;
+}
+.scheme-b .b-verdict.show { opacity: 1; transform: translateY(0); }
+.scheme-b .b-verdict.ok   { border-color: rgba(74, 157, 110, .5); color: #b8f5cd; box-shadow: 0 0 32px rgba(74, 157, 110, .25); }
+.scheme-b .b-verdict.warn { border-color: rgba(233, 179, 65, .55); color: #ffe48a; box-shadow: 0 0 32px rgba(233, 179, 65, .25); }
+.scheme-b .b-verdict.fail { border-color: rgba(239, 68, 68, .55); color: #fecaca; box-shadow: 0 0 32px rgba(239, 68, 68, .3); }
+.scheme-b .b-verdict .vmark {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   方案 C · X 光逐字透视脚本(X-RAY)
+   ============================================================ */
+.scheme-c {
+  background: #14110e;
+  border-radius: 18px;
+  padding: 26px 32px 30px;
+  position: relative;
+  overflow: hidden;
+  color: #e0d5c2;
+  font-family: var(--mono);
+}
+.scheme-c::before {
+  /* 暗角 + 网格背景,像 X 光机器屏幕 */
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.5) 100%),
+    repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(255,255,255,.025) 23px, rgba(255,255,255,.025) 24px);
+  pointer-events: none;
+}
+.scheme-c .c-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 24px;
+  position: relative;
+  z-index: 2;
+}
+.scheme-c .c-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+  grid-column: 1 / -1;
+}
+.scheme-c .c-head .t {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.scheme-c .c-head .t::before {
+  content: '◉ ';
+  color: var(--accent);
+}
+.scheme-c .c-head .pct {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.scheme-c .c-doc {
+  position: relative;
+  padding: 18px 22px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 2.1;
+  color: #b6a98f;
+  min-height: 360px;
+  overflow: hidden;
+}
+.scheme-c .c-line {
+  display: block;
+  padding: 1px 6px;
+  margin: 0 -6px;
+  border-radius: 3px;
+  transition: all .35s;
+}
+.scheme-c .c-line.scanned {
+  color: #d8ccb2;
+}
+.scheme-c .c-line.scanning {
+  background: rgba(96, 165, 250, .08);
+  color: #fff;
+}
+.scheme-c .c-word {
+  position: relative;
+  transition: all .3s;
+}
+.scheme-c .c-word.ok {
+  color: rgba(98, 197, 130, .85);
+}
+.scheme-c .c-word.hit {
+  background: rgba(248, 113, 113, .25);
+  color: #ffd1cc;
+  padding: 1px 5px;
+  border: 1px solid rgba(248, 113, 113, .6);
+  border-radius: 3px;
+  font-weight: 600;
+  animation: cHitPulse 1.2s ease-out 3;
+}
+@keyframes cHitPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, .35); }
+  50%      { box-shadow: 0 0 0 4px rgba(248, 113, 113, 0); }
+}
+
+/* 水平扫描线 */
+.scheme-c .c-scanline {
+  position: absolute;
+  left: 0; right: 0;
+  top: 0;
+  height: 36px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(96, 165, 250, .15) 40%,
+    rgba(96, 165, 250, .35) 50%,
+    rgba(96, 165, 250, .15) 60%,
+    transparent 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s, top .25s linear;
+  border-top: 1px solid rgba(96, 165, 250, .5);
+  border-bottom: 1px solid rgba(96, 165, 250, .5);
+}
+.scheme-c .c-scanline.run { opacity: 1; }
+
+.scheme-c .c-hitpop {
+  position: absolute;
+  background: rgba(248, 113, 113, .95);
+  color: #fff;
+  padding: 7px 11px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all .35s;
+  pointer-events: none;
+  z-index: 6;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  line-height: 1.4;
+}
+.scheme-c .c-hitpop.show { opacity: 1; transform: translateY(0); }
+.scheme-c .c-hitpop b { color: #fff; }
+
+/* 侧栏 */
+.scheme-c .c-side {
+  display: flex; flex-direction: column;
+  gap: 8px;
+}
+.scheme-c .c-side h4 {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: rgba(224, 213, 194, .55);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.scheme-c .c-rule {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 5px;
+  font-size: 11px;
+  align-items: center;
+  transition: all .25s;
+}
+.scheme-c .c-rule.scanning {
+  border-color: rgba(96, 165, 250, .5);
+  background: rgba(96, 165, 250, .08);
+}
+.scheme-c .c-rule.ok {
+  border-color: rgba(98, 197, 130, .4);
+}
+.scheme-c .c-rule.warn {
+  border-color: rgba(248, 113, 113, .55);
+  background: rgba(248, 113, 113, .08);
+}
+.scheme-c .c-rule .i {
+  font-weight: 700;
+  text-align: center;
+  font-family: var(--mono);
+}
+.scheme-c .c-rule.scanning .i { color: #60a5fa; }
+.scheme-c .c-rule.ok   .i { color: #62c582; }
+.scheme-c .c-rule.warn .i { color: #f87171; }
+.scheme-c .c-rule .ln { color: rgba(224, 213, 194, .85); line-height: 1.35; }
+.scheme-c .c-rule .ln .lw {
+  font-size: 9px;
+  color: rgba(224, 213, 194, .45);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 1px;
+}
+
+.scheme-c .c-summary {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity .5s;
+}
+.scheme-c .c-summary.show { opacity: 1; }
+.scheme-c .c-summary .gauge {
+  display: flex; justify-content: space-around;
+  margin-bottom: 8px;
+}
+.scheme-c .c-summary .g {
+  text-align: center;
+  flex: 1;
+}
+.scheme-c .c-summary .g .n {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.scheme-c .c-summary .g.ok   .n { color: #62c582; }
+.scheme-c .c-summary .g.warn .n { color: #f59e0b; }
+.scheme-c .c-summary .g.fail .n { color: #f87171; }
+.scheme-c .c-summary .g .l {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(224, 213, 194, .55);
+  margin-top: 4px;
+  letter-spacing: 0.8px;
+}
+.scheme-c .c-summary .ver {
+  font-size: 12px;
+  text-align: center;
+  font-family: var(--serif);
+  color: #fff;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  letter-spacing: 0.5px;
+}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <h1>合规扫描动画 · 3 方案 Playground</h1>
+  <div class="sub">同一份脚本 + 7 条规则,3 种视觉方向并排对比。<b>每个方案都有"重播扫描"按钮可独立触发</b>,看完点 chip 切换。</div>
+</div>
+
+<div class="chips">
+  <div class="chip active" data-target="a">
+    A · 朱砂印章 + 暖纸底
+    <b>SUNRISE NATIVE · 庄重审计感</b>
+  </div>
+  <div class="chip" data-target="b">
+    B · 雷达 360° 扫描 + 仪表盘
+    <b>SCI-FI · 实算感最酷</b>
+  </div>
+  <div class="chip" data-target="c">
+    C · X 光逐字透视脚本
+    <b>X-RAY · 取信感最强</b>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- ========== 方案 A ========== -->
+  <div id="panel-a" class="panel active">
+    <div class="replay-bar">
+      <button onclick="playA()">▶ 重播扫描</button>
+      <span class="pill">7 条规则 · 总耗约 6 秒</span>
+      <span>每条规则审完会落下"朱砂审计章"(✓ 绿章通过 / ⚠ 琥珀章改写 / ✗ 朱红大章拦截)</span>
+    </div>
+    <div class="scheme-a">
+      <div class="a-title">合规审计 · 七项法规扫描</div>
+      <div class="a-meta">TPL-004 老年人推沙发 · 阳光人寿 内审专用</div>
+      <div id="a-rows"></div>
+      <div class="a-summary" id="a-summary">
+        <div class="title">审 计 结 论</div>
+        <div class="stats">
+          <div class="stat ok"><div class="num" id="a-ok">0</div><div class="lbl">通过</div></div>
+          <div class="stat warn"><div class="num" id="a-warn">0</div><div class="lbl">改写</div></div>
+          <div class="stat fail"><div class="num" id="a-fail">0</div><div class="lbl">拦截</div></div>
+        </div>
+        <div class="a-final-stamp" id="a-final"><div class="x">合规</div><div class="y">可上架</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 方案 B ========== -->
+  <div id="panel-b" class="panel">
+    <div class="replay-bar">
+      <button onclick="playB()">▶ 重播扫描</button>
+      <span class="pill">雷达 360° + 实时日志 · 6 秒</span>
+      <span>大雷达扫 7 类规则 + 410 条法源 · 右侧实时日志流 · 底部 6 张数据卡</span>
+    </div>
+    <div class="scheme-b">
+
+      <!-- 顶部状态条 -->
+      <div class="b-statusbar">
+        <div class="left">合规雷达 · LIVE</div>
+        <div class="right">
+          <span>规则集 <b>410</b> 条</span>
+          <span>历史扫 <b>12,847</b> 模板</span>
+          <span>引擎 <b>v2026.05</b></span>
+          <span>客户 <b>阳光人寿</b></span>
+        </div>
+      </div>
+
+      <!-- 主区:雷达 + 实时日志 -->
+      <div class="b-main">
+        <div class="b-radar-wrap">
+          <div class="b-radar" id="b-radar">
+            <!-- 6 条 spoke + 角度刻度 在 JS 中动态生成 -->
+            <div class="b-sweep-trail" id="b-sweep-trail"></div>
+            <div class="b-sweep" id="b-sweep"></div>
+            <div class="b-center">
+              <div class="ring"></div>
+              <div class="num" id="b-counter">0<span class="slash">/7</span></div>
+              <div class="lbl" id="b-status">待启动</div>
+              <div class="sub" id="b-subdata"><span class="v">0</span> 字符 · <span class="v">0</span> 法源</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="b-log">
+          <div class="lhead">
+            <div class="t">▶ 实时扫描日志</div>
+            <div class="speed">速度 <b id="b-speed">—</b></div>
+          </div>
+          <div class="lstream" id="b-log-stream"></div>
+        </div>
+      </div>
+
+      <!-- 数据卡 6 个 -->
+      <div class="b-cards">
+        <div class="b-card">
+          <div class="h">扫描字符</div>
+          <div class="v"><span id="b-c-chars">0</span><span class="u">/ 4,200</span></div>
+          <div class="d">逐字符 + 词组 + 语义</div>
+          <div class="mini-bar"><div class="fill" id="b-c-chars-bar"></div></div>
+        </div>
+        <div class="b-card">
+          <div class="h">调用规则集</div>
+          <div class="v"><span id="b-c-rules">0</span><span class="u">/ 410</span></div>
+          <div class="d">7 法规 + 291 红线 + 行业舆情</div>
+          <div class="mini-bar"><div class="fill" id="b-c-rules-bar"></div></div>
+        </div>
+        <div class="b-card">
+          <div class="h">扫描深度</div>
+          <div class="v"><span id="b-c-depth">0</span><span class="u">/ 5 层</span></div>
+          <div class="d">字符 → 词 → 句 → 语义 → 上下文</div>
+          <div class="mini-bar"><div class="fill" id="b-c-depth-bar"></div></div>
+        </div>
+        <div class="b-card ok">
+          <div class="h">通过</div>
+          <div class="v" id="b-c-ok">0</div>
+          <div class="d">符合 5 类法规 + 红线</div>
+        </div>
+        <div class="b-card warn">
+          <div class="h">命中改写</div>
+          <div class="v" id="b-c-warn">0</div>
+          <div class="d">边界用语 · 收益隐喻</div>
+        </div>
+        <div class="b-card">
+          <div class="h">置信度</div>
+          <div class="v"><span id="b-c-conf">—</span><span class="u">%</span></div>
+          <div class="d">本次扫描结论可靠度</div>
+        </div>
+      </div>
+
+      <!-- 最终结论横条 -->
+      <div class="b-verdict" id="b-verdict"><span class="vmark">⏳</span>等待扫描完成</div>
+
+    </div>
+  </div>
+
+  <!-- ========== 方案 C ========== -->
+  <div id="panel-c" class="panel">
+    <div class="replay-bar">
+      <button onclick="playC()">▶ 重播扫描</button>
+      <span class="pill">X 光从上往下 · 6 秒</span>
+      <span>逐行扫描脚本 · 命中的词被红框包住 · 旁边弹出法源标注</span>
+    </div>
+    <div class="scheme-c">
+      <div class="c-head">
+        <div class="t">合规 X 光 · 脚本逐字透视</div>
+        <div class="pct" id="c-pct">0%</div>
+      </div>
+      <div class="c-grid">
+        <div class="c-doc" id="c-doc">
+          <span class="c-line" data-line="0">[镜 1 · 客厅] 年轻人推沙发,使尽全力。</span>
+          <span class="c-line" data-line="1">[镜 2] 沙发纹丝不动,年轻人累瘫:"唉。"</span>
+          <span class="c-line" data-line="2">[镜 3] 老年人(代理人换脸)走进画面。</span>
+          <span class="c-line" data-line="3">[镜 4] 老年人轻推沙发,"嗖!" 沙发飞出窗外。</span>
+          <span class="c-line" data-line="4">[镜 5] 年轻人惊讶,静音 2 秒。</span>
+          <span class="c-line" data-line="5">[镜 6 · 台词] 老年人对镜头微笑:</span>
+          <span class="c-line" data-line="6">"嘿,这沙发不轻啊。可奇怪,我这把年纪,</span>
+          <span class="c-line" data-line="7">反而 <span class="c-word" data-w="best">推得动了</span>。养老就该这样,</span>
+          <span class="c-line" data-line="8">提前备一份年金,后半生 <span class="c-word" data-w="hit">才有底气</span>。"</span>
+          <div class="c-scanline" id="c-scanline"></div>
+          <div class="c-hitpop" id="c-hitpop"></div>
+        </div>
+        <div class="c-side">
+          <h4>扫描中的规则</h4>
+          <div id="c-rules"></div>
+          <div class="c-summary" id="c-summary">
+            <div class="gauge">
+              <div class="g ok"><div class="n" id="c-ok">0</div><div class="l">通过</div></div>
+              <div class="g warn"><div class="n" id="c-warn">0</div><div class="l">改写</div></div>
+              <div class="g fail"><div class="n" id="c-fail">0</div><div class="l">拦截</div></div>
+            </div>
+            <div class="ver" id="c-ver">等待结论</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// 公共数据 · 7 条扫描规则
+// ============================================================
+const SCAN = [
+  { id: 1, law: '《广告法》第九条',             desc: '绝对化用语扫描(最 / 绝对 / 唯一 / 第一 / 顶级)',         dur: 700,  sev: 'ok' },
+  { id: 2, law: '《保险销售管理办法》第十条',   desc: '收益承诺扫描(稳赚 / 保本 / 保收益 / 一定 / 必然)',       dur: 800,  sev: 'ok' },
+  { id: 3, law: '银保监 2023 [12] 号',         desc: '存款 / 理财类比扫描',                                       dur: 600,  sev: 'ok' },
+  { id: 4, law: '银保监 2023 [12] 号',         desc: '投资收益保证扫描',                                           dur: 500,  sev: 'ok' },
+  { id: 5, law: '阳光红线词库 v2026.05',       desc: '291 个公司级禁词逐字扫描',                                  dur: 1400, sev: 'warn',
+    hit: '"后半生才有底气" 触【收益隐喻】边界 · 建议改写为"稳稳的依靠"' },
+  { id: 6, law: '行业舆情数据库',              desc: '近 90 天行业处罚案例延伸禁词',                              dur: 900,  sev: 'ok' },
+  { id: 7, law: '行业潜规则 · 不吉利内容',     desc: '主角不绑定意外 / 疾病 / 死亡场景',                          dur: 1100, sev: 'ok' },
+];
+const TOTAL = SCAN.reduce((s, r) => s + r.dur, 0);
+
+// ============================================================
+// chip 切换
+// ============================================================
+document.querySelectorAll('.chips .chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.chips .chip').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    document.getElementById('panel-' + c.dataset.target).classList.add('active');
+  });
+});
+
+// ============================================================
+// 方案 A · 朱砂印章
+// ============================================================
+let _aTimers = [];
+function renderA() {
+  document.getElementById('a-rows').innerHTML = SCAN.map(r => `
+    <div class="a-row" data-id="${r.id}">
+      <div class="n">${String(r.id).padStart(2, '0')}</div>
+      <div class="law-cell">
+        <div class="lname">${r.law}</div>
+        <div class="ldesc">${r.desc}</div>
+      </div>
+      <div class="a-stamp-zone">
+        <div class="a-stamp" data-stamp="${r.id}"></div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('a-summary').classList.remove('show');
+  document.getElementById('a-final').classList.remove('show', 'warn-mode');
+  ['a-ok', 'a-warn', 'a-fail'].forEach(id => document.getElementById(id).textContent = '0');
+}
+function playA() {
+  _aTimers.forEach(t => clearTimeout(t));
+  _aTimers = [];
+  renderA();
+  let elapsed = 0;
+  let ok = 0, warn = 0, fail = 0;
+  SCAN.forEach(r => {
+    // 进入扫描态
+    _aTimers.push(setTimeout(() => {
+      const row = document.querySelector(`.scheme-a .a-row[data-id="${r.id}"]`);
+      if (row) row.classList.add('scanning');
+    }, elapsed));
+    // 扫描完成,盖章
+    _aTimers.push(setTimeout(() => {
+      const row = document.querySelector(`.scheme-a .a-row[data-id="${r.id}"]`);
+      const stamp = document.querySelector(`.scheme-a .a-stamp[data-stamp="${r.id}"]`);
+      if (row && stamp) {
+        row.classList.remove('scanning');
+        row.classList.add('done', r.sev);
+        stamp.classList.add(r.sev, 'show');
+        stamp.innerHTML = `<span class="ic">${r.sev === 'ok' ? '✓' : r.sev === 'warn' ? '⚠' : '✗'}</span><span class="tx">${r.sev === 'ok' ? '通 过' : r.sev === 'warn' ? '改 写' : '拦 截'}</span>`;
+        if (r.hit) {
+          const hit = document.createElement('div');
+          hit.className = 'a-hit';
+          hit.textContent = '↳ ' + r.hit;
+          row.appendChild(hit);
+        }
+      }
+      if (r.sev === 'ok')   ok++;
+      if (r.sev === 'warn') warn++;
+      if (r.sev === 'fail') fail++;
+      document.getElementById('a-ok').textContent   = ok;
+      document.getElementById('a-warn').textContent = warn;
+      document.getElementById('a-fail').textContent = fail;
+    }, elapsed + r.dur));
+    elapsed += r.dur;
+  });
+  // 全部完成 → 出汇总单 + 最终大印
+  _aTimers.push(setTimeout(() => {
+    document.getElementById('a-summary').classList.add('show');
+  }, TOTAL + 300));
+  _aTimers.push(setTimeout(() => {
+    const f = document.getElementById('a-final');
+    f.classList.add('show');
+    if (warn && !fail) {
+      f.classList.add('warn-mode');
+      f.innerHTML = '<div class="x">改 写</div><div class="y">1 处可上架</div>';
+    } else if (fail) {
+      f.innerHTML = '<div class="x">拦 截</div><div class="y">不可上架</div>';
+    }
+  }, TOTAL + 700));
+}
+
+// ============================================================
+// 方案 B · 雷达
+// ============================================================
+let _bTimers = [];
+let _bRaf = null;
+// ============ 方案 B PLUS · 360 杀毒级别狂热日志 ============
+// 每条规则的扫描子项(密度拉满 · 类杀毒软件实时滚动)
+// detail level: info / scan / detail / progress / ok / warn / fail / boom
+const B_SCAN_DETAIL = {
+  1: [
+    [ 'detail', '引用 GB/T 38456-2020《广告法实施细则》第 9 条第 2 款' ],
+    [ 'detail', '加载词库 forbidden_absolute_v3.json (5,247 字节)' ],
+    [ 'detail', '解析检测模式 [最|绝对|唯一|第一|顶级|首选|空前|绝无]' ],
+    [ 'scan',   '正在扫描台词文件 script_v2.txt @ 偏移 0x00' ],
+    [ 'detail', '检查 #001 词「最」 ✗ 未命中' ],
+    [ 'detail', '检查 #002 词「绝对」 ✗ 未命中' ],
+    [ 'detail', '检查 #003 词「唯一」 ✗ 未命中' ],
+    [ 'detail', '检查 #004 词「第一」 ✗ 未命中' ],
+    [ 'detail', '检查 #005 词「顶级」 ✗ 未命中' ],
+    [ 'detail', '字幕文件 caption_zh.srt @ 偏移 0x00 - 0x91' ],
+    [ 'detail', '语义层匹配 145 字符 / 0 命中' ],
+  ],
+  2: [
+    [ 'detail', '引用 银保监发[2022]15 号《保险销售行为管理办法》第 10 条' ],
+    [ 'detail', '加载词库 forbidden_promise_v5.json (8,914 字节)' ],
+    [ 'detail', '解析收益承诺模式 [稳赚|保本|保收益|一定|必然|肯定|包赚|稳稳的赚]' ],
+    [ 'scan',   '正在扫描台词 + 字幕组合上下文' ],
+    [ 'detail', '检查 #006 词「稳赚」 ✗ 未命中' ],
+    [ 'detail', '检查 #007 词「保本」 ✗ 未命中' ],
+    [ 'detail', '检查 #008 词「保收益」 ✗ 未命中' ],
+    [ 'detail', '检查 #009 词「一定」 ✗ 未命中' ],
+    [ 'detail', '检查 #010 词「必然」 ✗ 未命中' ],
+    [ 'detail', '检查 #011 词「肯定」 ✗ 未命中' ],
+    [ 'detail', '上下文窗口 248 字符 / 0 命中' ],
+  ],
+  3: [
+    [ 'detail', '引用 银保监发[2023]12 号 第 4 条 第 2 款' ],
+    [ 'detail', '加载存款/理财类比模式库 deposit_analogy_v2.json' ],
+    [ 'detail', '解析 24 种类比模式 [像存款|跟存款一样|比理财|抗通胀利率]' ],
+    [ 'scan',   '语义层扫描:类比检测器 v2' ],
+    [ 'detail', '语义片段 #1 / 12 ✗ 未命中' ],
+    [ 'detail', '语义片段 #4 / 12 ✗ 未命中' ],
+    [ 'detail', '语义片段 #8 / 12 ✗ 未命中' ],
+    [ 'detail', '语义片段 #12 / 12 ✗ 未命中' ],
+    [ 'detail', '类比模式 0 / 24 匹配' ],
+  ],
+  4: [
+    [ 'detail', '引用 银保监发[2023]12 号 第 4 条 第 3 款' ],
+    [ 'detail', '加载收益保证句式 yield_guarantee_v1.json' ],
+    [ 'detail', '解析 18 种保证句式' ],
+    [ 'scan',   '上下文层扫描 · 整段台词语义' ],
+    [ 'detail', '句式 #1 / 18 ✗ 未命中' ],
+    [ 'detail', '句式 #9 / 18 ✗ 未命中' ],
+    [ 'detail', '句式 #18 / 18 ✗ 未命中' ],
+    [ 'detail', '保证句式 0 / 18 匹配' ],
+  ],
+  5: [
+    [ 'detail', '引用 阳光红线词库 v2026.05.07 (yg_redline.db)' ],
+    [ 'detail', '加载 291 个公司级禁词 (规模 47 KB)' ],
+    [ 'detail', '解析索引 trie 树 · 深度 12 · 节点 1,847' ],
+    [ 'scan',   '逐字符扫描 4,200 字符 · 滑动窗口 [3,5,7,9]' ],
+    [ 'detail', '检查 #145 词「复利」 ✗ 未命中' ],
+    [ 'detail', '检查 #156 词「3.0%」 ✗ 未命中' ],
+    [ 'detail', '检查 #157 词「锁定收益」 ✗ 未命中' ],
+    [ 'progress', '已扫 #001-#157 红线词 / 134 未命中' ],
+    [ 'scan',   '触发深度匹配:语义边界检测' ],
+    [ 'warn',   '⚠⚠⚠ ALERT · 字符偏移 0x18E 检测到可疑模式' ],
+    [ 'warn',   '⚠ 匹配「后半生才有底气」 4 字符' ],
+    [ 'fail',   '✗ 命中 第 158 条「收益隐喻」边界 - 高敏感' ],
+    [ 'detail', '↳ 法源:《保险销售管理办法》第十条 + 阳光红线 #158' ],
+    [ 'detail', '↳ 建议改写:「后半生有个稳稳的依靠」' ],
+    [ 'detail', '↳ 风险评级:中高 · 历史命中:47 次 · 处罚案例:3 起' ],
+  ],
+  6: [
+    [ 'detail', '引用 行业舆情数据库 industry_pen_db_v2026.q1' ],
+    [ 'detail', '查询近 90 天处罚案例 47 例(银保监 + 各地银保监局)' ],
+    [ 'detail', '提取延伸禁词 128 个 · 加权 TFIDF' ],
+    [ 'scan',   '正在扫描:延伸禁词增量检查' ],
+    [ 'detail', '检查延伸词 #001-#040 ✗ 未命中' ],
+    [ 'detail', '检查延伸词 #041-#080 ✗ 未命中' ],
+    [ 'detail', '检查延伸词 #081-#128 ✗ 未命中' ],
+    [ 'detail', '延伸禁词 0 / 128 匹配' ],
+  ],
+  7: [
+    [ 'detail', '引用 行业潜规则 v3《不吉利内容规避指南》' ],
+    [ 'detail', '加载场景模式库 unlucky_scene_v2.json (12 类)' ],
+    [ 'detail', '解析模式 [意外/疾病/死亡/受害/医院/失业/破产/...]' ],
+    [ 'scan',   '抽帧 frame_001.jpg - frame_012.jpg' ],
+    [ 'detail', '主角识别:释磊(老年示例形象)· 置信度 99.4%' ],
+    [ 'detail', '场景识别:客厅 · 暖光 · 沙发 / 0 受害元素' ],
+    [ 'detail', '检查模式 #1 [意外] ✗ 未命中' ],
+    [ 'detail', '检查模式 #4 [疾病] ✗ 未命中' ],
+    [ 'detail', '检查模式 #7 [死亡] ✗ 未命中' ],
+    [ 'detail', '检查模式 #12 [破产] ✗ 未命中' ],
+    [ 'detail', '主角姿态:推沙发 → 正面、有力、淡定' ],
+    [ 'detail', '不吉利场景 0 / 12 匹配' ],
+  ],
+};
+
+let _bLogTimers = [];
+
+function bLog(level, msg, ts) {
+  const stream = document.getElementById('b-log-stream');
+  if (!stream) return;
+  const tagMap = { info: '·', scan: '▶', ok: '✓', warn: '⚠', fail: '✗', detail: '↳', boom: '★' };
+  const row = document.createElement('div');
+  row.className = 'lrow ' + level;
+  row.innerHTML = `
+    <span class="ts">${ts}</span>
+    <span class="tag">${tagMap[level] || '·'}</span>
+    <span class="msg">${msg}</span>`;
+  stream.appendChild(row);
+  stream.scrollTop = stream.scrollHeight;
+}
+
+function bFmtTs(ms) {
+  const d = new Date(ms);
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  const fff = String(d.getMilliseconds()).padStart(3, '0');
+  return `${hh}:${mm}:${ss}.${fff}`;
+}
+
+function renderB() {
+  if (_bRaf) cancelAnimationFrame(_bRaf);
+  _bTimers.forEach(t => clearTimeout(t));
+  _bLogTimers.forEach(t => clearTimeout(t));
+  _bTimers = []; _bLogTimers = [];
+
+  // 雷达 spokes(6 条放射状刻度)
+  const radar = document.getElementById('b-radar');
+  radar.querySelectorAll('.b-spoke, .b-deg, .b-node, .b-hitpop').forEach(n => n.remove());
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('div');
+    s.className = 'b-spoke';
+    s.style.transform = `rotate(${i * 60}deg)`;
+    radar.appendChild(s);
+  }
+  // 角度刻度
+  [0, 60, 120, 180, 240, 300].forEach(deg => {
+    const d = document.createElement('div');
+    d.className = 'b-deg';
+    d.textContent = String(deg).padStart(3, '0') + '°';
+    const rad = (deg - 90) * Math.PI / 180;
+    const dist = 47;
+    d.style.left = `calc(${50 + Math.cos(rad) * dist}% - 12px)`;
+    d.style.top  = `calc(${50 + Math.sin(rad) * dist}% - 6px)`;
+    radar.appendChild(d);
+  });
+
+  // 7 个雷达节点(在 70% 半径)
+  const angles = [-90, -38, 13, 65, 116, 168, 219];
+  SCAN.forEach((r, i) => {
+    const node = document.createElement('div');
+    node.className = 'b-node';
+    node.dataset.id = r.id;
+    node.innerHTML = `<span>R${String(r.id).padStart(2, '0')}</span><span class="nlbl">${r.law.slice(0, 4)}</span>`;
+    const ang = angles[i] * Math.PI / 180;
+    const dist = 35;
+    node.style.left = (50 + Math.cos(ang) * dist) + '%';
+    node.style.top  = (50 + Math.sin(ang) * dist) + '%';
+    radar.appendChild(node);
+  });
+
+  // 中心 widget 重置
+  document.getElementById('b-counter').innerHTML = '0<span class="slash">/7</span>';
+  document.getElementById('b-status').textContent = '待启动';
+  document.getElementById('b-subdata').innerHTML = '<span class="v">0</span> 字符 · <span class="v">0</span> 法源';
+  document.getElementById('b-speed').textContent = '—';
+
+  // 数据卡 重置
+  ['b-c-chars', 'b-c-rules', 'b-c-depth', 'b-c-ok', 'b-c-warn'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('b-c-conf').textContent = '—';
+  ['b-c-chars-bar', 'b-c-rules-bar', 'b-c-depth-bar'].forEach(id => document.getElementById(id).style.width = '0%');
+
+  // verdict
+  const v = document.getElementById('b-verdict');
+  v.className = 'b-verdict';
+  v.innerHTML = '<span class="vmark">⏳</span>等待扫描完成';
+
+  // 清空日志
+  document.getElementById('b-log-stream').innerHTML = '';
+
+  // 重置扫描指针
+  document.getElementById('b-sweep').style.transform = 'rotate(-90deg)';
+  document.getElementById('b-sweep-trail').style.transform = 'rotate(-90deg)';
+  document.getElementById('b-sweep-trail').classList.remove('run');
+}
+
+function playB() {
+  renderB();
+
+  let done = 0, ok = 0, warn = 0, fail = 0;
+  let charsCounted = 0;
+  let rulesCounted = 0;
+  let depthCounted = 0;
+
+  const sweep = document.getElementById('b-sweep');
+  const trail = document.getElementById('b-sweep-trail');
+  trail.classList.add('run');
+  document.getElementById('b-status').textContent = '扫描中';
+
+  const startMs = Date.now();
+
+  // 启动日志 banner(360 杀毒级别详细)
+  const banner = [
+    [   0, 'info', '────────────────────────────────────────' ],
+    [  20, 'boom', '◉ Sunrise 合规雷达 v2026.05 · 启动扫描' ],
+    [  60, 'info', '────────────────────────────────────────' ],
+    [ 100, 'info', '加载扫描引擎: scanner_core_v2.so (2,847 KB)' ],
+    [ 160, 'info', '加载规则注册表: rules_registry.db' ],
+    [ 220, 'scan', '注册法规 7 类 → 410 条规则条款' ],
+    [ 280, 'detail', '  · 《广告法》第九条 (5 词)' ],
+    [ 320, 'detail', '  · 《保险销售管理办法》第十条 (8 词)' ],
+    [ 360, 'detail', '  · 银保监 2023[12] 号 (24 模式 + 18 句式)' ],
+    [ 400, 'detail', '  · 阳光红线词库 v2026.05 (291 词)' ],
+    [ 440, 'detail', '  · 行业舆情数据库 (128 延伸词)' ],
+    [ 480, 'detail', '  · 行业潜规则 v3 (12 场景模式)' ],
+    [ 530, 'info', '调用历史指纹库: 已分析 12,847 条上架模板' ],
+    [ 590, 'info', '目标文件: TPL-004_老年人推沙发.script (4,200 字符)' ],
+    [ 650, 'info', '附属:caption_zh.srt (1,247 B) · audio_meta.json (412 B) · frames[12]' ],
+    [ 720, 'info', '扫描深度:字符 → 词 → 句 → 语义 → 上下文 (5 层)' ],
+    [ 780, 'boom', '▶▶▶ 启动扫描 · 预计耗时 6.0 秒 · 总规则 410 条' ],
+    [ 840, 'info', '────────────────────────────────────────' ],
+  ];
+  banner.forEach(([d, lv, m]) => {
+    _bLogTimers.push(setTimeout(() => bLog(lv, m, bFmtTs(startMs + d)), d));
+  });
+
+  // 雷达扫描线 360° + 中心 widget 字符/法源数据
+  const tick = () => {
+    const dt = Date.now() - startMs;
+    const ang = -90 + (dt / TOTAL) * 360;
+    sweep.style.transform = `rotate(${ang}deg)`;
+    trail.style.transform = `rotate(${ang}deg)`;
+    // 字符计数(线性增长)
+    charsCounted = Math.min(4200, Math.floor((dt / TOTAL) * 4200));
+    rulesCounted = Math.min(410, Math.floor((dt / TOTAL) * 410));
+    depthCounted = Math.min(5, Math.floor((dt / TOTAL) * 5));
+    // 速度:基础 ~3500 + 随机抖动 ±600(更狂热)
+    const baseSpeed = dt > 200 ? Math.floor(charsCounted / (dt / 1000)) : 0;
+    const speed = baseSpeed > 0 ? baseSpeed * 6 + Math.floor((Math.sin(dt / 80) + 1) * 300) : 0;
+    document.getElementById('b-c-chars').textContent = charsCounted.toLocaleString();
+    document.getElementById('b-c-rules').textContent = rulesCounted;
+    document.getElementById('b-c-depth').textContent = depthCounted;
+    document.getElementById('b-c-chars-bar').style.width = (charsCounted / 4200 * 100) + '%';
+    document.getElementById('b-c-rules-bar').style.width = (rulesCounted / 410 * 100) + '%';
+    document.getElementById('b-c-depth-bar').style.width = (depthCounted / 5 * 100) + '%';
+    document.getElementById('b-subdata').innerHTML = `<span class="v">${charsCounted.toLocaleString()}</span> 字符 · <span class="v">${rulesCounted}</span> 法源`;
+    document.getElementById('b-speed').innerHTML = speed > 0 ? `<b>${speed.toLocaleString()}</b> 字符/秒` : '—';
+    if (dt < TOTAL) {
+      _bRaf = requestAnimationFrame(tick);
+    } else {
+      sweep.style.transform = `rotate(270deg)`;
+      trail.classList.remove('run');
+    }
+  };
+  tick();
+
+  // 7 条规则逐条扫描(细节密度 360 杀毒级别)
+  let elapsed = 900;  // 留出启动 banner 时间
+  SCAN.forEach((r, idx) => {
+    // 规则开始 · 节点点亮 + 大字标题
+    _bTimers.push(setTimeout(() => {
+      const node = document.querySelector(`.scheme-b .b-node[data-id="${r.id}"]`);
+      if (node) node.classList.add('scanning');
+      bLog('scan', `▶ <b>R${String(r.id).padStart(2, '0')}</b> 启动 · <b>${r.law}</b>`, bFmtTs(Date.now()));
+    }, elapsed));
+
+    // 扫描子项日志(密度拉满,均匀分布在 r.dur 内)
+    const detail = B_SCAN_DETAIL[r.id] || [];
+    const slice = r.dur / (detail.length + 2);
+    detail.forEach((d, i) => {
+      const [lv, msg] = d;
+      _bTimers.push(setTimeout(() => {
+        bLog(lv, msg, bFmtTs(Date.now()));
+      }, elapsed + slice * (i + 1)));
+    });
+
+    // 规则结束 · 节点变色 + 命中三连告警 / 通过单行
+    _bTimers.push(setTimeout(() => {
+      const node = document.querySelector(`.scheme-b .b-node[data-id="${r.id}"]`);
+      if (node) {
+        node.classList.remove('scanning');
+        node.classList.add(r.sev);
+      }
+      if (r.sev === 'warn' || r.sev === 'fail') {
+        // 命中三连告警
+        const pop = document.createElement('div');
+        pop.className = 'b-hitpop';
+        pop.innerHTML = `⚠⚠⚠ <b>命中</b> · R${String(r.id).padStart(2, '0')}`;
+        pop.style.left = (parseFloat(node.style.left) + 6) + '%';
+        pop.style.top  = node.style.top;
+        document.getElementById('b-radar').appendChild(pop);
+        setTimeout(() => pop.classList.add('show'), 30);
+        setTimeout(() => pop.remove(), 3000);
+        // 三连告警日志
+        bLog(r.sev === 'warn' ? 'warn' : 'fail', `${r.sev === 'warn' ? '⚠⚠⚠' : '✗✗✗'} ALERT · <b>R${String(r.id).padStart(2, '0')} 命中</b>`, bFmtTs(Date.now()));
+        bLog(r.sev === 'warn' ? 'warn' : 'fail', `↳ 触法条款:${r.hit ? r.hit.split('·')[0].trim() : '违规'}`, bFmtTs(Date.now()));
+        bLog(r.sev === 'warn' ? 'warn' : 'fail', `↳ 建议处置:${r.sev === 'warn' ? '改写' : '拦截 · 不可上架'}`, bFmtTs(Date.now()));
+      } else {
+        bLog('ok', `✓ <b>R${String(r.id).padStart(2, '0')}</b> · 通过 · 0 命中`, bFmtTs(Date.now()));
+      }
+      done++;
+      if (r.sev === 'ok')   ok++;
+      if (r.sev === 'warn') warn++;
+      if (r.sev === 'fail') fail++;
+      document.getElementById('b-counter').innerHTML = `${done}<span class="slash">/7</span>`;
+      document.getElementById('b-c-ok').textContent   = ok;
+      document.getElementById('b-c-warn').textContent = warn;
+
+      // 规则之间插入进度报告(除最后一条)
+      if (idx < SCAN.length - 1) {
+        const pct = Math.floor(((idx + 1) / SCAN.length) * 100);
+        setTimeout(() => {
+          bLog('progress', `[ PROGRESS ] ${idx + 1}/7 规则 · ${pct}% · 已扫 ${Math.floor((idx + 1) / 7 * 4200).toLocaleString()} 字符`, bFmtTs(Date.now()));
+        }, 50);
+      }
+    }, elapsed + r.dur));
+
+    elapsed += r.dur;
+  });
+
+  // 全部完成:数据卡定格 + 置信度 + verdict
+  _bTimers.push(setTimeout(() => {
+    document.getElementById('b-status').textContent = '扫描完成';
+    document.getElementById('b-c-chars').textContent = '4,200';
+    document.getElementById('b-c-rules').textContent = '410';
+    document.getElementById('b-c-depth').textContent = '5';
+    ['b-c-chars-bar', 'b-c-rules-bar', 'b-c-depth-bar'].forEach(id => document.getElementById(id).style.width = '100%');
+    document.getElementById('b-subdata').innerHTML = '<span class="v">4,200</span> 字符 · <span class="v">410</span> 法源';
+
+    // 置信度(基于命中数 + 历史样本量算个数,非真实)
+    const conf = fail ? 92.4 : warn ? 99.2 : 99.8;
+    document.getElementById('b-c-conf').textContent = conf;
+
+    const v = document.getElementById('b-verdict');
+    v.classList.add('show');
+    if (fail) {
+      v.classList.add('fail');
+      v.innerHTML = `<span class="vmark">❌</span>扫描到 <b>${fail}</b> 处拦截 · 不可上架`;
+    } else if (warn) {
+      v.classList.add('warn');
+      v.innerHTML = `<span class="vmark">⚠</span><b>${warn}</b> 处需改写 · <b>0</b> 处拦截 · 整体可上架 · 置信度 ${conf}%`;
+    } else {
+      v.classList.add('ok');
+      v.innerHTML = `<span class="vmark">✅</span>全部通过 · 可直接上架 · 置信度 ${conf}%`;
+    }
+
+    bLog('boom', `▶▶▶ 扫描完成 · ${ok} 通过 · ${warn} 改写 · ${fail} 拦截 · 置信度 ${conf}%`, bFmtTs(Date.now()));
+  }, TOTAL + 600));
+}
+
+// ============================================================
+// 方案 C · X 光透视
+// ============================================================
+let _cTimers = [];
+let _cRaf = null;
+function renderC() {
+  if (_cRaf) cancelAnimationFrame(_cRaf);
+  _cTimers.forEach(t => clearTimeout(t));
+  _cTimers = [];
+
+  document.querySelectorAll('.scheme-c .c-line').forEach(l => l.className = 'c-line');
+  document.querySelectorAll('.scheme-c .c-word').forEach(w => {
+    w.className = 'c-word';
+    w.removeAttribute('data-state');
+  });
+  document.getElementById('c-scanline').classList.remove('run');
+  document.getElementById('c-scanline').style.top = '0px';
+  document.getElementById('c-hitpop').classList.remove('show');
+  document.getElementById('c-pct').textContent = '0%';
+  document.getElementById('c-summary').classList.remove('show');
+  ['c-ok', 'c-warn', 'c-fail'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('c-ver').textContent = '等待结论';
+
+  // 渲染侧栏规则状态条
+  document.getElementById('c-rules').innerHTML = SCAN.map(r => `
+    <div class="c-rule" data-id="${r.id}">
+      <div class="i">⠿</div>
+      <div class="ln">
+        <span class="lw">${r.law}</span>
+        ${r.desc.length > 24 ? r.desc.slice(0, 22) + '…' : r.desc}
+      </div>
+    </div>
+  `).join('');
+}
+function playC() {
+  renderC();
+  const doc = document.getElementById('c-doc');
+  const lines = doc.querySelectorAll('.c-line');
+  const scanline = document.getElementById('c-scanline');
+  const docPad = 18;  // top padding of c-doc
+  scanline.classList.add('run');
+
+  const start = Date.now();
+  const tick = () => {
+    const dt = Date.now() - start;
+    const pct = Math.min(100, (dt / TOTAL) * 100);
+    document.getElementById('c-pct').textContent = pct.toFixed(0) + '%';
+    // scanline 位置:从 doc 顶到 doc 底
+    const docH = doc.clientHeight - 36;
+    scanline.style.top = (docH * (pct / 100)) + 'px';
+    if (pct < 100) {
+      _cRaf = requestAnimationFrame(tick);
+    }
+  };
+  tick();
+
+  // 行扫描动画:把每行按扫描线到达时间标 scanning/scanned
+  const linePerLine = TOTAL / lines.length;
+  lines.forEach((line, i) => {
+    _cTimers.push(setTimeout(() => {
+      line.classList.add('scanning');
+    }, linePerLine * i));
+    _cTimers.push(setTimeout(() => {
+      line.classList.remove('scanning');
+      line.classList.add('scanned');
+    }, linePerLine * (i + 1)));
+  });
+
+  // 命中 + 通过词标记
+  let ok = 0, warn = 0, fail = 0;
+  // 第 5 条规则:阳光红线词库扫到「才有底气」(hit)
+  // 标记发生在该规则扫描完成的时间点
+  let elapsed = 0;
+  SCAN.forEach(r => {
+    _cTimers.push(setTimeout(() => {
+      const rule = document.querySelector(`.scheme-c .c-rule[data-id="${r.id}"]`);
+      if (rule) {
+        rule.classList.add('scanning');
+        rule.querySelector('.i').textContent = '◐';
+      }
+    }, elapsed));
+    _cTimers.push(setTimeout(() => {
+      const rule = document.querySelector(`.scheme-c .c-rule[data-id="${r.id}"]`);
+      if (rule) {
+        rule.classList.remove('scanning');
+        rule.classList.add(r.sev);
+        rule.querySelector('.i').textContent = r.sev === 'ok' ? '✓' : r.sev === 'warn' ? '⚠' : '✗';
+      }
+      if (r.sev === 'ok')   ok++;
+      if (r.sev === 'warn') warn++;
+      if (r.sev === 'fail') fail++;
+      document.getElementById('c-ok').textContent   = ok;
+      document.getElementById('c-warn').textContent = warn;
+      document.getElementById('c-fail').textContent = fail;
+      // 这条命中的规则,触发脚本里的红框 + popup
+      if (r.hit) {
+        const hitWord = document.querySelector('.scheme-c .c-word[data-w="hit"]');
+        if (hitWord) {
+          hitWord.classList.add('hit');
+          const pop = document.getElementById('c-hitpop');
+          const rect = hitWord.getBoundingClientRect();
+          const docRect = doc.getBoundingClientRect();
+          pop.style.left = (rect.right - docRect.left + 14) + 'px';
+          pop.style.top  = (rect.top - docRect.top - 6) + 'px';
+          pop.innerHTML  = '⚠ <b>命中!</b><br>' + r.hit.split('·')[0].trim();
+          pop.classList.add('show');
+          setTimeout(() => pop.classList.remove('show'), 3000);
+        }
+      }
+    }, elapsed + r.dur));
+    elapsed += r.dur;
+  });
+
+  // 通过词:演示在第 7 条规则之后给"推得动了"标 ok
+  _cTimers.push(setTimeout(() => {
+    const w = document.querySelector('.scheme-c .c-word[data-w="best"]');
+    if (w) w.classList.add('ok');
+  }, TOTAL - 200));
+
+  // 汇总
+  _cTimers.push(setTimeout(() => {
+    scanline.classList.remove('run');
+    document.getElementById('c-pct').textContent = '100%';
+    document.getElementById('c-summary').classList.add('show');
+    const v = document.getElementById('c-ver');
+    if (fail) v.textContent = `❌ ${fail} 处拦截 · 不可上架`;
+    else if (warn) v.textContent = `⚠ ${warn} 处需改写 · 整体可上架`;
+    else v.textContent = '✅ 全部通过 · 可直接上架';
+  }, TOTAL + 300));
+}
+
+// ============================================================
+// 初始化
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderA();
+  renderB();
+  renderC();
+  // 默认自动播放 A 一次,让用户看到效果
+  setTimeout(() => playA(), 600);
+});
+</script>
+</body>
+</html>

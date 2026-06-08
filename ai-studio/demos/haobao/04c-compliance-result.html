@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>好保 · 合规终审结果</title>
+<link rel="stylesheet" href="_shared.css?v=v4-fix">
+<style>
+  /* 浅色基调,跟 04b-v2 风格一致 */
+  .phone.result-page{background:var(--bg)}
+
+  /* 顶部权威带 - 浅色卡片 */
+  .res-auth{margin:8px 16px 14px;padding:9px 13px;background:var(--surface-card);border:1px solid var(--border);border-radius:12px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-card)}
+  .res-auth .ra-tick{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+  .res-auth.fail .ra-tick{background:var(--gold);color:var(--gold-dark)}
+  .res-auth .ra-text{flex:1;line-height:1.4}
+  .res-auth .ra-text b{color:var(--text);font-weight:600}
+  .res-auth .ra-scope{color:var(--accent);font-weight:600}
+
+  /* Hero - 大 ✓ */
+  .res-hero{text-align:center;padding:14px 24px 4px;position:relative}
+  .res-hero .rh-icon{width:104px;height:104px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:54px;font-weight:300;margin-bottom:14px;animation:hero-pop 0.6s cubic-bezier(0.34,1.56,0.64,1)}
+  @keyframes hero-pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+  .res-hero.pass .rh-icon{background:radial-gradient(circle at 50% 38%, #34D399, var(--green));color:#fff;box-shadow:0 0 0 8px rgba(5,150,105,0.08),0 10px 30px rgba(5,150,105,0.25)}
+  .res-hero.fail .rh-icon{background:radial-gradient(circle at 50% 38%, var(--gold), #D97706);color:#fff;box-shadow:0 0 0 8px rgba(252,211,77,0.12),0 10px 30px rgba(217,119,6,0.25)}
+  .res-hero .rh-title{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-0.4px;line-height:1.2;margin-bottom:5px}
+  .res-hero .rh-title em{font-style:normal;color:var(--green);font-weight:700}
+  .res-hero.fail .rh-title em{color:var(--gold-dark)}
+  .res-hero .rh-sub{font-size:12px;color:var(--text2);letter-spacing:0.3px}
+  .res-hero .rh-sub b{color:var(--text);font-weight:600}
+
+  /* 通过卡:浅色 */
+  .res-pass-grid{margin:18px 16px 0;background:var(--surface-card);border:1px solid var(--border);border-radius:14px;padding:6px 0;box-shadow:var(--shadow-card)}
+  .res-pass-row{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;color:var(--text);opacity:0;animation:row-in 0.4s ease-out forwards;border-bottom:0.5px solid var(--border)}
+  .res-pass-row:last-child{border-bottom:none}
+  .res-pass-row:nth-child(1){animation-delay:0.10s}.res-pass-row:nth-child(2){animation-delay:0.16s}
+  .res-pass-row:nth-child(3){animation-delay:0.22s}.res-pass-row:nth-child(4){animation-delay:0.28s}
+  .res-pass-row:nth-child(5){animation-delay:0.34s}.res-pass-row:nth-child(6){animation-delay:0.40s}
+  .res-pass-row:nth-child(7){animation-delay:0.46s}.res-pass-row:nth-child(8){animation-delay:0.52s}
+  @keyframes row-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .res-pass-row .rr-tick{width:18px;height:18px;background:var(--green);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+  .res-pass-row .rr-name{flex:1;letter-spacing:-0.1px;font-weight:500}
+  .res-pass-row .rr-count{font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:50px;font-weight:600}
+
+  /* 自由创作 7×5 矩阵态 — 一行多 dot */
+  .res-matrix{margin:18px 16px 0;background:var(--surface-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-card)}
+  .res-matrix-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+  .res-matrix-head .mx-title{font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:-0.1px}
+  .res-matrix-head .mx-count{font-size:11px;color:var(--green);font-weight:700;background:var(--green-bg);padding:3px 10px;border-radius:50px}
+  .res-matrix-row{display:grid;grid-template-columns:46px 1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border)}
+  .res-matrix-row:last-child{border-bottom:none}
+  .res-matrix-row .mr-name{font-size:11.5px;color:var(--text);font-weight:600;letter-spacing:0.1px}
+  .res-matrix-row .mr-dots{display:flex;gap:5px;align-items:center}
+  .res-matrix-row .mr-dot{width:16px;height:16px;border-radius:50%;background:var(--green-bg);display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--green);border:1px solid rgba(5,150,105,0.25)}
+
+  /* 法规折叠卡 - 浅色 */
+  .res-laws{margin:14px 16px 0;background:var(--surface-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-card)}
+  .res-laws-head{padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+  .res-laws-head .rlh-icon{width:28px;height:28px;background:var(--gold-bg);color:var(--gold-dark);border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .res-laws-head .rlh-title{font-size:13px;color:var(--text);font-weight:600;letter-spacing:0.1px;line-height:1.4}
+  .res-laws-head .rlh-sub{font-size:10.5px;color:var(--text2);margin-top:2px;font-weight:400;letter-spacing:0;line-height:1.4}
+  .res-laws-head .rlh-arrow{font-size:14px;color:var(--text3);transition:transform 0.2s}
+  .res-laws.expanded .rlh-arrow{transform:rotate(180deg)}
+  .res-laws-body{padding:0 16px 14px;display:none}
+  .res-laws.expanded .res-laws-body{display:block}
+  .res-laws-group{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+  .res-laws-group:first-child{margin-top:0;padding-top:4px;border-top:0}
+  .res-laws-group .rlg-src{font-size:11.5px;color:var(--green);font-weight:600;letter-spacing:0.2px;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+  .res-laws-group .rlg-src .rlg-tick{width:14px;height:14px;background:var(--green);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+  .res-laws-group .rlg-list{padding-left:20px;font-size:11px;color:var(--text2);line-height:1.6}
+
+  /* 签发卡 */
+  .res-cert{margin:14px 16px 0;padding:11px 14px;background:var(--surface-card);border:1px dashed var(--border);border-radius:10px;font-size:10.5px;color:var(--text2);letter-spacing:0.2px;line-height:1.6;text-align:center}
+  .res-cert b{color:var(--text);font-weight:600;font-family:-apple-system,'SF Mono','Menlo',monospace;font-size:10.5px}
+
+  /* 命中态 summary */
+  .res-summary{margin:16px 16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .res-sum-cell{padding:12px 8px;background:var(--surface-card);border:1px solid var(--border);border-radius:10px;text-align:center;box-shadow:var(--shadow-card)}
+  .res-sum-cell .rs-num{font-size:24px;font-weight:700;letter-spacing:-0.5px;font-variant-numeric:tabular-nums;line-height:1.1}
+  .res-sum-cell.ok .rs-num{color:var(--green)}
+  .res-sum-cell.warn .rs-num{color:var(--gold-dark)}
+  .res-sum-cell.crit .rs-num{color:var(--red)}
+  .res-sum-cell .rs-label{font-size:10.5px;color:var(--text2);margin-top:4px;letter-spacing:0.3px}
+
+  /* 命中卡 - 浅色 + 金边 */
+  .res-hits{margin:14px 16px 0;display:flex;flex-direction:column;gap:10px}
+  .res-hit-card{background:var(--surface-card);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:10px;padding:12px 14px;color:var(--text);box-shadow:var(--shadow-card)}
+  .rhc-head{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gold-dark);font-weight:700;letter-spacing:0.3px;margin-bottom:8px}
+  .rhc-head .rhc-num{background:var(--gold);color:var(--gold-dark);font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+  .rhc-pos{font-size:10.5px;color:var(--text3);font-variant-numeric:tabular-nums;margin-bottom:5px}
+  .rhc-quote{font-size:12.5px;color:var(--text);background:var(--gold-bg);border-left:2px solid var(--gold);padding:7px 10px;border-radius:4px;line-height:1.45;margin-bottom:8px;font-family:-apple-system,'SF Mono','Menlo',monospace}
+  .rhc-issue{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:6px}
+  .rhc-issue b{color:var(--gold-dark)}
+  .rhc-law{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+  .rhc-law a{color:var(--accent);text-decoration:none;font-weight:500}
+
+  .rhc-diff{background:var(--surface-grouped);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;font-family:-apple-system,'SF Mono','Menlo',monospace;line-height:1.55;margin-bottom:10px}
+  .rhc-diff .diff-del{color:var(--red);text-decoration:line-through;display:block;margin-bottom:2px}
+  .rhc-diff .diff-add{color:var(--green);font-weight:600;display:block}
+
+  .rhc-actions{display:flex;flex-wrap:wrap;gap:6px}
+  .rhc-btn{font-size:11.5px;padding:7px 12px;border-radius:50px;border:1px solid var(--border);background:var(--surface-card);color:var(--text);cursor:pointer;font-weight:500;letter-spacing:0.2px}
+  .rhc-btn.primary{background:var(--gold);color:var(--gold-dark);border-color:var(--gold);font-weight:700}
+  .rhc-btn:active{transform:scale(0.97)}
+
+  /* 主操作 */
+  .res-actions{padding:20px 16px 8px}
+  .res-primary{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:52px;background:var(--accent);color:#fff;font-size:16px;font-weight:600;border:none;border-radius:14px;box-shadow:0 6px 20px rgba(30,58,138,0.28);cursor:pointer;letter-spacing:0.4px}
+  .res-primary.fail{background:linear-gradient(135deg,var(--gold),#FBA827);color:var(--gold-dark);box-shadow:0 6px 20px rgba(252,211,77,0.45)}
+  .res-primary:active{transform:scale(0.98)}
+  .res-secondary{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:46px;background:transparent;color:var(--text2);font-size:13.5px;font-weight:500;border:1px solid var(--border);border-radius:14px;margin-top:10px;cursor:pointer}
+  .res-secondary.disabled{color:var(--text3);border-color:var(--border)}
+</style>
+</head>
+<body>
+<div class="phone v4 result-page">
+
+  <div class="statusbar">
+    <span class="time">9:41</span>
+    <span class="icons">●●●● 5G ⚡</span>
+  </div>
+
+  <div style="padding-top:4px;padding-bottom:80px">
+
+    <!-- 顶部权威带 -->
+    <div class="res-auth" id="auth-bar">
+      <span class="ra-tick" id="auth-status">✓</span>
+      <span class="ra-text"><b id="auth-title">合规终审完成</b> · 已纳入 <span class="ra-scope" id="auth-scope">14 部法规 + 5 平台规则</span></span>
+    </div>
+
+    <!-- Hero -->
+    <div class="res-hero" id="hero">
+      <div class="rh-icon" id="hero-icon">✓</div>
+      <div class="rh-title" id="hero-title">通过 · <em>0 风险</em></div>
+      <div class="rh-sub" id="hero-sub">扫描 <b>8 大类</b> · <b>542</b> 个检查点</div>
+    </div>
+
+    <!-- ===== 通过版 - 模板路径 (8 大类) ===== -->
+    <div id="view-pass-template" style="display:none">
+      <div class="res-pass-grid">
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">监管禁用词</span><span class="rr-count">186 / 186</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">收益承诺数字</span><span class="rr-count">24 / 24</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">绝对化表述</span><span class="rr-count">142 / 142</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">同业贬低</span><span class="rr-count">18 / 18</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">字幕配音一致性</span><span class="rr-count">35 / 35</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">必备风险提示</span><span class="rr-count">2 / 2</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">数字证据可追溯</span><span class="rr-count">12 / 12</span></div>
+        <div class="res-pass-row"><span class="rr-tick">✓</span><span class="rr-name">代理人资质展示</span><span class="rr-count">合规</span></div>
+      </div>
+    </div>
+
+    <!-- ===== 通过版 - 自由创作路径 (7 × 5 矩阵) ===== -->
+    <div id="view-pass-matrix" style="display:none">
+      <div class="res-matrix">
+        <div class="res-matrix-head">
+          <span class="mx-title">7 素材 × 5 审核 矩阵</span>
+          <span class="mx-count">35 / 35 通过</span>
+        </div>
+        <div id="matrix-rows"></div>
+      </div>
+    </div>
+
+    <!-- 通过版共用:法规折叠 + 签发 + CTA -->
+    <div id="view-pass-common" style="display:none">
+      <!-- 法规折叠卡 -->
+      <div class="res-laws" id="laws-card-pass">
+        <div class="res-laws-head" onclick="document.getElementById('laws-card-pass').classList.toggle('expanded')">
+          <div class="rlh-icon">⚖</div>
+          <div style="flex:1">
+            <div class="rlh-title" id="laws-title">已纳入 14 部法规 + 5 平台规则</div>
+            <div class="rlh-sub">国家金融监管总局 · 中保协 · 广告法 · 网信办 · 平台规则 · 总部内规</div>
+          </div>
+          <span class="rlh-arrow">⌃</span>
+        </div>
+        <div class="res-laws-body">
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>国家金融监督管理总局</div>
+            <div class="rlg-list">《保险法》·《人身保险产品信息披露管理办法》·《保险销售行为管理办法》·《保险消费者权益保护管理办法》·《互联网保险业务监管办法》· 银保监 [2023]8 号文</div>
+          </div>
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>中国保险行业协会</div>
+            <div class="rlg-list">人身保险风险责任规则 · 保险销售管理规则</div>
+          </div>
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>国家市场监督管理总局</div>
+            <div class="rlg-list">《广告法》·《互联网广告管理办法》·《反不正当竞争法》</div>
+          </div>
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>中央网信办</div>
+            <div class="rlg-list">《互联网用户公众账号信息服务管理规定》·《关于加强"自媒体"管理的通知》·《网络音视频信息服务管理规定》</div>
+          </div>
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>平台社区规则</div>
+            <div class="rlg-list">视频号 · 小红书 · 抖音 · 朋友圈 · B 站</div>
+          </div>
+          <div class="res-laws-group">
+            <div class="rlg-src"><span class="rlg-tick">✓</span>公司总部内规</div>
+            <div class="rlg-list">产品事实库 · 销售话术红线清单 · 险种推介合规白皮书 v2026.03</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="res-cert">
+        规则库 <b>v2026.05</b> · 终审完成 <span id="cert-passtime">17:57</span>
+      </div>
+
+      <div class="res-actions">
+        <button class="res-primary" onclick="exportNow()">一键导出</button>
+        <button class="res-secondary" onclick="location='04-progress.html'">返回</button>
+      </div>
+    </div>
+
+    <!-- ===== 命中版 ===== -->
+    <div id="view-fail" style="display:none">
+      <div class="res-summary">
+        <div class="res-sum-cell ok"><div class="rs-num" id="sum-pass">540</div><div class="rs-label">通过</div></div>
+        <div class="res-sum-cell warn"><div class="rs-num">2</div><div class="rs-label">需处理</div></div>
+        <div class="res-sum-cell crit"><div class="rs-num">0</div><div class="rs-label">严重违规</div></div>
+      </div>
+
+      <div class="res-hits">
+        <!-- 命中 #1 -->
+        <div class="res-hit-card">
+          <div class="rhc-head"><span class="rhc-num">1</span>绝对化表述</div>
+          <div class="rhc-pos">位置: 0:08.2 – 0:10.4</div>
+          <div class="rhc-quote">"保险这东西在我这里，几乎从没让人后悔过"</div>
+          <div class="rhc-issue"><b>问题:</b> "从没让人后悔" 触发监管口径"绝对化表述"</div>
+          <div class="rhc-law"><b>法源:</b> 银保监 [2023]8 号文 §3.2 · <a href="#">查看原文 ↗</a></div>
+          <div class="rhc-diff">
+            <span class="diff-del">− 几乎从没让人后悔过</span>
+            <span class="diff-add">+ 多数人事后都觉得值</span>
+          </div>
+          <div class="rhc-actions">
+            <button class="rhc-btn primary" onclick="alert('已触发改写并重跑 · 预计 ¥3.50 · 6 分钟')">一键改写并重跑</button>
+            <button class="rhc-btn">我自己改</button>
+            <button class="rhc-btn">豁免 + 写理由</button>
+          </div>
+        </div>
+
+        <!-- 命中 #2 -->
+        <div class="res-hit-card">
+          <div class="rhc-head"><span class="rhc-num">2</span>数字证据可追溯</div>
+          <div class="rhc-pos">位置: 0:11.7</div>
+          <div class="rhc-quote">"全国 80% 的保单都有这个条款"</div>
+          <div class="rhc-issue"><b>问题:</b> 数据无来源,监管要求消费者可追溯</div>
+          <div class="rhc-law"><b>法源:</b> 银保监 [2023]8 号文 §5.7 · <a href="#">查看原文 ↗</a></div>
+          <div class="rhc-actions">
+            <button class="rhc-btn primary" onclick="alert('已替换为可援引数据 · 重跑')">替换为可援引数据</button>
+            <button class="rhc-btn">删除该句</button>
+            <button class="rhc-btn">豁免 + 写理由</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="res-cert">
+        规则库 <b>v2026.05</b> · 扫描完成 <span id="cert-passtime-fail">17:57</span> · 命中 2 项需处理
+      </div>
+
+      <div class="res-actions">
+        <button class="res-primary fail" onclick="alert('全部处理后再扫一次 → 跳回扫描页')">处理所有后再扫一次</button>
+        <button class="res-secondary disabled" onclick="if(confirm('带豁免说明导出会被记入审计日志,确认?'))exportNow()">带豁免说明导出</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const result = (new URLSearchParams(location.search).get('result') || 'pass').toLowerCase();
+const TPL = (new URLSearchParams(location.search).get('tpl') || 'T03').toUpperCase();
+const SOURCE = new URLSearchParams(location.search).get('source');  // 'creation' or null
+const IS_CREATION = SOURCE === 'creation';
+
+const hero = document.getElementById('hero');
+const heroIcon = document.getElementById('hero-icon');
+const heroTitle = document.getElementById('hero-title');
+const heroSub = document.getElementById('hero-sub');
+const authStatus = document.getElementById('auth-status');
+const authBar = document.getElementById('auth-bar');
+
+// 自由创作 vs 模板路径,顶部权威带的口径不同
+if (IS_CREATION) {
+  document.getElementById('auth-title').textContent = '全维度合规终审完成';
+  document.getElementById('auth-scope').textContent = '7 素材 × 5 审核 · 35 检查点';
+  document.getElementById('laws-title').textContent = '已纳入 14 部法规 + 5 平台规则 + 公司内规';
+}
+
+// 时间戳
+const now = new Date();
+const hhmm = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+if (result === 'fail') {
+  hero.classList.add('fail');
+  heroIcon.textContent = '⚠';
+  heroTitle.innerHTML = '<em>2 项</em> 需要处理';
+  if (IS_CREATION) {
+    heroSub.innerHTML = '扫描 <b>35</b> 项 · <b>33</b> 通过 · <b>2</b> 需处理';
+  } else {
+    heroSub.innerHTML = '扫描 <b>8 大类</b> · <b>542</b> 检查点 · <b>2</b> 项需处理';
+  }
+  authStatus.textContent = '⚠';
+  authBar.classList.add('fail');
+  document.getElementById('view-fail').style.display = 'block';
+  document.getElementById('cert-passtime-fail').textContent = hhmm;
+  if (IS_CREATION) {
+    document.getElementById('sum-pass').textContent = '33';
+  }
+} else {
+  hero.classList.add('pass');
+  heroIcon.textContent = '✓';
+  heroTitle.innerHTML = '通过 · <em>0 风险</em>';
+  if (IS_CREATION) {
+    heroSub.innerHTML = '<b>7 素材</b> × <b>5 审核</b> = <b>35</b> 检查点 全通过';
+    document.getElementById('view-pass-matrix').style.display = 'block';
+    renderMatrix();
+  } else {
+    heroSub.innerHTML = '扫描 <b>8 大类</b> · <b>542</b> 个检查点';
+    document.getElementById('view-pass-template').style.display = 'block';
+  }
+  document.getElementById('view-pass-common').style.display = 'block';
+  authStatus.textContent = '✓';
+  document.getElementById('cert-passtime').textContent = hhmm;
+}
+
+function renderMatrix(){
+  const MATERIALS = ['文案','标题','字幕','画面','视频','音频','口播'];
+  const REVIEWS = ['合规','品牌','产品','消保','主管复核'];
+  const container = document.getElementById('matrix-rows');
+  container.innerHTML = MATERIALS.map((m,mi) => `
+    <div class="res-matrix-row" style="animation:row-in 0.4s ease-out ${0.1 + mi*0.06}s forwards;opacity:0">
+      <span class="mr-name">${m}</span>
+      <span class="mr-dots">
+        ${REVIEWS.map(r => `<span class="mr-dot" title="${m} × ${r}">✓</span>`).join('')}
+      </span>
+    </div>
+  `).join('');
+}
+
+function exportNow(){
+  const params = new URLSearchParams();
+  params.set('tpl', TPL);
+  if (IS_CREATION) params.set('source', 'creation');
+  location.href = '05-result.html?' + params.toString();
+}
+</script>
+
+</body>
+</html>

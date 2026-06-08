@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <radialGradient id="bg-ct" cx="50%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#e2d4f0"/>
+      <stop offset="60%" stop-color="#b8a0d8"/>
+      <stop offset="100%" stop-color="#7a5a9e"/>
+    </radialGradient>
+  </defs>
+  <circle cx="40" cy="40" r="40" fill="url(#bg-ct)"/>
+  <!-- shoulders -->
+  <path d="M14 78 Q14 56 40 56 Q66 56 66 78 Z" fill="#3c2f4f" opacity="0.95"/>
+  <!-- scarf hint -->
+  <path d="M28 56 Q40 64 52 56 L54 64 Q40 70 26 64 Z" fill="#7a3a4a" opacity="0.8"/>
+  <!-- hair (long, wavy) -->
+  <path d="M22 36 Q20 14 40 14 Q60 14 58 36 L60 60 Q56 58 54 56 L52 36 Q50 32 40 32 Q30 32 28 36 L26 56 Q24 58 20 60 Z" fill="#2a1d28"/>
+  <!-- face -->
+  <ellipse cx="40" cy="42" rx="14" ry="16" fill="#f5cca4"/>
+  <!-- side-parted bangs -->
+  <path d="M28 30 Q34 22 50 26 Q56 30 54 34 Q48 31 42 31 Q36 32 32 33 Q28 33 28 30 Z" fill="#2a1d28"/>
+  <!-- beret hint -->
+  <ellipse cx="48" cy="20" rx="10" ry="4" fill="#3c2f4f"/>
+  <ellipse cx="48" cy="19" rx="9" ry="3" fill="#5a4078"/>
+  <circle cx="55" cy="18" r="1.6" fill="#7a5a9e"/>
+  <!-- eyes (one slightly winking, casting director eye) -->
+  <circle cx="33" cy="43" r="1.4" fill="#2b1d12"/>
+  <path d="M44 43 Q47 41 50 43" stroke="#2b1d12" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <!-- cheeks -->
+  <circle cx="31" cy="49" r="2.2" fill="#e88aa0" opacity="0.5"/>
+  <circle cx="49" cy="49" r="2.2" fill="#e88aa0" opacity="0.5"/>
+  <!-- mouth (slight smirk) -->
+  <path d="M37 52 Q40 54 44 51" stroke="#7a4a2c" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <!-- magnifying glass at corner -->
+  <g transform="translate(56 58) rotate(20)" opacity="0.9">
+    <circle cx="0" cy="0" r="4.5" fill="none" stroke="#3c2f4f" stroke-width="1.6"/>
+    <line x1="3.2" y1="3.2" x2="7" y2="7" stroke="#3c2f4f" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+</svg>

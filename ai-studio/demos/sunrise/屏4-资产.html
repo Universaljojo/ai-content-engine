@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunrise · 资产 · 合规</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span>Sunrise<span class="dot">.</span><em>ai</em></span>
+  </div>
+  <div class="crumbs">
+    <a href="屏1-首页.html">首页</a>
+    <span class="sep">/</span>
+    <span class="here">资产 · 合规</span>
+  </div>
+  <div class="top-spacer"></div>
+  <div class="search-pill">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+    搜索合规手册 / 品牌 / 产品 / 红线词
+    <span class="k">⌘ K</span>
+  </div>
+  <button class="icon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg></button>
+  <div class="user-chip">
+    <div class="user-ava"><img src="assets/agents/xiaocao.svg" alt="小草"></div>
+    <div class="meta"><b>小草</b><span>内容运营</span></div>
+  </div>
+</header>
+
+<div class="lib-shell">
+
+  <!-- rail nav · 全局导航（已合并合规到资产，rail 7 项不变但「合规」改为「资产·合规」）-->
+  <aside class="rail">
+    <a class="ri" href="屏1-首页.html" title="首页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="lbl">首页</span></a>
+    <a class="ri" href="屏5-Agent总览.html" title="Agent 总览"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="lbl">Agent</span></a>
+    <div class="ri" title="项目"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg><span class="lbl">项目</span></div>
+    <div class="ri active" title="合规"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span class="lbl">合规</span></div>
+    <div class="div"></div>
+    <div class="ri" title="数据"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg><span class="lbl">数据</span></div>
+    <div style="flex:1"></div>
+    <div class="ri" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg><span class="lbl">设置</span></div>
+  </aside>
+
+  <!-- 主区 -->
+  <main class="lib-main">
+
+    <div class="lib-h">
+      <h1>资产 · 合规</h1>
+      <div class="sub">
+        Sunrise 所有 Agent（编导 / 文案 / 美术 / 合规审核 / 品牌审核）调用的客户资产都在这里 ——
+        <b>合规手册</b> / <b>品牌手册</b> / <b>产品资料</b> / <b>红线词库</b> / <b>Agent 记忆</b>。上传后 Agent 即时学习并应用。
+      </div>
+    </div>
+
+    <!-- 预置说明 -->
+    <div class="preset-banner">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div>
+        <div><b>Sunrise 已预置行业合规基线</b>（5 份监管法规：广告法 · 保险销售行为管理办法 · 银保监等）+ 90 天滚动更新，无需维护。<br>
+        <b>你只需要上传公司私有的资料</b>：自家合规手册 / 品牌 VI / 产品档案 / 私有红线词。Agent 自动叠加调用。</div>
+      </div>
+      <span class="more">本月被引用 498 次</span>
+    </div>
+
+    <!-- Tab -->
+    <div class="lib-tabs">
+      <div class="tab active">合规手册<span class="count">4</span></div>
+      <div class="tab">品牌手册<span class="count">6</span></div>
+      <div class="tab">产品资料<span class="count">6</span></div>
+      <div class="tab">红线词库<span class="count">36</span></div>
+      <div class="tab">Agent 记忆</div>
+    </div>
+
+    <!-- ============================================================
+         TAB 1 · 公司合规手册（默认显示）
+         ============================================================ -->
+    <div id="tab-compliance">
+      <div class="upload-zone">
+        <div class="up-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="up-title">上传公司合规手册</div>
+        <div class="up-sub">公司私有的合规红线 / 行业潜规则 / 内审规范 · 支持 PDF / Word / Markdown · 单文件 ≤ 50 MB</div>
+      </div>
+
+      <div class="doc-list">
+        <div class="doc-list-h">
+          已上传 · 4 份（公司合规手册）
+          <span class="right">按上传时间倒序</span>
+        </div>
+        <div class="doc-row">
+          <div class="docic doc">DOC</div>
+          <div class="nm">阳光人寿合规红线 v2026.05</div>
+          <span class="ver">v 2026.05</span>
+          <span class="when">2026-05-08</span>
+          <span class="used">本周触发改写 142 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">阳光视频内容禁用项</div>
+          <span class="ver">v 1.3</span>
+          <span class="when">2026-04-20</span>
+          <span class="used">本周触发改写 38 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">朋友圈话术高危区清单</div>
+          <span class="ver">v 1.0</span>
+          <span class="when">2026-03-30</span>
+          <span class="used">本周触发改写 22 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic doc">DOC</div>
+          <div class="nm">收益隐喻边界判例集</div>
+          <span class="ver">v 0.9</span>
+          <span class="when">2026-03-08</span>
+          <span class="used">本周触发改写 5 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+      </div>
+    </div><!-- /tab-compliance -->
+
+    <!-- ============================================================
+         TAB 2 · 品牌手册
+         ============================================================ -->
+    <div id="tab-brand" style="display:none;">
+      <div class="upload-zone">
+        <div class="up-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="up-title">上传品牌手册</div>
+        <div class="up-sub">VI 规范 / 话语手册 / Logo 集 / 视觉调性 · 支持 PDF / Word / Sketch / Markdown</div>
+      </div>
+
+      <div class="doc-list">
+        <div class="doc-list-h">
+          已上传 · 6 份（品牌手册）
+          <span class="right">按上传时间倒序</span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">阳光人寿 VI 规范 v3.2</div>
+          <span class="ver">v 3.2</span>
+          <span class="when">2026-04-20</span>
+          <span class="used">被引用 31 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic sketch">SKT</div>
+          <div class="nm">阳光主色卡 · 字体 · Logo 集</div>
+          <span class="ver">v 2</span>
+          <span class="when">2026-04-20</span>
+          <span class="used">被引用 22 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic docx">DOC</div>
+          <div class="nm">阳光品牌人设手册</div>
+          <span class="ver">v 1</span>
+          <span class="when">2026-03-15</span>
+          <span class="used">被引用 18 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">视频号 / 小红书 视觉规范</div>
+          <span class="ver">v 1</span>
+          <span class="when">2026-04-08</span>
+          <span class="used">被引用 15 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic docx">DOC</div>
+          <div class="nm">阳光品牌话语手册 v2.4</div>
+          <span class="ver">v 2.4</span>
+          <span class="when">2026-03-22</span>
+          <span class="used">被引用 43 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic docx">DOC</div>
+          <div class="nm">阳光品牌禁用词 · 必用词</div>
+          <span class="ver">v 1.2</span>
+          <span class="when">2026-03-22</span>
+          <span class="used">被引用 28 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+      </div>
+    </div><!-- /tab-brand -->
+
+    <!-- ============================================================
+         TAB 3 · 产品资料
+         ============================================================ -->
+    <div id="tab-product" style="display:none;">
+      <div class="upload-zone">
+        <div class="up-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="up-title">上传产品资料</div>
+        <div class="up-sub">产品档案 / 条款 / 价格 / 卖点 / 实拍图 / 发布会 PPT · 支持 PDF / Word / Excel / JPG / PNG</div>
+      </div>
+
+      <div class="doc-list">
+        <div class="doc-list-h">
+          已上传 · 6 份（产品资料）
+          <span class="right">按上传时间倒序</span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">安心久久年金 v3.1 · 完整条款</div>
+          <span class="ver">v 3.1</span>
+          <span class="when">2026-05-02</span>
+          <span class="used">被引用 56 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic docx">DOC</div>
+          <div class="nm">阳光臻爱重疾 · 产品档案</div>
+          <span class="ver">v 2.1</span>
+          <span class="when">2026-04-15</span>
+          <span class="used">被引用 34 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">稳赢福定制版 · 责任条款 v2.4</div>
+          <span class="ver">v 2.4</span>
+          <span class="when">2026-04-10</span>
+          <span class="used">被引用 21 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic xlsx">XLS</div>
+          <div class="nm">产品价格 / 现金价值表 2026Q2</div>
+          <span class="ver">v Q2</span>
+          <span class="when">2026-04-01</span>
+          <span class="used">被引用 19 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic pdf">PDF</div>
+          <div class="nm">金福人生 · 发布会宣讲 PPT</div>
+          <span class="ver">v 1.0</span>
+          <span class="when">2026-03-18</span>
+          <span class="used">被引用 13 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+        <div class="doc-row">
+          <div class="docic img">IMG</div>
+          <div class="nm">产品实拍参考图集（自动调用）</div>
+          <span class="ver">42 张</span>
+          <span class="when">滚动更新</span>
+          <span class="used">被引用 27 次</span>
+          <span class="ops">
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+            <span class="op"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg></span>
+          </span>
+        </div>
+      </div>
+    </div><!-- /tab-product -->
+
+    <!-- ============================================================
+         TAB 4 · 红线词库
+         ============================================================ -->
+    <div id="tab-words" style="display:none;">
+      <div style="font-size:13px;color:var(--ink-2);background:var(--paper-2);border:1px dashed var(--ink-line);border-radius:8px;padding:12px 14px;margin-bottom:14px;line-height:1.65;">
+        红线词库存储 <b style="color:var(--ink-2);">公司私有的禁用词条目</b>（平台已预置 291 个行业通用禁词，这里只放你自家额外增加的）。Agent 扫每一句台词时，先匹配红线词，命中即触发改写或退回。
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+        <button style="background:var(--accent);color:#fff;border:0;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          新增红线词
+        </button>
+        <button style="background:#fff;color:var(--ink-2);border:1px solid var(--ink-line);padding:7px 14px;border-radius:8px;font-size:13px;cursor:pointer;">
+          批量导入 .csv
+        </button>
+        <span style="margin-left:auto;font-size:11.5px;color:var(--ink-3);">本月新增 5 条 · 命中改写 65 次</span>
+      </div>
+
+      <div class="rule-table">
+        <div class="rule-table-h">
+          <span style="flex:1.5;">禁用词</span>
+          <span style="flex:1;">分类</span>
+          <span style="flex:1.6;">建议改写</span>
+          <span style="width:90px;">命中次数</span>
+          <span style="width:60px;">操作</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">保本</span>
+          <span style="flex:1;"><span class="cat-tag finance">金融违规</span></span>
+          <span class="suggest" style="flex:1.6;">→ 长期稳健 / 收益可期</span>
+          <span class="hits" style="width:90px;">本周 38</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">稳赚</span>
+          <span style="flex:1;"><span class="cat-tag finance">金融违规</span></span>
+          <span class="suggest" style="flex:1.6;">→ 长期表现稳定</span>
+          <span class="hits" style="width:90px;">本周 22</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">兜底</span>
+          <span style="flex:1;"><span class="cat-tag finance">收益隐喻</span></span>
+          <span class="suggest" style="flex:1.6;">→ 长期支撑 / 后续支持</span>
+          <span class="hits" style="width:90px;">本周 14</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">健康</span>
+          <span style="flex:1;"><span class="cat-tag finance">烟草违规</span></span>
+          <span class="suggest" style="flex:1.6;">→ 删除 / 不可暗示生理效用</span>
+          <span class="hits" style="width:90px;">本周 11</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">松弛感</span>
+          <span style="flex:1;"><span class="cat-tag finance">烟草违规</span></span>
+          <span class="suggest" style="flex:1.6;">→ 好时光 / 慢节奏</span>
+          <span class="hits" style="width:90px;">本周 7</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">阳光保险</span>
+          <span style="flex:1;"><span class="cat-tag brand">品牌名误用</span></span>
+          <span class="suggest" style="flex:1.6;">→ 阳光人寿（正确简称）</span>
+          <span class="hits" style="width:90px;">本周 6</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row">
+          <span class="word" style="flex:1.5;">复利</span>
+          <span style="flex:1;"><span class="cat-tag finance">金融违规</span></span>
+          <span class="suggest" style="flex:1.6;">→ 长期累积效果</span>
+          <span class="hits" style="width:90px;">本周 5</span>
+          <span style="width:60px;">编辑</span>
+        </div>
+        <div class="rule-row" style="background:var(--paper-2);">
+          <span style="flex:1.5;font-style:italic;color:var(--ink-3);">… 还有 29 条</span>
+          <span style="flex:1;"></span>
+          <span style="flex:1.6;"></span>
+          <span style="width:90px;"></span>
+          <span style="width:60px;"><a href="#" style="color:var(--accent);">展开</a></span>
+        </div>
+      </div>
+    </div><!-- /tab-words -->
+
+    <!-- ============================================================
+         TAB 5 · Agent 记忆
+         ============================================================ -->
+    <div id="tab-memory" style="display:none;">
+
+      <div class="mem-intro">
+        <div class="ic">🧠</div>
+        <div>
+          <b>所有 Agent 共享的记忆</b> · 你每一次"选 v2 不选 v1 / 重写台词 / 替换主角 / 采纳合规改写"，Agent 都在学。下面是它已经固化的偏好，新内容直接套用，<b>不再让你重头说一遍</b>。
+        </div>
+      </div>
+
+      <div class="mem-stats">
+        <div class="mem-stat">
+          <div class="v">486</div>
+          <div class="k">本月被 Agent 调用</div>
+        </div>
+        <div class="mem-stat">
+          <div class="v">78% <span class="delta up">↑ 16pt</span></div>
+          <div class="k">v2 版本采纳率</div>
+        </div>
+        <div class="mem-stat">
+          <div class="v">92%</div>
+          <div class="k">"段子手"风格采纳</div>
+        </div>
+        <div class="mem-stat">
+          <div class="v">64% <span class="delta up">↑ 9pt</span></div>
+          <div class="k">脚本一次过率</div>
+        </div>
+      </div>
+
+      <!-- 选题采纳偏好 -->
+      <div class="mem-section">
+        <div class="mem-section-h">
+          <h4>选题采纳偏好</h4>
+          <span class="sub">本月 10 个选题</span>
+          <span class="right">基于你"采纳 / 退回"行为</span>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high" style="background:var(--green-bg);color:var(--green);">已采纳</span>
+            <span class="nm">反差结构（老年人推沙发 / 巨人踩楼）</span>
+            <span class="pct">3 / 3 · 100%</span>
+          </div>
+          <div class="pdesc">
+            所有反差结构的需求激发选题你都通过了。荒诞视觉比喻 + 力量倒置反差是 KOS 15s 内容的核心打法。
+          </div>
+          <div class="pact">→ Agent 已设为首选，新批次优先生成反差结构</div>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high" style="background:var(--green-bg);color:var(--green);">已采纳</span>
+            <span class="nm">工具荒诞（给海啸递扫帚）</span>
+            <span class="pct">1 / 1</span>
+          </div>
+          <div class="pdesc">
+            "用小工具应对大风险"的荒诞视觉，呼应保险作为"小投入 / 大兜底"的理念。
+          </div>
+          <div class="pact">→ Agent 已纳入备选，作为反差结构的补充方向</div>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high">已退回</span>
+            <span class="nm">直接讲产品的开场</span>
+            <span class="pct">3 / 3 · 100%</span>
+          </div>
+          <div class="pdesc">
+            "我们的安心久久年金..." 这类开场你全退了，你说"网感差 / 像广告"。
+          </div>
+          <div class="pact">→ Agent 已学：前 6 秒不出现产品名，先讲场景</div>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high">已退回</span>
+            <span class="nm">用具体数字开头</span>
+            <span class="pct">1 / 1</span>
+          </div>
+          <div class="pdesc">
+            "3.0% 复利"这种数据开头你退了。数据放在台词中段说明可以，但开场必须是画面/场景。
+          </div>
+          <div class="pact">→ Agent 已学：数字放在 6-12 秒区段，不做开场钩子</div>
+        </div>
+      </div>
+
+      <!-- 文案风格强偏好 -->
+      <div class="mem-section">
+        <div class="mem-section-h">
+          <h4>文案风格强偏好</h4>
+          <span class="sub">3 类</span>
+          <span class="right">基于近 30 天采纳率</span>
+        </div>
+        <div class="mem-row">
+          <div class="core">
+            <span class="frag">"段子手"风格</span>
+            <span class="note">幽默 + 反差 + 口语化 · 适用 15s 需求激发</span>
+          </div>
+          <div class="meter">
+            <span class="bar high" style="--w: 92%;"></span>
+            <span class="pct">92%</span>
+          </div>
+          <span class="applied">已设默认</span>
+        </div>
+        <div class="mem-row">
+          <div class="core">
+            <span class="frag">"暖男"风格</span>
+            <span class="note">温和 + 共情 · 适用家庭主题</span>
+          </div>
+          <div class="meter">
+            <span class="bar" style="--w: 76%;"></span>
+            <span class="pct">76%</span>
+          </div>
+          <span class="applied">已设备选</span>
+        </div>
+        <div class="mem-row">
+          <div class="core">
+            <span class="frag">"留白 + 不说破"风格</span>
+            <span class="note">从「在荔波看见银河」学到 · 适用小红书图文</span>
+          </div>
+          <div class="meter">
+            <span class="bar high" style="--w: 88%;"></span>
+            <span class="pct">88%</span>
+          </div>
+          <span class="applied">已设默认</span>
+        </div>
+      </div>
+
+      <!-- 主角调性记忆 -->
+      <div class="mem-section">
+        <div class="mem-section-h">
+          <h4>主角调性记忆</h4>
+          <span class="sub">按主题分</span>
+          <span class="right">基于"选角导演 → 你选定"路径</span>
+        </div>
+        <div class="mem-row">
+          <div class="core">
+            <span class="frag">养老 / 年金主题</span><span class="arrow">→</span><span class="frag target">老年自如调性</span>
+            <span class="note">7 / 8 次复用 释磊（1962 · 资深顾问感）· 已 联动选角池</span>
+          </div>
+          <div class="meter">
+            <span class="bar high" style="--w: 88%;"></span>
+            <span class="pct">88%</span>
+          </div>
+          <span class="applied">已设默认</span>
+        </div>
+        <div class="mem-row">
+          <div class="core">
+            <span class="frag">重疾主题</span><span class="arrow">→</span><span class="frag target">稳重权威调性</span>
+            <span class="note">5 / 6 次复用 华叔（1958 · 稳重慈和）</span>
+          </div>
+          <div class="meter">
+            <span class="bar high" style="--w: 83%;"></span>
+            <span class="pct">83%</span>
+          </div>
+          <span class="applied">已设默认</span>
+        </div>
+      </div>
+
+      <!-- 合规改写历史 -->
+      <div class="mem-section">
+        <div class="mem-section-h">
+          <h4>合规改写历史</h4>
+          <span class="sub">本月 142 次</span>
+          <span class="right">每次合规命中都归档作为审计留痕</span>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high" style="background:var(--gold-bg);color:var(--gold-2);">收益隐喻</span>
+            <span class="nm">"稳稳兜底，后半生有依靠" → "给后半生有个稳稳的依靠"</span>
+            <span class="pct">14 次</span>
+          </div>
+          <div class="pdesc">
+            《保险销售管理办法》收益隐喻边界 · 删除"兜底""依靠"两个动词性承诺，改为状态描述
+          </div>
+          <div class="pact">→ Agent 已学：所有"稳稳..."后接动词性承诺的句子先自检</div>
+        </div>
+        <div class="mem-pattern">
+          <div class="ph">
+            <span class="sev high" style="background:var(--gold-bg);color:var(--gold-2);">烟草效用暗示</span>
+            <span class="nm">"贵州男生的松弛感，是陈皮味的" → "贵州的好时光，是慢慢长出来的"</span>
+            <span class="pct">7 次</span>
+          </div>
+          <div class="pdesc">
+            《烟草广告管理暂行办法》第 9 条 · 烟草内容不可暗示生理/精神效用（放松、解压、舒缓）
+          </div>
+          <div class="pact">→ Agent 已学：所有"X 感"形容词后接产品的句式自动改写</div>
+        </div>
+      </div>
+
+    </div><!-- /tab-memory -->
+
+  </main>
+
+  <!-- 右细栏 · 引用概览 -->
+  <aside class="lib-side">
+
+    <h5 class="side-h">本月引用概览</h5>
+    <div class="side-stat">
+      <div class="num">498</div>
+      <div class="lbl">本月被 Agent 调用</div>
+      <div class="sub-row">
+        <span>合规审 <b>142</b></span>
+        <span>编导 <b>132</b></span>
+        <span>文案 <b>118</b></span>
+      </div>
+    </div>
+
+    <h5 class="side-h">本周新引用 Top 3</h5>
+    <div class="side-list">
+      <div class="li-row"><span class="rank">01</span><span class="nm">阳光人寿合规红线</span><span class="v">142 次</span></div>
+      <div class="li-row"><span class="rank">02</span><span class="nm">安心久久年金 v3.1</span><span class="v">56 次</span></div>
+      <div class="li-row"><span class="rank">03</span><span class="nm">阳光品牌话语手册</span><span class="v">43 次</span></div>
+    </div>
+
+    <h5 class="side-h">待复核提醒</h5>
+    <div class="side-callout">
+      <b>产品事实库 v3.1</b> 发布已 7 天，建议复审是否有条款更新。下次内容生产前请确认。
+    </div>
+
+    <h5 class="side-h">Token 消耗</h5>
+    <div class="side-stat" style="margin-top:0;">
+      <div class="num" style="font-size:22px;">¥1,847</div>
+      <div class="lbl">本月 · 所有资产 Agent 调用</div>
+      <div class="sub-row">
+        <span>本周 <b>¥124.50</b></span>
+        <span>日均 <b>¥61.6</b></span>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<script>
+// 资产·合规页 tab 切换（5 个 tab，对应 5 个 div）
+const tabIds = ['tab-compliance', 'tab-brand', 'tab-product', 'tab-words', 'tab-memory'];
+document.querySelectorAll('.lib-tabs .tab').forEach((t, i) => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.lib-tabs .tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    tabIds.forEach((id, idx) => {
+      document.getElementById(id).style.display = (idx === i) ? '' : 'none';
+    });
+  });
+});
+</script>
+
+</body>
+</html>

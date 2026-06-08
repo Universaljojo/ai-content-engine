@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AI 工作室 · 三大交付模块 | 兑吧</title>
+    <style>
+        @font-face { font-family: 'SF Pro Display'; src: local('SF Pro Display'), local('.SFNSDisplay'), local('SFProDisplay-Regular'); font-weight: 400; }
+        @font-face { font-family: 'SF Pro Display'; src: local('SF Pro Display Medium'), local('.SFNSDisplay-Medium'), local('SFProDisplay-Medium'); font-weight: 500; }
+        @font-face { font-family: 'SF Pro Display'; src: local('SF Pro Display Semibold'), local('.SFNSDisplay-Semibold'), local('SFProDisplay-Semibold'); font-weight: 600; }
+        @font-face { font-family: 'SF Pro Display'; src: local('SF Pro Display Bold'), local('.SFNSDisplay-Bold'), local('SFProDisplay-Bold'); font-weight: 700; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent: #0071e3;
+            --accent-soft: #e8f2ff;
+            --line: #d2d2d7;
+            --title-size: clamp(2.8rem, 6vw, 5rem);
+            --subtitle-size: clamp(1.1rem, 2.5vw, 1.75rem);
+            --body-size: clamp(0.95rem, 1.8vw, 1.35rem);
+            --ease-apple: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+        }
+        .container::-webkit-scrollbar { display: none; }
+
+        /* ── Slide base ── */
+        .slide {
+            width: 100vw;
+            min-height: 100vh;
+            min-height: 100dvh;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(2.5rem, 6vw, 7rem) clamp(2rem, 8vw, 10rem);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .slide:nth-child(even) { background: var(--bg-secondary); }
+
+        .slide h1 {
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            margin-bottom: 1rem;
+        }
+        .slide h2 {
+            font-size: var(--subtitle-size);
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .slide h3 {
+            font-size: var(--body-size);
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-top: 0.5rem;
+            max-width: 860px;
+        }
+
+        /* ── Reveal ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.9s var(--ease-apple), transform 0.9s var(--ease-apple);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-d1 { transition-delay: 0.12s; }
+        .reveal-d2 { transition-delay: 0.28s; }
+        .reveal-d3 { transition-delay: 0.44s; }
+        .reveal-d4 { transition-delay: 0.6s; }
+
+        /* ── Cover ── */
+        .cover-eyebrow { margin-bottom: 1.5rem; }
+        .cover-title-main { display: block; }
+        .cover-title-accent { color: var(--accent); font-weight: 700; }
+        .cover-sub { margin-top: 1.5rem; max-width: 920px; word-break: keep-all; }
+        .cover-signoff {
+            position: absolute;
+            bottom: 3rem; left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* ── Pain points ── */
+        .pain-header { max-width: 900px; }
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1rem, 2vw, 1.75rem);
+            margin-top: clamp(2.5rem, 5vw, 4rem);
+            width: 100%;
+            max-width: 1120px;
+        }
+        .pain-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 18px;
+            padding: 2.5rem 2rem;
+            text-align: left;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            transition: transform 0.45s var(--ease-apple), box-shadow 0.45s var(--ease-apple);
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem;
+        }
+        .pain-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+        .pain-card-top { display: flex; align-items: center; justify-content: space-between; }
+        .pain-icon { width: 48px; height: 48px; color: var(--accent); display: flex; align-items: center; justify-content: center; }
+        .pain-index { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: 0.12em; font-variant-numeric: tabular-nums; }
+        .pain-title { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.01em; }
+        .pain-desc { font-size: 0.98rem; color: var(--text-secondary); line-height: 1.55; }
+        .pain-footer { margin-top: 2.5rem; font-size: var(--body-size); color: var(--text-secondary); }
+
+        /* ── Module overview (Slide 3) ── */
+        .mod-header { max-width: 980px; }
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1rem, 2vw, 1.75rem);
+            margin-top: clamp(2rem, 4vw, 3rem);
+            width: 100%;
+            max-width: 1200px;
+        }
+        .mod-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 20px;
+            padding: clamp(1.6rem, 2.4vw, 2.2rem);
+            text-align: left;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            transition: transform 0.45s var(--ease-apple), box-shadow 0.45s var(--ease-apple), border-color 0.45s var(--ease-apple);
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .mod-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,113,227,0.12); border-color: rgba(0,113,227,0.18); }
+        .mod-card-top { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.2rem; }
+        .mod-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .mod-eyebrow {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        .mod-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.25;
+            letter-spacing: -0.01em;
+        }
+        .mod-en {
+            font-size: 0.78rem;
+            color: var(--accent);
+            letter-spacing: 0.06em;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .mod-target {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            padding: 0.6rem 0.85rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            border-left: 2px solid var(--accent);
+        }
+        .mod-target strong { color: var(--text-primary); font-weight: 600; }
+        .mod-body { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+        .mod-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; padding-top: 0.4rem; }
+
+        /* ── Capsule tag ── */
+        .capsule-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.36rem 0.78rem;
+            border-radius: 980px;
+            background: #f5f5f7;
+            color: var(--text-secondary);
+            font-size: 0.74rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .capsule-tag.accent { background: var(--accent-soft); color: var(--accent); }
+
+        /* ── Module ① deep-dive ── */
+        .m1-stage {
+            display: grid;
+            grid-template-columns: 1fr 1.05fr;
+            gap: clamp(1.5rem, 3vw, 2.5rem);
+            width: 100%;
+            max-width: 1280px;
+            margin-top: clamp(1.5rem, 3vw, 2.25rem);
+            align-items: stretch;
+        }
+        .m1-left, .m1-right {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.9rem, 1.6vw, 1.25rem);
+            text-align: left;
+        }
+        .m1-eyebrow {
+            font-size: 0.72rem;
+            color: var(--accent);
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .m1-headline {
+            font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.18;
+        }
+        .m1-headline span { color: var(--accent); }
+        .m1-sub {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 520px;
+        }
+        .m1-scenes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(0.5rem, 0.9vw, 0.75rem);
+            margin-top: 0.4rem;
+        }
+        .m1-scene {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 12px;
+            padding: 0.75rem 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: transform 0.4s var(--ease-apple), background 0.4s var(--ease-apple);
+        }
+        .m1-scene:hover { transform: translateY(-2px); background: var(--accent-soft); }
+        .m1-scene-icon { color: var(--accent); flex-shrink: 0; }
+        .m1-scene-text { font-size: 0.82rem; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+        .m1-industries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+        }
+        .m1-industry {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.78rem;
+            border-radius: 980px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            font-size: 0.74rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .m1-industry-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+        .m1-videos {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: clamp(0.6rem, 1vw, 0.85rem);
+            height: 100%;
+            min-height: 0;
+        }
+        .m1-vcard {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: 0.55rem;
+            display: grid;
+            grid-template-columns: 0.85fr 1fr;
+            gap: 0.75rem;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            min-height: 0;
+        }
+        .m1-vcard:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        .m1-vcard-video {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            cursor: pointer;
+        }
+        .m1-vcard-video video {
+            width: 100%; height: 100%; object-fit: cover; display: block; background: #000;
+        }
+        .m1-vcard-video .sound-badge {
+            position: absolute;
+            left: 6px; bottom: 6px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.55rem;
+            padding: 2px 6px;
+            border-radius: 980px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            letter-spacing: 0.04em;
+            pointer-events: none;
+            transition: opacity 0.3s var(--ease-apple);
+        }
+        .m1-vcard-video.sounding .sound-badge { opacity: 0; }
+        .m1-vcard-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+        .m1-vcard-eyebrow {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 0.2rem 0.5rem;
+            border-radius: 980px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .m1-vcard-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; letter-spacing: -0.01em; }
+        .m1-vcard-client { font-size: 0.7rem; color: var(--text-secondary); letter-spacing: 0.04em; }
+        .m1-vcard-desc { font-size: 0.72rem; color: var(--text-secondary); line-height: 1.45; margin-top: 0.15rem; }
+
+        /* ── Case walls (Slide 5/6/7 视频案例三屏) ── */
+        .slide-casewall { padding: clamp(1rem, 2.5vw, 2.5rem) clamp(1rem, 3vw, 3rem); justify-content: flex-start; }
+        .case-header { max-width: 1200px; margin-top: clamp(0.25rem, 1vw, 0.75rem); }
+        .case-header h1 { font-size: clamp(1.5rem, 3vw, 2.3rem); margin-bottom: 0.3rem; }
+        .case-header h2 { margin-bottom: 0.3rem; }
+        .case-header h3 { font-size: clamp(0.8rem, 1.15vw, 0.95rem); margin-top: 0.2rem; }
+
+        .case-wall {
+            display: grid;
+            gap: clamp(0.65rem, 1.1vw, 1rem);
+            width: 100%;
+            margin-top: clamp(1rem, 1.8vw, 1.4rem);
+        }
+        .case-wall.vertical-5 {
+            grid-template-columns: repeat(5, 1fr);
+            max-width: 1320px;
+        }
+        .case-wall.manga-3 {
+            grid-template-columns: 1fr 1fr 1.4fr;
+            max-width: 1100px;
+            gap: clamp(1rem, 1.8vw, 1.5rem);
+            align-items: stretch;
+        }
+        .case-wall.landscape-stack {
+            grid-template-columns: 1fr;
+            max-width: 1160px;
+            gap: clamp(1rem, 1.8vw, 1.5rem);
+        }
+
+        .case-cell {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: clamp(0.7rem, 1vw, 0.9rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.45rem, 0.8vw, 0.7rem);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            text-align: left;
+            overflow: hidden;
+        }
+        .case-cell:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.1); }
+        .case-cell-video {
+            position: relative;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .case-cell-video.vert { aspect-ratio: 9 / 16; max-height: clamp(200px, 38vh, 360px); }
+        .case-cell-video.land { aspect-ratio: 16 / 9; }
+        .case-cell-video video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
+        .case-cell-video .sound-badge {
+            position: absolute;
+            left: 8px; bottom: 8px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.6rem;
+            padding: 3px 8px;
+            border-radius: 980px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            letter-spacing: 0.04em;
+            pointer-events: none;
+            transition: opacity 0.3s var(--ease-apple);
+        }
+        .case-cell-video.sounding .sound-badge { opacity: 0; }
+
+        .case-cell-eyebrow {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 0.22rem 0.55rem;
+            border-radius: 980px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .case-cell-title { font-size: clamp(0.82rem, 1.05vw, 0.98rem); font-weight: 600; color: var(--text-primary); line-height: 1.25; letter-spacing: -0.01em; }
+        .case-cell-client { font-size: 0.65rem; color: var(--text-secondary); letter-spacing: 0.04em; line-height: 1.3; }
+        .case-cell-desc { font-size: 0.68rem; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+        .case-cell-qr {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 0.45rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            margin-top: auto;
+        }
+        .case-cell-qr img {
+            width: 40px; height: 40px;
+            border-radius: 5px;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            flex-shrink: 0;
+        }
+        .case-cell-qr-hint { font-size: 0.62rem; color: var(--text-secondary); line-height: 1.3; }
+        .case-cell-qr-hint strong { color: var(--text-primary); font-weight: 600; font-size: 0.68rem; display: block; margin-bottom: 0.08rem; letter-spacing: 0; }
+
+        .manga-info {
+            background: var(--accent-soft);
+            border: none;
+            padding: clamp(1.2rem, 2vw, 1.6rem);
+            justify-content: center;
+            gap: clamp(0.6rem, 1vw, 0.9rem);
+        }
+        .manga-info .case-cell-title { font-size: clamp(1.05rem, 1.5vw, 1.35rem); }
+        .manga-info .case-cell-desc { font-size: 0.82rem; flex: 0 1 auto; }
+        .manga-info .case-cell-qr { border-top-color: rgba(0,113,227,0.15); }
+        .manga-info .case-cell-qr img { width: 72px; height: 72px; }
+        .manga-info .case-cell-qr-hint { font-size: 0.72rem; }
+        .manga-info .case-cell-qr-hint strong { font-size: 0.8rem; }
+
+        .case-cell.landscape {
+            display: grid;
+            grid-template-columns: 1.55fr 1fr;
+            gap: clamp(1rem, 1.8vw, 1.5rem);
+            align-items: stretch;
+            padding: clamp(0.85rem, 1.2vw, 1.1rem);
+        }
+        .case-cell.landscape .case-cell-video.land { max-height: clamp(220px, 30vh, 360px); }
+        .case-cell.landscape .case-cell-title { font-size: clamp(1.05rem, 1.5vw, 1.3rem); }
+        .case-cell.landscape .case-cell-desc { font-size: 0.8rem; }
+        .case-cell.landscape .case-cell-qr img { width: 64px; height: 64px; }
+        .case-cell.landscape .case-cell-qr-hint { font-size: 0.72rem; }
+        .case-cell.landscape .case-cell-qr-hint strong { font-size: 0.8rem; }
+        .landscape-body {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 0.9vw, 0.8rem);
+            justify-content: center;
+            min-width: 0;
+        }
+
+        /* ── Module ② main stage (Slide 5) ── */
+        .slide-m2 { padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 4vw, 6rem); justify-content: flex-start; }
+        .m2-header { max-width: 1100px; margin-top: clamp(0.5rem, 1.5vw, 1.5rem); }
+        .m2-header h1 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); margin-bottom: 0.4rem; }
+        .m2-header h2 { margin-bottom: 0.3rem; font-size: clamp(0.78rem, 1.2vw, 0.95rem); }
+        .m2-header h3 { font-size: clamp(0.85rem, 1.3vw, 1.05rem); margin-top: 0.2rem; }
+        .m2-stage {
+            display: grid;
+            grid-template-columns: 2.4fr 1fr;
+            gap: clamp(1.2rem, 2vw, 2rem);
+            width: 100%;
+            max-width: 1400px;
+            margin-top: clamp(1.5rem, 2.5vw, 2rem);
+            align-items: stretch;
+            min-height: 0;
+        }
+        .m2-stage .web-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-height: 0;
+        }
+        .m2-caption {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: left;
+        }
+        .m2-side {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.7rem, 1.2vw, 1rem);
+            text-align: left;
+        }
+        .m2-feature {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 14px;
+            padding: clamp(1rem, 1.6vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        }
+        .m2-feature:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,113,227,0.08); }
+        .m2-feature-top { display: flex; align-items: center; gap: 0.55rem; }
+        .m2-feature-icon { color: var(--accent); flex-shrink: 0; }
+        .m2-feature-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+        .m2-feature-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+
+        /* ── Web/Phone iframe shells ── */
+        .web {
+            aspect-ratio: 16/10;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            background: #fff;
+            box-shadow: 0 30px 80px rgba(0,113,227,.12), 0 2px 8px rgba(0,0,0,.04);
+            position: relative;
+            flex: 1;
+            min-height: 0;
+        }
+        .web-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+        .phone {
+            aspect-ratio: 9/19.5;
+            border-radius: 28px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            background: #fff;
+            box-shadow: 0 30px 80px rgba(0,113,227,.12), 0 2px 8px rgba(0,0,0,.04);
+        }
+        .phone-iframe {
+            width: 375px;
+            height: calc(375px * 19.5 / 9);
+            border: none;
+            display: block;
+            background: #fff;
+            transform-origin: top left;
+        }
+
+        /* ── Module ② iframe matrix (Slide 6) ── */
+        .slide-m2grid { padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 4vw, 5rem); justify-content: flex-start; }
+        .m2grid-header { max-width: 1100px; margin-top: clamp(0.5rem, 1vw, 1rem); }
+        .m2grid-header h1 { font-size: clamp(1.7rem, 3.2vw, 2.6rem); margin-bottom: 0.3rem; }
+        .m2grid-header h2 { font-size: clamp(0.78rem, 1.2vw, 0.95rem); margin-bottom: 0.3rem; }
+        .m2grid-header h3 { font-size: clamp(0.82rem, 1.25vw, 1rem); margin-top: 0.15rem; }
+        .m2tabs {
+            display: grid;
+            grid-template-columns: minmax(260px, 320px) 1fr;
+            gap: clamp(1.2rem, 2.5vw, 2rem);
+            width: 100%;
+            max-width: 1400px;
+            margin-top: clamp(1.2rem, 2.5vw, 1.8rem);
+            min-height: 0;
+            flex: 1;
+        }
+        .m2tab-list {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 0.9vw, 0.75rem);
+            min-height: 0;
+            overflow-y: auto;
+        }
+        .m2tab-item {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            padding: clamp(0.65rem, 1.1vw, 0.9rem) clamp(0.85rem, 1.3vw, 1.05rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.28rem;
+            cursor: pointer;
+            transition: all 0.35s var(--ease-apple);
+            text-align: left;
+            position: relative;
+        }
+        .m2tab-item:hover {
+            border-color: rgba(0, 113, 227, 0.3);
+            transform: translateX(2px);
+        }
+        .m2tab-item.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 12px 32px rgba(0, 113, 227, 0.25);
+        }
+        .m2tab-item.active .m2tab-title,
+        .m2tab-item.active .m2tab-desc { color: #fff; }
+        .m2tab-item.active .m2tab-num { background: rgba(255,255,255,0.2); color: #fff; }
+        .m2tab-title {
+            font-size: clamp(0.85rem, 1.15vw, 1rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .m2tab-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px; height: 20px;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .m2tab-desc {
+            font-size: clamp(0.7rem, 0.9vw, 0.78rem);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding-left: calc(20px + 0.45rem);
+        }
+        .m2stage {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .m2stage .web {
+            aspect-ratio: auto;
+            flex: 1;
+            min-height: 0;
+            box-shadow: 0 30px 80px rgba(0,113,227,.12), 0 2px 8px rgba(0,0,0,.04);
+        }
+        .m2stage-panel {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .m2stage-panel.active { display: block; }
+
+        /* ── Module ③ deep-dive (Slide 7) ── */
+        .slide-m3 { padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 4vw, 5rem); justify-content: flex-start; }
+        .m3-header { max-width: 1100px; margin-top: clamp(0.5rem, 1.5vw, 1.5rem); }
+        .m3-header h1 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); margin-bottom: 0.4rem; }
+        .m3-header h2 { font-size: clamp(0.78rem, 1.2vw, 0.95rem); margin-bottom: 0.3rem; }
+        .m3-header h3 { font-size: clamp(0.85rem, 1.3vw, 1.05rem); margin-top: 0.2rem; }
+        .m3-flow {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: clamp(1.2rem, 2vw, 2rem);
+            width: 100%;
+            max-width: 1100px;
+            margin-top: clamp(1.5rem, 3vw, 2rem);
+            align-items: stretch;
+            justify-items: center;
+            position: relative;
+        }
+        .m3-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(0.5rem, 0.9vw, 0.75rem);
+            width: 100%;
+            min-width: 0;
+        }
+        .m3-step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .m3-step .phone {
+            width: min(220px, 22vw);
+            max-width: 100%;
+        }
+        .m3-step-caption {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.35;
+            text-align: center;
+            max-width: 220px;
+        }
+        .m3-step-sub {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            text-align: center;
+            max-width: 220px;
+        }
+
+        /* ── Module ③ templates (Slide 8) ── */
+        .slide-m3tpl { padding: clamp(2rem, 4vw, 4.5rem) clamp(1.5rem, 4vw, 5rem); justify-content: flex-start; }
+        .m3tpl-header { max-width: 1100px; margin-top: clamp(0.5rem, 1.5vw, 1.5rem); }
+        .m3tpl-header h1 { font-size: clamp(1.8rem, 3.4vw, 2.8rem); margin-bottom: 0.4rem; }
+        .m3tpl-header h2 { font-size: clamp(0.78rem, 1.2vw, 0.95rem); margin-bottom: 0.3rem; }
+        .m3tpl-header h3 { font-size: clamp(0.85rem, 1.3vw, 1.05rem); margin-top: 0.2rem; }
+        .m3tpl-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1.2rem, 2vw, 1.8rem);
+            width: 100%;
+            max-width: 1180px;
+            margin-top: clamp(1.5rem, 2.5vw, 2rem);
+            align-items: stretch;
+        }
+        .m3tpl-card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 18px;
+            padding: clamp(1rem, 1.6vw, 1.25rem);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1vw, 0.85rem);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+            text-align: left;
+        }
+        .m3tpl-card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,113,227,0.1); }
+        .m3tpl-cover {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            max-height: clamp(220px, 36vh, 340px);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .m3tpl-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .m3tpl-eyebrow {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 0.25rem 0.6rem;
+            border-radius: 980px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.66rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .m3tpl-title { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+        .m3tpl-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+        .m3tpl-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: auto; }
+        .m3tpl-footer {
+            margin-top: clamp(1.25rem, 2.2vw, 1.75rem);
+            padding: 0.85rem 1.3rem;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 980px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .m3tpl-footer strong { color: var(--text-primary); font-weight: 600; }
+
+        /* ── Slide 9 · Industries + Pricing ── */
+        .slide-summary { padding: clamp(1.5rem, 3.5vw, 4rem) clamp(1.5rem, 4vw, 5rem); justify-content: flex-start; }
+        .summary-header { max-width: 1100px; margin-top: clamp(0.3rem, 1vw, 1rem); }
+        .summary-header h1 { font-size: clamp(1.7rem, 3.2vw, 2.5rem); margin-bottom: 0.3rem; }
+        .summary-header h2 { font-size: clamp(0.78rem, 1.2vw, 0.95rem); margin-bottom: 0.3rem; }
+        .summary-header h3 { font-size: clamp(0.82rem, 1.25vw, 1rem); margin-top: 0.15rem; }
+        .ind-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: clamp(0.5rem, 1vw, 0.85rem);
+            margin-top: clamp(1rem, 2vw, 1.5rem);
+            max-width: 1100px;
+        }
+        .ind-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.1rem;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 980px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: transform 0.4s var(--ease-apple), background 0.4s var(--ease-apple), border-color 0.4s var(--ease-apple);
+        }
+        .ind-pill:hover { transform: translateY(-2px); background: var(--accent-soft); border-color: var(--accent); }
+        .ind-pill-count { font-size: 0.7rem; color: var(--accent); font-weight: 600; }
+        .ind-stat-row {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+        }
+        .ind-stat-row strong { color: var(--accent); font-size: 1.4rem; font-weight: 700; margin-right: 0.3rem; }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.85rem, 1.5vw, 1.25rem);
+            width: 100%;
+            max-width: 1180px;
+            margin-top: clamp(1.5rem, 2.5vw, 2rem);
+            align-items: stretch;
+        }
+        .price-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 18px;
+            padding: clamp(1.1rem, 1.8vw, 1.5rem);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            text-align: left;
+            transition: transform 0.4s var(--ease-apple), box-shadow 0.4s var(--ease-apple);
+        }
+        .price-card:hover { transform: translateY(-4px); box-shadow: 0 12px 36px rgba(0,0,0,0.07); }
+        .price-card.featured { border: 2px solid var(--accent); box-shadow: 0 8px 30px rgba(0,113,227,0.12); }
+        .price-eyebrow { font-size: 0.68rem; color: var(--text-secondary); letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
+        .price-name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+        .price-en { font-size: 0.7rem; color: var(--accent); letter-spacing: 0.06em; font-weight: 500; }
+        .price-sub { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; flex: 1; }
+        .price-cost {
+            padding-top: 0.7rem;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .price-cost-sub { display: block; font-size: 0.74rem; font-weight: 400; color: var(--text-secondary); margin-top: 0.25rem; }
+
+        /* ── CTA ── */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin-top: clamp(1.75rem, 3vw, 2.5rem);
+            padding: 0.9rem 2.4rem;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 980px;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            transition: transform 0.35s var(--ease-apple), box-shadow 0.35s var(--ease-apple);
+            box-shadow: 0 6px 20px rgba(0,113,227,0.25);
+            border: none;
+            cursor: pointer;
+        }
+        .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,113,227,0.35); }
+        .cta-recap {
+            display: flex;
+            justify-content: center;
+            gap: clamp(1.2rem, 2.5vw, 2.4rem);
+            margin-top: clamp(1.5rem, 3vw, 2.25rem);
+            flex-wrap: wrap;
+        }
+        .cta-recap-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .cta-recap-num {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.16em;
+        }
+        .cta-recap-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* ── Progress + Nav ── */
+        .progress-bar {
+            position: fixed; top: 0; left: 0;
+            width: 0%; height: 2px;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+        .nav-dots {
+            position: fixed; right: 2rem; top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .nav-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(0,0,0,0.18);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot:hover { transform: scale(1.4); }
+        .nav-dot.active { background: var(--text-primary); transform: scale(1.2); }
+
+        /* ── Single-line h1 helpers ── */
+        .slide-cta h1 {
+            font-size: clamp(2.2rem, 4.8vw, 3.8rem);
+            white-space: nowrap;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1100px) {
+            .pain-grid, .mod-grid, .price-grid, .m3tpl-grid { grid-template-columns: 1fr; }
+            .m1-stage, .m2-stage { grid-template-columns: 1fr; }
+            .m3-flow { grid-template-columns: 1fr; }
+            .m1-videos { grid-template-rows: auto; }
+        }
+        @media (max-height: 820px) {
+            .m1-vcard-video { aspect-ratio: 9 / 14; }
+            .price-card { padding: 1rem 0.95rem; gap: 0.4rem; }
+        }
+        @media (max-height: 700px) {
+            :root {
+                --title-size: clamp(2rem, 5vw, 3.5rem);
+                --subtitle-size: clamp(0.95rem, 2vw, 1.4rem);
+            }
+            .nav-dots { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+
+    <div class="container">
+        <!-- ─── Slide 1 · Cover ─── -->
+        <section class="slide">
+            <h2 class="cover-eyebrow reveal">Duiba AI Studio · 2026</h2>
+            <h1 class="reveal reveal-d1">
+                <span class="cover-title-main">AI 工作室 · <span class="cover-title-accent">三大交付模块</span></span>
+            </h1>
+            <h3 class="cover-sub reveal reveal-d2">为不同角色做不同形态的好内容——品牌号、内容团队、一线代理人，一站供能</h3>
+            <div class="cover-signoff reveal reveal-d3">by 兑吧 Duiba</div>
+        </section>
+
+        <!-- ─── Slide 2 · Pain Points ─── -->
+        <section class="slide">
+            <div class="pain-header">
+                <h2 class="reveal">Three constraints on great content</h2>
+                <h1 class="reveal reveal-d1">好内容，为什么<span style="color:var(--accent)">总是很贵</span></h1>
+                <h3 class="reveal reveal-d2">不是审批慢，就是热点过了，或者制作超预算——品牌方永远在三选二</h3>
+            </div>
+
+            <div class="pain-grid">
+                <article class="pain-card reveal reveal-d1">
+                    <div class="pain-card-top">
+                        <div class="pain-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M24 5 L9 10 V22 C9 32 16 40 24 43 C32 40 39 32 39 22 V10 Z"/>
+                                <circle cx="24" cy="24" r="7"/>
+                                <path d="M24 20 V24 L27 26"/>
+                            </svg>
+                        </div>
+                        <div class="pain-index">01</div>
+                    </div>
+                    <div class="pain-title">审批拖节奏</div>
+                    <div class="pain-desc">合规流程吃掉 30%+ 制作时长，热点永远赶不上。</div>
+                </article>
+
+                <article class="pain-card reveal reveal-d2">
+                    <div class="pain-card-top">
+                        <div class="pain-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M26 5 L12 26 H22 L20 43 L34 22 H24 Z"/>
+                            </svg>
+                        </div>
+                        <div class="pain-index">02</div>
+                    </div>
+                    <div class="pain-title">热点等不起</div>
+                    <div class="pain-desc">从发现到上线通常要 3-7 天，流量早被瓜分完。</div>
+                </article>
+
+                <article class="pain-card reveal reveal-d3">
+                    <div class="pain-card-top">
+                        <div class="pain-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <ellipse cx="24" cy="12" rx="13" ry="4"/>
+                                <path d="M11 12 V20 C11 22 17 24 24 24 C31 24 37 22 37 20 V12"/>
+                                <path d="M11 22 V30 C11 32 17 34 24 34 C31 34 37 32 37 30 V22"/>
+                                <path d="M11 32 V40 C11 42 17 44 24 44 C31 44 37 42 37 40 V32"/>
+                            </svg>
+                        </div>
+                        <div class="pain-index">03</div>
+                    </div>
+                    <div class="pain-title">制作成本高</div>
+                    <div class="pain-desc">一条品质视频 3-5 万，日更一个号一年要烧 1000w。</div>
+                </article>
+            </div>
+
+            <p class="pain-footer reveal reveal-d4">我们用 3 个互不重叠的模块，把这个三角形打破。</p>
+        </section>
+
+        <!-- ─── Slide 3 · 三模块总览 ─── -->
+        <section class="slide">
+            <div class="mod-header">
+                <h2 class="reveal">Three Delivery Modules</h2>
+                <h1 class="reveal reveal-d1">三个模块，<span style="color:var(--accent)">三类产出物</span></h1>
+                <h3 class="reveal reveal-d2">按"产出物给谁用"切——一句话记住我们能为你做的 3 件事</h3>
+            </div>
+
+            <div class="mod-grid">
+                <article class="mod-card reveal reveal-d1">
+                    <div class="mod-card-top">
+                        <div class="mod-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <polygon points="10 9 16 12 10 15" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="mod-eyebrow">Module 01</div>
+                            <div class="mod-title">品牌内容矩阵</div>
+                        </div>
+                    </div>
+                    <div class="mod-en">Brand Content Matrix</div>
+                    <div class="mod-target">产出物给 <strong>你的品牌号 / 媒介投放素材</strong> 用</div>
+                    <div class="mod-body">由我们承接全流程交付——选题、生产、合规、分发。一年 200+ 条品质内容稳定产出，热点节点 48 小时内响应。</div>
+                    <div class="mod-tags">
+                        <span class="capsule-tag">视频号 · 公众号</span>
+                        <span class="capsule-tag">小红书 · 抖音</span>
+                        <span class="capsule-tag">媒介投放素材</span>
+                    </div>
+                </article>
+
+                <article class="mod-card reveal reveal-d2">
+                    <div class="mod-card-top">
+                        <div class="mod-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="13" rx="2"/>
+                                <line x1="3" y1="9" x2="21" y2="9"/>
+                                <line x1="8" y1="20" x2="16" y2="20"/>
+                                <line x1="12" y1="17" x2="12" y2="20"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="mod-eyebrow">Module 02</div>
+                            <div class="mod-title">Sunrise.AI 自助平台</div>
+                        </div>
+                    </div>
+                    <div class="mod-en">Self-serve AI Platform</div>
+                    <div class="mod-target">产出物给 <strong>你的内容团队</strong> 用</div>
+                    <div class="mod-body">桌面端 SaaS 工作台——模板广场、自由创作、最新视频生成模型、合规扫描、热点中心。让品牌内容团队自己产出，不依赖外包。</div>
+                    <div class="mod-tags">
+                        <span class="capsule-tag accent">模板广场</span>
+                        <span class="capsule-tag accent">最新模型</span>
+                        <span class="capsule-tag accent">合规 · 热点</span>
+                    </div>
+                </article>
+
+                <article class="mod-card reveal reveal-d3">
+                    <div class="mod-card-top">
+                        <div class="mod-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="3" width="12" height="18" rx="2"/>
+                                <line x1="10" y1="18" x2="14" y2="18"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="mod-eyebrow">Module 03</div>
+                            <div class="mod-title">好保 · 代理人工作台</div>
+                        </div>
+                    </div>
+                    <div class="mod-en">Frontline Mobile Workbench</div>
+                    <div class="mod-target">产出物给 <strong>你的一线代理人</strong> 用</div>
+                    <div class="mod-body">移动端 H5——代理人 / 导购 / 门店人手一个 AI 助手，三类内容模板，5 分钟一键出片，合规卡口前置。</div>
+                    <div class="mod-tags">
+                        <span class="capsule-tag">三类内容模板</span>
+                        <span class="capsule-tag">5 分钟出片</span>
+                        <span class="capsule-tag">合规前置</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ─── Slide 4 · Module ① 品牌内容矩阵 ─── -->
+        <section class="slide">
+            <div class="mod-header" style="max-width:1280px; width:100%; text-align:left; padding-left:0;">
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem;">
+                    <span class="capsule-tag accent" style="font-size:0.7rem; letter-spacing:0.14em;">MODULE 01</span>
+                </div>
+                <h1 class="reveal" style="text-align:left; font-size:clamp(1.8rem, 3.4vw, 2.8rem); margin-bottom:0.4rem;">品牌视频全场景，<span style="color:var(--accent)">一站式交付</span></h1>
+                <h3 class="reveal reveal-d1" style="text-align:left; max-width:1100px; font-size:clamp(0.9rem, 1.4vw, 1.1rem);">品牌号内容 / TVC 大片 / 节日宣传 / 企业形象片 · 60+ 品牌真实交付经验</h3>
+            </div>
+
+            <div class="m1-stage" style="grid-template-columns: 1fr; max-width: 1280px;">
+                <div class="m1-left reveal reveal-d2" style="max-width: 1100px;">
+                    <div>
+                        <div class="m1-eyebrow">Six scenarios</div>
+                        <div class="m1-headline" style="font-size:clamp(1.4rem, 2.4vw, 2rem); margin-top:0.4rem;">六大场景，<span>覆盖品牌内容全周期</span></div>
+                    </div>
+                    <div class="m1-scenes">
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3 C9 8 6 9 6 14 A6 6 0 0 0 18 14 C18 11 16 9 14 6 C13 8 12 9 12 10 C11 9 12 6 12 3 Z"/>
+                            </svg>
+                            <div class="m1-scene-text">热点借势</div>
+                        </div>
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                                <line x1="3" y1="9" x2="21" y2="9"/>
+                            </svg>
+                            <div class="m1-scene-text">日常品牌内容</div>
+                        </div>
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                            <div class="m1-scene-text">矩阵号分发</div>
+                        </div>
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12 L6 9 L10 13 L15 8 L21 14"/>
+                                <polyline points="15 8 15 14 21 14"/>
+                            </svg>
+                            <div class="m1-scene-text">活动预热收尾</div>
+                        </div>
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="12 3 14.5 9 21 9.5 16 14 17.5 20.5 12 17 6.5 20.5 8 14 3 9.5 9.5 9"/>
+                            </svg>
+                            <div class="m1-scene-text">高净值叙事</div>
+                        </div>
+                        <div class="m1-scene">
+                            <svg class="m1-scene-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2"/>
+                                <path d="M8 9 V15 L13 12 Z" fill="currentColor"/>
+                            </svg>
+                            <div class="m1-scene-text">IP 漫剧连载</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:1rem;">
+                        <div class="m1-eyebrow">Industries covered</div>
+                        <div class="m1-industries" style="margin-top:0.5rem;">
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>保险</span>
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>银行</span>
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>证券基金</span>
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>烟草</span>
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>汽车</span>
+                            <span class="m1-industry"><span class="m1-industry-dot"></span>消费品</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Slide 5 · Module ① 案例墙 · 竖版 ─── -->
+        <section class="slide slide-casewall">
+            <div class="case-header">
+                <h2 class="reveal">Case Wall · Vertical</h2>
+                <h1 class="reveal reveal-d1">真实案例 · <span style="color:var(--accent)">热点节点 & 品牌日常</span></h1>
+                <h3 class="reveal reveal-d2">竖屏短视频矩阵——节日、节气、热点、IP 剧情、反诈公益</h3>
+            </div>
+
+            <div class="case-wall vertical-5">
+                <article class="case-cell reveal reveal-d1">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/unionpay-spring-festival.mp4" poster="posters/unionpay-spring-festival.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">IP 类短视频</span>
+                    <div class="case-cell-title">春运 · 品牌 IP 剧情</div>
+                    <div class="case-cell-client">Client · 中国银联</div>
+                    <div class="case-cell-desc">品牌 IP 角色串联春运出行场景与支付权益，长期可沉淀的 IP 资产。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/ip.jpg" alt="IP 类短视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看</strong>IP 类集锦</div>
+                    </div>
+                </article>
+
+                <article class="case-cell reveal reveal-d1">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/lichun.mp4" poster="posters/lichun.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">节气短视频</span>
+                    <div class="case-cell-title">立春 · 节气海报视频</div>
+                    <div class="case-cell-client">二十四节气 · 长期主题</div>
+                    <div class="case-cell-desc">全年 24 个自然节点持续输出，品牌日更的稳定锚点。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/jieqi.jpg" alt="节气短视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看</strong>节气合集</div>
+                    </div>
+                </article>
+
+                <article class="case-cell reveal reveal-d2">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/guixiaobao-motor.mp4" poster="posters/guixiaobao-motor.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">热点二创</span>
+                    <div class="case-cell-title">机车热点 · IP 二创</div>
+                    <div class="case-cell-client">Client · 贵州中烟 贵小宝</div>
+                    <div class="case-cell-desc">热点爆发当天完成品牌版二创，贵小宝 IP 借势登场。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/hotspot.jpg" alt="热点二创视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看</strong>热点二创方法论</div>
+                    </div>
+                </article>
+
+                <article class="case-cell reveal reveal-d2">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/tailong-antifraud.mp4" poster="posters/tailong-antifraud.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">反诈短视频</span>
+                    <div class="case-cell-title">反诈公益 · 情景剧</div>
+                    <div class="case-cell-client">Client · 浙江泰隆银行</div>
+                    <div class="case-cell-desc">AI 情景化演绎诈骗全链路，合规文案前置审核通过。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/antifraud.jpg" alt="反诈短视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看</strong>金融合规专题</div>
+                    </div>
+                </article>
+
+                <article class="case-cell reveal reveal-d3">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/zhongying-realperson.mp4" poster="posters/zhongying-realperson.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">真人 AI 视频</span>
+                    <div class="case-cell-title">真人剧 · 高客叙事</div>
+                    <div class="case-cell-client">Client · 中英人寿</div>
+                    <div class="case-cell-desc">真人形象与 AI 视频结合，高净值场景叙事，品牌代言人数字化复用。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/realperson.jpg" alt="真人 AI 视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看</strong>真人 AI 作品集</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ─── Slide 6 · Module ① 漫剧专题 ─── -->
+        <section class="slide slide-casewall">
+            <div class="case-header">
+                <h2 class="reveal">Case Wall · Manga Series</h2>
+                <h1 class="reveal reveal-d1">漫剧专题 · <span style="color:var(--accent)">《对手》多集连载</span></h1>
+                <h3 class="reveal reveal-d2">AI 生成品牌连载漫剧，多集叙事持续输出，建立内容追更的用户心智</h3>
+            </div>
+
+            <div class="case-wall manga-3">
+                <article class="case-cell reveal reveal-d1">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/manga-duishou-ep1.mp4" poster="posters/manga-duishou-ep1.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">第一集 · 点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">EP.01</span>
+                    <div class="case-cell-title">《对手》· 上集</div>
+                    <div class="case-cell-desc">剧情开端，人物关系建立与核心矛盾埋线。</div>
+                </article>
+
+                <article class="case-cell reveal reveal-d2">
+                    <div class="case-cell-video vert" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/manga-duishou-ep2.mp4" poster="posters/manga-duishou-ep2.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">第二集 · 点击发声</div>
+                    </div>
+                    <span class="case-cell-eyebrow">EP.02</span>
+                    <div class="case-cell-title">《对手》· 中集</div>
+                    <div class="case-cell-desc">剧情推进，矛盾升级，观众锁定下集追更。</div>
+                </article>
+
+                <article class="case-cell manga-info reveal reveal-d3">
+                    <span class="case-cell-eyebrow">漫剧短视频</span>
+                    <div class="case-cell-title">为什么要做漫剧？</div>
+                    <div class="case-cell-desc">短视频的「剧集化」是品牌内容新增长点——不再是单集曝光，而是用多集叙事建立品牌追更粉。AI 生成大幅降低漫剧制作门槛，让品牌也能做自己的连载 IP。</div>
+                    <div class="case-cell-qr">
+                        <img src="qr/manga.png" alt="漫剧短视频案例二维码">
+                        <div class="case-cell-qr-hint"><strong>扫码观看完整案例</strong>全集漫剧内容</div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ─── Slide 7 · Module ① 横版大片 ─── -->
+        <section class="slide slide-casewall">
+            <div class="case-header">
+                <h2 class="reveal">Case Wall · Landscape</h2>
+                <h1 class="reveal reveal-d1">横版大片 · <span style="color:var(--accent)">品牌级影片叙事</span></h1>
+                <h3 class="reveal reveal-d2">电影级横屏大片——从品牌节日叙事到年度企业形象宣传</h3>
+            </div>
+
+            <div class="case-wall landscape-stack">
+                <article class="case-cell landscape reveal reveal-d1">
+                    <div class="case-cell-video land" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/unionpay-mothersday.mp4" poster="posters/unionpay-mothersday.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <div class="landscape-body">
+                        <span class="case-cell-eyebrow">节日短视频 · 横版</span>
+                        <div class="case-cell-title">母亲节 · 情感叙事大片</div>
+                        <div class="case-cell-client">Client · 中国银联 95516</div>
+                        <div class="case-cell-desc">品牌节点借势，情感钩子 + 服务信息点自然融入，节日流量高位捕获。横版适配品牌官网、视频号、微信生态投放。</div>
+                        <div class="case-cell-qr">
+                            <img src="qr/holiday.jpg" alt="节日短视频案例二维码">
+                            <div class="case-cell-qr-hint"><strong>扫码观看完整案例</strong>含产出流程说明</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="case-cell landscape reveal reveal-d3">
+                    <div class="case-cell-video land" onclick="toggleCaseVideo(this)">
+                        <video data-src="videos/enterprise-promo.mp4" poster="posters/enterprise-promo.jpg" muted playsinline preload="none" loop></video>
+                        <div class="sound-badge">点击发声</div>
+                    </div>
+                    <div class="landscape-body">
+                        <span class="case-cell-eyebrow">企业宣传 · 横版</span>
+                        <div class="case-cell-title">企业形象宣传大片</div>
+                        <div class="case-cell-client">年度品牌大片 · 多场景叙事</div>
+                        <div class="case-cell-desc">AI 生成电影级企业宣传片，多场景切换、宏大叙事，旗舰级品牌内容——过去需要跨团队协作数周，现在几天内完成。</div>
+                        <div class="case-cell-qr">
+                            <img src="qr/enterprise.png" alt="企业宣传短视频案例二维码">
+                            <div class="case-cell-qr-hint"><strong>扫码观看完整案例</strong>企业宣传作品集</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ─── Slide 5 · Module ② Sunrise.AI 主舞台 ─── -->
+        <section class="slide slide-m2">
+            <div class="m2-header">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:0.3rem; margin-bottom:0.4rem;">
+                    <span class="capsule-tag accent" style="font-size:0.6rem; letter-spacing:0.12em; padding:0.18rem 0.55rem;">MODULE 02</span>
+                </div>
+                <h1 class="reveal reveal-d1">合规内容创作，<span style="color:var(--accent)">规模化产出</span></h1>
+                <h3 class="reveal reveal-d2" style="font-size:clamp(0.78rem, 1.05vw, 0.92rem);">14 部法规库 RAG 终审 · 热点中心实时驱动 · 接入最新视频生成模型</h3>
+            </div>
+
+            <div class="m2-stage reveal reveal-d3">
+                <div class="web-wrap">
+                    <div class="web">
+                        <iframe class="web-iframe" src="demos/sunrise/屏1-首页.html" loading="lazy" scrolling="yes" title="Sunrise.AI 首页"></iframe>
+                    </div>
+                    <div class="m2-caption">Live · demos/sunrise/屏1-首页.html · 模板广场 + 创作入口</div>
+                </div>
+
+                <div class="m2-side">
+                    <article class="m2-feature">
+                        <div class="m2-feature-top">
+                            <svg class="m2-feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path d="M12 7 V12 L15 14"/>
+                                <path d="M5 12 H7 M17 12 H19"/>
+                            </svg>
+                            <div class="m2-feature-title">最新模型即接即用</div>
+                        </div>
+                        <div class="m2-feature-desc">Veo 3 / Sora / Seedance 一键切换，新模型上线 1 周内适配，团队不掉队。</div>
+                    </article>
+
+                    <article class="m2-feature">
+                        <div class="m2-feature-top">
+                            <svg class="m2-feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 3 L4 6 V12 C4 17 7.5 20.5 12 22 C16.5 20.5 20 17 20 12 V6 Z"/>
+                                <path d="M9 12 L11 14 L15 10"/>
+                            </svg>
+                            <div class="m2-feature-title">14 部法规库 RAG 终审</div>
+                        </div>
+                        <div class="m2-feature-desc">行业最新合规文件 + 客户内部指导手册，AI 预审标黄拦截，人工只看重点。</div>
+                    </article>
+
+                    <article class="m2-feature">
+                        <div class="m2-feature-top">
+                            <svg class="m2-feature-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12 C3 7 7 3 12 3 C17 3 21 7 21 12"/>
+                                <path d="M3 12 C3 17 7 21 12 21 C17 21 21 17 21 12"/>
+                                <path d="M8 9 L12 13 L16 9"/>
+                            </svg>
+                            <div class="m2-feature-title">热点 48 小时上线</div>
+                        </div>
+                        <div class="m2-feature-desc">全网热点实时监测 + AI 判断品牌借势机会，从热点捕捉到内容发布闭环。</div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Slide 9 · Module ③ 好保 主舞台 ─── -->
+        <section class="slide slide-m3">
+            <div class="m3-header">
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem; justify-content:center;">
+                    <span class="capsule-tag accent" style="font-size:0.7rem; letter-spacing:0.14em;">MODULE 03</span>
+                </div>
+                <h1 class="reveal reveal-d1">一线代理人，<span style="color:var(--accent)">5 分钟出一条合规短视频</span></h1>
+                <h3 class="reveal reveal-d2">意识激发 · 险种种草 · 产品测评 三类模板，覆盖完整决策链路</h3>
+            </div>
+
+            <div class="m3-flow reveal reveal-d3">
+                <div class="m3-step">
+                    <div class="m3-step-num">1</div>
+                    <div class="phone">
+                        <iframe class="phone-iframe" src="demos/haobao/01-home.html" loading="lazy" scrolling="yes" title="选模板"></iframe>
+                    </div>
+                    <div class="m3-step-caption">选模板</div>
+                    <div class="m3-step-sub">三类内容模板覆盖完整决策链路，代理人按场景挑</div>
+                </div>
+
+                <div class="m3-step">
+                    <div class="m3-step-num">2</div>
+                    <div class="phone">
+                        <iframe class="phone-iframe" src="demos/haobao/02b-creation-yimeng.html" loading="lazy" scrolling="yes" title="一言生成"></iframe>
+                    </div>
+                    <div class="m3-step-caption">AI 一言生成</div>
+                    <div class="m3-step-sub">说一句话，AI 自动产出脚本 + 视频 + 文案</div>
+                </div>
+
+                <div class="m3-step">
+                    <div class="m3-step-num">3</div>
+                    <div class="phone">
+                        <iframe class="phone-iframe" src="demos/haobao/04c-compliance-result.html" loading="lazy" scrolling="yes" title="合规扫描"></iframe>
+                    </div>
+                    <div class="m3-step-caption">合规扫描放行</div>
+                    <div class="m3-step-sub">合规规则库前置卡口，标黄风险点，放行即可发布</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── Slide 8 · Module ③ 三类模板 ─── -->
+        <section class="slide slide-m3tpl">
+            <div class="m3tpl-header">
+                <h2 class="reveal">Three Content Templates</h2>
+                <h1 class="reveal reveal-d1">三类内容，<span style="color:var(--accent)">覆盖代理人完整销售链路</span></h1>
+                <h3 class="reveal reveal-d2">从认知唤醒到决策推动，每一步都有对应的内容模板</h3>
+            </div>
+
+            <div class="m3tpl-grid">
+                <article class="m3tpl-card reveal reveal-d1">
+                    <div class="m3tpl-cover">
+                        <img src="demos/haobao/covers/T03_cover_9_16.png" alt="意识激发模板封面" loading="lazy">
+                    </div>
+                    <span class="m3tpl-eyebrow">TEMPLATE 01</span>
+                    <div class="m3tpl-title">意识激发</div>
+                    <div class="m3tpl-desc">用故事化场景唤醒用户对风险/规划的认知，链路最前端的拉新内容。</div>
+                    <div class="m3tpl-tags">
+                        <span class="capsule-tag">认知唤醒</span>
+                        <span class="capsule-tag">情感共鸣</span>
+                        <span class="capsule-tag">朋友圈适配</span>
+                    </div>
+                </article>
+
+                <article class="m3tpl-card reveal reveal-d2">
+                    <div class="m3tpl-cover">
+                        <img src="demos/haobao/covers/T02_cover_9_16.png" alt="险种种草模板封面" loading="lazy">
+                    </div>
+                    <span class="m3tpl-eyebrow">TEMPLATE 02</span>
+                    <div class="m3tpl-title">险种种草</div>
+                    <div class="m3tpl-desc">具体险种的卖点拆解 + 适配人群讲解，把"听说过"推到"想了解"。</div>
+                    <div class="m3tpl-tags">
+                        <span class="capsule-tag">种草内容</span>
+                        <span class="capsule-tag">险种科普</span>
+                        <span class="capsule-tag">视频号 · 朋友圈</span>
+                    </div>
+                </article>
+
+                <article class="m3tpl-card reveal reveal-d3">
+                    <div class="m3tpl-cover">
+                        <img src="demos/haobao/covers/T04_cover_9_16.png" alt="产品测评模板封面" loading="lazy">
+                    </div>
+                    <span class="m3tpl-eyebrow">TEMPLATE 03</span>
+                    <div class="m3tpl-title">产品测评</div>
+                    <div class="m3tpl-desc">同类产品对比测评 + 决策建议，链路末端的转化助攻内容。</div>
+                    <div class="m3tpl-tags">
+                        <span class="capsule-tag">决策推动</span>
+                        <span class="capsule-tag">对比测评</span>
+                        <span class="capsule-tag">私域转化</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="m3tpl-footer reveal reveal-d4">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21 C4 16 8 14 12 14 C16 14 20 16 20 21"/>
+                </svg>
+                适用客群 · <strong>保险代理人</strong> · <strong>经销商</strong> · <strong>门店导购</strong>
+            </div>
+        </section>
+
+        <!-- ─── Final · CTA ─── -->
+        <section class="slide slide-cta">
+            <h2 class="reveal">Duiba AI Studio</h2>
+            <h1 class="reveal reveal-d1">让好内容，<span style="color:var(--accent)">持续被看见</span></h1>
+            <h3 class="reveal reveal-d2">一个 AI 工作室，为品牌号、内容团队、一线代理人同时供能</h3>
+
+            <div class="cta-recap reveal reveal-d3">
+                <div class="cta-recap-item">
+                    <div class="cta-recap-num">MODULE 01</div>
+                    <div class="cta-recap-name">品牌内容矩阵</div>
+                </div>
+                <div class="cta-recap-item">
+                    <div class="cta-recap-num">MODULE 02</div>
+                    <div class="cta-recap-name">Sunrise.AI 自助平台</div>
+                </div>
+                <div class="cta-recap-item">
+                    <div class="cta-recap-num">MODULE 03</div>
+                    <div class="cta-recap-name">好保 · 代理人工作台</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const container = document.querySelector('.container');
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.querySelector('.progress-bar');
+        const navDots = document.querySelector('.nav-dots');
+
+        // Nav dots
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot';
+            dot.addEventListener('click', () => slides[i].scrollIntoView({ behavior: 'smooth' }));
+            navDots.appendChild(dot);
+        });
+
+        // Progress + active dot
+        function updateProgress() {
+            const st = container.scrollTop;
+            const sh = container.scrollHeight - container.clientHeight;
+            progressBar.style.width = (sh > 0 ? (st / sh * 100) : 0) + '%';
+            const cur = Math.round(st / window.innerHeight);
+            document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+        }
+        container.addEventListener('scroll', updateProgress);
+        updateProgress();
+
+        // Keyboard nav
+        document.addEventListener('keydown', e => {
+            const cur = Math.round(container.scrollTop / window.innerHeight);
+            const next = ['ArrowDown','ArrowRight',' ','PageDown'];
+            const prev = ['ArrowUp','ArrowLeft','PageUp'];
+            if (next.includes(e.key)) {
+                e.preventDefault();
+                if (cur < slides.length - 1) slides[cur + 1].scrollIntoView({ behavior: 'smooth' });
+            } else if (prev.includes(e.key)) {
+                e.preventDefault();
+                if (cur > 0) slides[cur - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Reveal observer
+        const revealObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+                else entry.target.classList.remove('visible');
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+        // ── Case video: lazy load + autoplay muted in view, click toggles sound ──
+        function ensureCaseVideosLoaded(slide) {
+            slide.querySelectorAll('video[data-src]').forEach(v => {
+                if (!v.getAttribute('src')) { v.src = v.dataset.src; v.load(); }
+            });
+        }
+        function toggleCaseVideo(wrap) {
+            const videos = wrap.querySelectorAll('video');
+            const sounding = wrap.classList.contains('sounding');
+            if (sounding) {
+                videos.forEach(v => { v.muted = true; v.controls = false; });
+                wrap.classList.remove('sounding');
+            } else {
+                videos.forEach(v => { v.muted = false; v.controls = true; if (v.paused) v.play().catch(()=>{}); });
+                wrap.classList.add('sounding');
+            }
+        }
+        const caseObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const slide = entry.target;
+                if (entry.isIntersecting) {
+                    ensureCaseVideosLoaded(slide);
+                    slide.querySelectorAll('.m1-vcard-video:not(.sounding) video, .case-cell-video:not(.sounding) video').forEach(v => {
+                        v.muted = true; v.play().catch(()=>{});
+                    });
+                } else {
+                    slide.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; v.muted = true; v.controls = false; });
+                    slide.querySelectorAll('.m1-vcard-video.sounding, .case-cell-video.sounding').forEach(w => w.classList.remove('sounding'));
+                }
+            });
+        }, { threshold: 0.25 });
+        // Apply to slides containing video cards (Module ① case walls)
+        document.querySelectorAll('.slide').forEach(s => {
+            if (s.querySelector('.m1-vcard-video, .case-cell-video')) caseObs.observe(s);
+        });
+
+        // ── Slide 6 Tab 切换 + iframe 懒加载 ──
+        const m2tabs = document.querySelectorAll('.m2tab-item');
+        const m2panels = document.querySelectorAll('.m2stage-panel');
+        m2tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const idx = tab.dataset.tab;
+                m2tabs.forEach(t => t.classList.toggle('active', t === tab));
+                m2panels.forEach(p => p.classList.toggle('active', p.dataset.panel === idx));
+                const activePanel = document.querySelector(`.m2stage-panel[data-panel="${idx}"]`);
+                const iframe = activePanel.querySelector('iframe');
+                if (iframe && iframe.dataset.lazySrc && !iframe.src) {
+                    iframe.src = iframe.dataset.lazySrc;
+                }
+            });
+        });
+
+        // ── 好保 phone iframe 自适应缩放 ──
+        // 源 H5 是 375 宽，套到 .phone 容器里要按容器实际宽度缩放
+        function scalePhoneIframes() {
+            document.querySelectorAll('.phone').forEach(phone => {
+                const iframe = phone.querySelector('.phone-iframe');
+                if (!iframe) return;
+                const rect = phone.getBoundingClientRect();
+                if (rect.width === 0) return;
+                const scale = rect.width / 375;
+                iframe.style.transform = `scale(${scale})`;
+                iframe.style.width = '375px';
+                iframe.style.height = `${rect.height / scale}px`;
+            });
+        }
+        window.addEventListener('load', scalePhoneIframes);
+        window.addEventListener('resize', scalePhoneIframes);
+        // 兜底：reveal 后再算一次（避免初次渲染时容器尺寸未稳定）
+        setTimeout(scalePhoneIframes, 300);
+        setTimeout(scalePhoneIframes, 1000);
+    </script>
+</body>
+</html>

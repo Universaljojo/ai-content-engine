@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sunrise · KOS 短视频对话工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <span>Sunrise<span class="dot">.</span><em>ai</em></span>
+  </div>
+
+  <div class="crumbs">
+    <a href="屏1-首页.html">首页</a>
+    <span class="sep">/</span>
+    <a href="屏1-首页.html">最近项目</a>
+    <span class="sep">/</span>
+    <span class="here">养老金压力 · 需求激发 × 3</span>
+  </div>
+
+  <div class="top-spacer"></div>
+
+  <div class="search-pill">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+    搜索本项目 · @ 提同事
+    <span class="k">⌘ K</span>
+  </div>
+
+  <button class="icon-btn" title="通知">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/></svg>
+    <span class="pip"></span>
+  </button>
+
+  <div class="user-chip">
+    <div class="user-ava"><img src="assets/agents/xiaocao.svg" alt="小草"></div>
+    <div class="meta"><b>小草</b><span>内容运营</span></div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <aside class="rail">
+    <a class="ri" href="屏1-首页.html" title="首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="lbl">首页</span>
+    </a>
+    <div class="ri active" title="Agent 工作区">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="lbl">Agent</span>
+    </div>
+    <div class="ri" title="项目">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <span class="lbl">项目</span>
+    </div>
+    <a class="ri" href="屏4-资产.html" title="合规">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span class="lbl">合规</span>
+    </a>
+    <div class="div"></div>
+    <div class="ri" title="数据看板(生产 / 好保侧)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="20" x2="21" y2="20"/><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg>
+      <span class="lbl">数据</span>
+    </div>
+    <div style="flex:1"></div>
+    <div class="ri" title="设置">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+      <span class="lbl">设置</span>
+    </div>
+  </aside>
+
+  <div class="kos-v2">
+
+    <!-- ===================== 中栏 · 对话流 ===================== -->
+    <section class="chat">
+
+      <div class="chat-h">
+        <div class="proj">
+          <b id="proj-name">未命名项目</b>
+          <span class="ctx" id="batch-meta">还没开始 · 选个内容方向</span>
+          <span class="working-state" id="working-state" style="display:none;">
+            <span class="dot"></span><span class="text">空闲</span>
+          </span>
+        </div>
+        <div class="acts">
+          <button class="icon-btn" title="分享"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
+          <button class="icon-btn" title="更多"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>
+        </div>
+      </div>
+
+      <div class="stream" id="stream"></div>
+
+      <div class="compose">
+        <div class="quick">
+          <span class="qchip" onclick="restartFlow()">↻ 重新开始</span>
+          <span class="qchip" onclick="goToWelcome()">＋ 新批次</span>
+        </div>
+        <div class="input-wrap">
+          <textarea placeholder="说点什么... @ 提到某位同事(Demo 走右侧选项)" rows="1"></textarea>
+          <button class="send" id="btn-send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 右栏 · 当前焦点产物 ===================== -->
+    <section class="canvas-v2">
+      <div class="head">
+        <div class="crumb">
+          <span id="canvas-stage-label">当前产物</span>
+          <b id="canvas-title">3 个钩子方向</b>
+        </div>
+        <div class="meta">
+          <span class="pill line" id="meta-content-type">需求激发 · 15s</span>
+          <span class="pill gold" id="meta-product">关联:安心久久年金 v3.1</span>
+        </div>
+      </div>
+      <div class="body" id="canvas-body">
+        <div id="canvas-empty" style="text-align:center;color:var(--ink-3);padding:80px 20px;font-size:13px;line-height:1.7;">
+          <div style="font-size:38px;margin-bottom:14px;opacity:0.55;">🌅</div>
+          还没开始。<br>
+          先在左边告诉编导你今天想做哪一类视频,<br>
+          每一步的产物会自动推到这里。
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 最右细栏 · 锚点 + 缩略导航 ===================== -->
+    <aside class="anchor-rail">
+      <h5>本条模板进度</h5>
+      <div class="anchor-list" id="anchor-list"></div>
+
+      <h5>本批次 (3 条同主题)</h5>
+      <div class="thumb-stack" id="batch-stack">
+        <div class="thumb" onclick="batchSwitch('A')"><b>A · 老年人推沙发</b></div>
+        <div class="thumb" onclick="batchSwitch('B')" style="opacity:0.55;"><b>B · 飘车上坡</b></div>
+        <div class="thumb" onclick="batchSwitch('C')" style="opacity:0.55;"><b>C · 巨人弹簧床</b></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const S = window.SUNRISE;
+let currentAnchor = 'hook'; // hook / script / director / compliance / biz / casting / budget / sample / sampleReview / publish
+
+const ANCHORS = [
+  { id: 'hook',        label: '钩子方向',  state: 'queue' },
+  { id: 'script',      label: '脚本',      state: 'queue' },
+  { id: 'director',    label: '编导审',    state: 'queue' },
+  { id: 'compliance',  label: '合规审',    state: 'queue' },
+  { id: 'biz',         label: '业务校准',  state: 'queue' },
+  { id: 'scene',       label: '场景图',    state: 'queue' },
+  { id: 'audio',       label: '配音',      state: 'queue' },
+  { id: 'sample',      label: '样片',      state: 'queue' },
+  { id: 'sampleReview',label: '内容再审',  state: 'queue' },
+  { id: 'qa',          label: '质检 · 压测',state: 'queue' },
+  { id: 'publish',     label: '上架',      state: 'queue' },
+];
+
+// beat 完成时,把哪个 anchor 标 done
+const BEAT_TO_ANCHOR = {
+  'hooks-pension':       'hook',
+  'script-a':            'script',
+  'director-audit':      'director',
+  'compliance-audit':    'compliance',
+  'biz-audit':           'biz',
+  'production-step-1':   'scene',
+  'production-step-2':   'audio',
+  'production-step-3':   'sample',
+  'sample-review':       'sampleReview',
+  'production-redo':     'sample',
+  'qa':                  'qa',
+  'publish':             'publish',
+};
+
+function renderAnchors() {
+  document.getElementById('anchor-list').innerHTML = ANCHORS.map(a => {
+    const cls = ['anchor-item', a.state, currentAnchor === a.id ? 'active' : ''].join(' ');
+    return `<div class="${cls}" onclick="showCanvas('${a.id}')">
+      <span class="dot"></span>
+      <span>${a.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// playBeat() 状态机 · 取代旧 renderStream
+// 流程:typing → append messages(带逐条延时)→ canvas 切换 → 渲染 decision
+// 用户点 decision 选项 → 锁定选中态 + 追加用户气泡 + playBeat(option.next)
+// ============================================================
+const stream = () => document.getElementById('stream');
+
+function appendEl(el) {
+  const host = stream();
+  host.appendChild(el);
+  host.scrollTop = host.scrollHeight;
+}
+
+// ---------- 各类消息块构造 ----------
+function elTime(text) {
+  const el = document.createElement('div');
+  el.className = 'time-div';
+  el.textContent = text;
+  return el;
+}
+
+function elSys(text) {
+  const el = document.createElement('div');
+  el.className = 'sys-event';
+  el.innerHTML = `<span class="ic">${S.ic('bolt', 12)}</span><span>${text}</span>`;
+  return el;
+}
+
+function elTyping(who) {
+  const a = S.AGENTS[who];
+  const vibes = a.vibes && a.vibes.length ? a.vibes : ['思考中'];
+  const vibe = vibes[Math.floor(Math.random() * vibes.length)];
+  const el = document.createElement('div');
+  el.className = 'typing-bubble';
+  el.dataset.who = who;
+  el.innerHTML = `
+    <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+    <div class="body">
+      <span class="nm">${a.name}</span>
+      <span>${vibe}</span>
+      <span class="dots"><span></span><span></span><span></span></span>
+    </div>`;
+  return el;
+}
+
+function elThinking(m) {
+  const a = S.AGENTS[m.who];
+  const el = document.createElement('div');
+  el.className = 'think-card';
+  el.innerHTML = `
+    <div class="head">
+      <span>${m.title || '思考中'}</span>
+      <span class="who">· ${a.name}${m.when ? ' · ' + m.when : ''}</span>
+    </div>
+    <div class="body">${m.body}</div>`;
+  return el;
+}
+
+function elMsg(m) {
+  const a = S.AGENTS[m.who];
+  const isMe = m.who === 'xiaocao';
+  const el = document.createElement('div');
+  el.className = 'bubble' + (isMe ? ' me' : '');
+  const ev = (m.evidence || []).map(e => {
+    const cls = (e.type || 'ev').trim();
+    return `<span class="${cls}">${e.text}</span>`;
+  }).join('');
+  const viewLink = m.action ? `<span class="view-link" onclick="showCanvas('${m.action}')">在右边查看 ${S.ic('arrow', 11)}</span>` : '';
+  el.innerHTML = `
+    <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+    <div class="body">
+      <div class="head"><b>${a.name}</b><span class="when">${m.when || ''}</span></div>
+      <div class="msg">
+        ${m.text.split('\n').map(p => `<p>${p}</p>`).join('')}
+        ${viewLink}
+        ${ev ? `<div class="evidence">${ev}</div>` : ''}
+      </div>
+    </div>`;
+  return el;
+}
+
+function elUser(text, when) {
+  const el = document.createElement('div');
+  el.className = 'bubble me';
+  const a = S.AGENTS.xiaocao;
+  el.innerHTML = `
+    <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+    <div class="body">
+      <div class="head"><b>${a.name}</b><span class="when">${when || '刚刚'}</span></div>
+      <div class="msg"><p>${text}</p></div>
+    </div>`;
+  return el;
+}
+
+// ---------- 欢迎引导卡 ----------
+function elWelcome(beat) {
+  const el = document.createElement('div');
+  el.className = 'welcome-card';
+  const opts = beat.options.map(o => `
+    <button class="wopt" onclick="pickOption('${o.id}','${o.label}','${o.next}')">
+      <div class="wlabel">✨ ${o.label}</div>
+      <div class="wsub">${o.sub || ''}</div>
+    </button>`).join('');
+  el.innerHTML = `
+    <div class="wtitle">${beat.title}</div>
+    <div class="wsubtitle">${beat.subtitle}</div>
+    <div class="woptions">${opts}</div>
+    <div class="whint">↑ 选一个或在下面输入框直接说</div>`;
+  return el;
+}
+
+// ---------- 决策卡(可点击)----------
+function elDecision(decision) {
+  const el = document.createElement('div');
+  el.className = 'decision-v2';
+  el.dataset.role = 'decision';
+  const opts = decision.options.map(o => `
+    <button class="dopt ${o.primary ? 'primary' : ''}" data-id="${o.id}"
+            onclick="pickOption('${o.id}','${o.label.replace(/'/g, "\\'")}','${o.next}', this)">
+      <div class="dlabel">${o.label}</div>
+      ${o.sub ? `<div class="dsub">${o.sub}</div>` : ''}
+    </button>`).join('');
+  el.innerHTML = `
+    <div class="dtitle">${decision.title}</div>
+    <div class="dopts">${opts}</div>`;
+  return el;
+}
+
+// ---------- 工作中状态条 ----------
+function setWorking(who, text) {
+  const w = document.getElementById('working-state');
+  if (!who) { w.style.display = 'none'; return; }
+  const a = S.AGENTS[who];
+  w.style.display = 'inline-flex';
+  w.querySelector('.text').textContent = text || `${a.name} · 工作中`;
+}
+
+// ---------- 锚点状态推进 ----------
+function markAnchorDone(beatId) {
+  const anchorId = BEAT_TO_ANCHOR[beatId];
+  if (!anchorId) return;
+  const a = ANCHORS.find(x => x.id === anchorId);
+  if (a) a.state = beatId === 'publish' ? 'published' : 'done';
+  // 下一个 anchor 标 now
+  const idx = ANCHORS.findIndex(x => x.id === anchorId);
+  if (idx >= 0 && idx < ANCHORS.length - 1) {
+    if (ANCHORS[idx + 1].state === 'queue') ANCHORS[idx + 1].state = 'now';
+  }
+  renderAnchors();
+}
+
+// ---------- 锁定决策卡(用户点完后)----------
+function lockDecision(pickedId, pickedLabel) {
+  const cards = document.querySelectorAll('.decision-v2');
+  const last = cards[cards.length - 1];
+  if (!last) return;
+  last.classList.add('locked');
+  last.querySelectorAll('.dopt').forEach(b => {
+    if (b.dataset.id === pickedId) b.classList.add('picked');
+  });
+}
+
+// ---------- 核心:播放一个 beat ----------
+let _beatBusy = false;
+async function playBeat(beatId) {
+  if (_beatBusy) return;
+  _beatBusy = true;
+  const beat = S.STORY_BEATS[beatId];
+  if (!beat) { _beatBusy = false; return; }
+
+  // 标 anchor 完成
+  markAnchorDone(beatId);
+
+  // welcome 卡:直接渲染,不走 typing 流程
+  if (beat.type === 'guide') {
+    appendEl(elWelcome(beat));
+    setWorking(null);
+    _beatBusy = false;
+    return;
+  }
+
+  // 用户气泡(如果 beat 自带预设的"我说了什么")
+  if (beat.user) {
+    appendEl(elUser(beat.user.text, beat.user.when));
+    await sleep(300);
+  }
+
+  // 系统事件条(谁加入群聊)
+  if (beat.sys) {
+    appendEl(elSys(beat.sys));
+    await sleep(400);
+  }
+
+  // typing 状态(Agent 正在 xxx)· 没 typing 时清掉残留状态
+  let typingEl = null;
+  if (beat.typing) {
+    typingEl = elTyping(beat.typing.who);
+    appendEl(typingEl);
+    setWorking(beat.typing.who);
+    await sleep(beat.typing.dur || 1500);
+  } else {
+    setWorking(null);
+  }
+
+  // messages 逐条 append(去掉 typing 气泡)
+  if (typingEl) typingEl.remove();
+  const msgs = beat.messages || [];
+  for (let i = 0; i < msgs.length; i++) {
+    const m = msgs[i];
+    if (m.kind === 'thinking') {
+      appendEl(elThinking(m));
+    } else {
+      appendEl(elMsg(m));
+    }
+    if (i < msgs.length - 1) await sleep(500);
+  }
+
+  // 切右侧 canvas
+  if (beat.canvas) showCanvas(beat.canvas);
+
+  // 渲染 decision
+  if (beat.decision) {
+    await sleep(300);
+    appendEl(elDecision(beat.decision));
+  } else {
+    setWorking(null);
+  }
+
+  // beat 完成
+  _beatBusy = false;
+
+  // 链式自动推进(用于 production-step-1/2 这种连续步骤)
+  if (!beat.decision && beat.nextAuto) {
+    setTimeout(() => playBeat(beat.nextAuto.next), beat.nextAuto.delay || 1200);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ---------- 用户点了 decision 选项 ----------
+function pickOption(id, label, nextBeatId, btn) {
+  // 锁定当前决策卡
+  lockDecision(id, label);
+  // 追加用户气泡
+  appendEl(elUser(label, '刚刚'));
+  // 隐藏空状态
+  const empty = document.getElementById('canvas-empty');
+  if (empty) empty.style.display = 'none';
+  // 进入下一个 beat
+  setTimeout(() => playBeat(nextBeatId), 400);
+}
+
+// ---------- 顶部控制按钮 ----------
+function restartFlow() {
+  document.getElementById('stream').innerHTML = '';
+  ANCHORS.forEach(a => a.state = 'queue');
+  renderAnchors();
+  setWorking(null);
+  document.getElementById('canvas-body').innerHTML = `
+    <div id="canvas-empty" style="text-align:center;color:var(--ink-3);padding:80px 20px;font-size:13px;line-height:1.7;">
+      <div style="font-size:38px;margin-bottom:14px;opacity:0.55;">🌅</div>
+      还没开始。<br>先在左边告诉编导你今天想做哪一类视频。
+    </div>`;
+  document.getElementById('canvas-stage-label').textContent = '当前产物';
+  document.getElementById('canvas-title').textContent = '—';
+  playBeat('welcome');
+}
+
+function goToWelcome() { restartFlow(); }
+
+// ---------- 右栏 · 焦点产物切换 ----------
+function showCanvas(anchorId) {
+  if (!anchorId) return;
+  // 隐藏空状态
+  const empty = document.getElementById('canvas-empty');
+  if (empty) empty.style.display = 'none';
+
+  currentAnchor = anchorId;
+  renderAnchors();
+  const renderers = {
+    hook: renderHookVariants,
+    script: renderScript,
+    director: renderDirectorAudit,
+    compliance: renderComplianceAudit,
+    biz: renderBizAudit,
+    scene: renderScene,
+    audio: renderAudio,
+    sample: renderSample,
+    samplereview: renderSampleReview,
+    sampleReview: renderSampleReview,
+    qa: renderQA,
+    publish: renderPublish,
+    // Agent message action 别名
+    showHookVariants:    renderHookVariants,
+    showScript:          renderScript,
+    showDirectorAudit:   renderDirectorAudit,
+    showComplianceAudit: renderComplianceAudit,
+    showBizAudit:        renderBizAudit,
+    showScene:           renderScene,
+    showAudio:           renderAudio,
+    showSample:          renderSample,
+    showSampleReview:    renderSampleReview,
+    showQA:              renderQA,
+    showPublish:         renderPublish,
+  };
+  const fn = renderers[anchorId] || renderers[anchorId.toLowerCase()];
+  if (fn) fn();
+}
+
+function setCanvasMeta(stageLabel, title) {
+  document.getElementById('canvas-stage-label').textContent = stageLabel;
+  document.getElementById('canvas-title').textContent = title;
+}
+
+function renderHookVariants() {
+  setCanvasMeta('编导推荐 · 钩子方向', '3 个荒诞视觉比喻方向');
+  const vs = S.HOOK_VARIANTS_TPL_004;
+  document.getElementById('canvas-body').innerHTML = `
+    <div style="margin-bottom:12px;font-size:12.5px;color:var(--ink-3);line-height:1.6;">
+      基于"养老金压力"主题,沿用<b style="color:var(--ink-2);">巨人踩楼</b>类反差结构,跑出 3 个方向。每个都满足:代理人正面主角 / 画面不标具象 / 有反差点。
+    </div>
+    <div class="variant-grid">
+      ${vs.map(v => `
+        <div class="variant-card ${v.selected?'selected':''}" onclick="pickVariant('${v.id}')">
+          <div class="vh">方向 ${v.id} ${v.selected ? '· 已选定' : ''}</div>
+          <div class="vname">${v.name}</div>
+          <div class="vrow"><span class="k">反差</span><span class="v">${v.contrast}</span></div>
+          <div class="vrow"><span class="k">隐喻</span><span class="v">${v.metaphor}</span></div>
+          <div class="vrow"><span class="k">主角</span><span class="v">${v.actor}</span></div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:12px;color:var(--ink-3);">
+      左侧对话里小草已选定 <b style="color:var(--accent);">A · 老年人推沙发</b> 作为主线先跑通,B / C 待批量。
+    </div>`;
+}
+
+function renderScript() {
+  setCanvasMeta('文案 · 脚本初稿', 'TPL-004 老年人推沙发 · 脚本 v2(已采纳编导修改)');
+  const s = S.SCRIPT_TPL_004;
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="script-card">
+      <section>
+        <h4>脚本方向</h4>
+        <div class="dir-text">${s.direction}</div>
+      </section>
+      <section>
+        <h4>台词(已应用合规改写)</h4>
+        <div class="dialogue">"嘿,这沙发不轻啊。可奇怪,我这把年纪,反而推得动了。养老就该这样,提前备一份年金,后半生 <del>才有底气</del><ins>有个稳稳的依靠</ins>。"</div>
+      </section>
+      <section>
+        <h4>分镜(6 格 / 15 秒)</h4>
+        <table class="shot-table">
+          <thead><tr><th>镜</th><th>时长</th><th>画面</th><th>动作 / 声音</th></tr></thead>
+          <tbody>
+            ${s.shots.map(sh => `<tr>
+              <td class="nc">${sh.n}</td>
+              <td class="dc">${sh.dur}</td>
+              <td class="fc">${sh.frame}</td>
+              <td class="ac">${sh.action}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <h4>反差重点</h4>
+        <div class="contrast">${s.contrast}</div>
+      </section>
+    </div>`;
+}
+
+function renderDirectorAudit() {
+  setCanvasMeta('编导 · 15s 内容偏好审核', '6 条偏好规则 · 2 处建议改');
+  const audit = S.DIRECTOR_AUDIT_TPL_004;
+  const a = S.AGENTS.director;
+  const warns = audit.filter(r => r.sev === 'warn').length;
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="audit-card">
+      <div class="ah">
+        <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+        <div class="nm">${a.name}</div>
+        <span class="dim">15s 内容偏好(本类别)</span>
+        <span class="summary ${warns ? 'warn' : 'ok'}">${warns ? warns + ' 处建议' : '全过'}</span>
+      </div>
+      ${audit.map(r => `
+        <div class="audit-row ${r.sev}">
+          <span class="ic-cell">${r.sev === 'ok' ? S.ic('check', 11) : '!'}</span>
+          <div class="desc">${r.rule}
+            ${r.revise ? `<div class="revise"><del>${r.revise.from}</del><span class="arr">→</span><ins>${r.revise.to}</ins></div>` : ''}
+          </div>
+          <span class="sev-tag">${r.sev === 'ok' ? '通过' : '建议改'}</span>
+        </div>`).join('')}
+      <div class="actions">
+        <button class="btn primary" onclick="S.toast('已采纳全部编导修改');showCanvas('compliance');">采纳全部修改</button>
+        <button class="btn">我自己改</button>
+        <button class="btn">保留原稿</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.6;">
+      <b style="color:var(--ink-2);">编导 vs 合规审核分工提示</b>:此处审的是"15s 需求激发类视频的内容偏好"(网感、反差、视觉具象等),不是行业监管硬红线。监管红线下一步由 <b style="color:var(--ink-2);">合规审核</b> 独立走。
+    </div>`;
+}
+
+function renderComplianceAudit() {
+  setCanvasMeta('合规审核 · 行业监管硬红线', '6 大类规则 · 1 处改写');
+  const audit = S.COMPLIANCE_AUDIT_TPL_004;
+  const a = S.AGENTS.compliance;
+  const warns = audit.filter(r => r.sev === 'warn').length;
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="audit-card">
+      <div class="ah">
+        <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+        <div class="nm">${a.name}</div>
+        <span class="dim">行业监管硬红线(所有视频)</span>
+        <span class="summary ${warns ? 'warn' : 'ok'}">${warns ? warns + ' 处改写' : '全过'}</span>
+      </div>
+      ${audit.map(r => `
+        <div class="audit-row ${r.sev}">
+          <span class="ic-cell">${r.sev === 'ok' ? S.ic('check', 11) : '!'}</span>
+          <div class="desc"><span class="law">${r.law}</span>${r.desc}
+            ${r.revise ? `<div class="revise"><del>${r.revise.from}</del><span class="arr">→</span><ins>${r.revise.to}</ins></div>` : ''}
+          </div>
+          <span class="sev-tag">${r.sev === 'ok' ? '通过' : '改写'}</span>
+        </div>`).join('')}
+      <div class="actions">
+        <button class="btn primary" onclick="S.toast('已采纳合规改写');showCanvas('biz');">采纳改写</button>
+        <button class="btn">我自己改</button>
+        <button class="btn">退回起稿</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.6;">
+      <b style="color:var(--ink-2);">和编导的区别</b>:合规审核走<b style="color:var(--ink-2);">监管硬红线</b>(广告法 / 保险销售管理办法 / 银保监等),三类视频都要过、不可豁免;编导走<b style="color:var(--ink-2);">这一类视频的内容偏好</b>,15s 与 3min 偏好不同。
+    </div>`;
+}
+
+function renderBizAudit() {
+  setCanvasMeta('业务校准 · 关联产品事实', '安心久久年金 v3.1');
+  const audit = S.BIZ_AUDIT_TPL_004;
+  const a = S.AGENTS.biz;
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="audit-card">
+      <div class="ah">
+        <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+        <div class="nm">${a.name}</div>
+        <span class="dim">阳光人寿安心久久年金 v3.1</span>
+        <span class="summary ok">4 项全过</span>
+      </div>
+      ${audit.map(r => `
+        <div class="audit-row ok">
+          <span class="ic-cell">${S.ic('check', 11)}</span>
+          <div class="desc">${r.fact}</div>
+          <span class="sev-tag">通过</span>
+        </div>`).join('')}
+      <div class="actions">
+        <button class="btn primary" onclick="showCanvas('casting');">下一步 · 选角</button>
+      </div>
+    </div>`;
+}
+
+// renderCasting / renderBudget 已删除
+// (Round 2 反馈:选角实际发生在好保 App 端 + 50 条压测,模板生产阶段不锁人;
+//  预算细节属于固定模型成本,不应让用户在 SaaS 视图里看见每条 ¥0.30 这种数字)
+
+// ---------- 场景图预览(Step 1)----------
+function renderScene() {
+  setCanvasMeta('制作组 · Step 1 · 场景图', '客厅 · 暖光 · 9:16 竖版');
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="scene-card">
+      <div class="frame">
+        <div class="frame-meta">
+          <span>9:16</span><span>1080×1920</span>
+        </div>
+      </div>
+      <div class="frame-desc">
+        <b>场景描述</b>:客厅,暖色调下午光从右上窗户洒入,沙发居中,墙面木质暖色调,地面浅灰木地板。构图给主角动作留足前景空间。
+      </div>
+      <div class="actions">
+        <span style="font-size:11.5px;color:var(--ink-3);font-style:italic;">↓ 下一步:配音(自动推进)</span>
+      </div>
+    </div>`;
+}
+
+// ---------- 配音预览(Step 2)----------
+function renderAudio() {
+  // 用 30 根随机高度的 bar 模拟波形
+  const bars = Array.from({ length: 60 }, () => 6 + Math.floor(Math.random() * 48))
+    .map(h => `<div class="bar" style="height:${h}px;"></div>`).join('');
+  setCanvasMeta('制作组 · Step 2 · 配音', '老年示例声纹 · 14.8s · 验收用');
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="audio-card">
+      <div class="wave">
+        <div class="controls">
+          <div class="play"></div>
+          <div class="info">
+            <div class="t1">老年示例声纹 · 14.8s</div>
+            <div class="t2">语速 3.6 字/秒 · 情绪:自如、有底气 · 平台默认占位音轨</div>
+          </div>
+        </div>
+        <div class="bars">${bars}</div>
+      </div>
+      <div class="info-box">
+        <div class="row"><span>台词</span><b style="text-align:right;flex:1;">"嘿,这沙发不轻啊。可奇怪,我这把年纪,反而推得动了。养老就该这样,提前备一份年金,后半生有个稳稳的依靠。"</b></div>
+        <div class="row"><span>时长</span><b>14.8s</b></div>
+        <div class="row"><span>语速</span><b>3.6 字/秒(符合 15s 口播基线)</b></div>
+        <div class="row"><span>用途</span><b>验收用预览;代理人 try-on 时会替换为本人声纹</b></div>
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <span style="font-size:11.5px;color:var(--ink-3);font-style:italic;">↓ 下一步:合成最终样片(自动推进)</span>
+      </div>
+    </div>`;
+}
+
+function renderProduction() {
+  setCanvasMeta('制作组 · 三步流水', 'Step 1 · 2 · 3 全过');
+  const steps = S.PRODUCTION_STEPS_TPL_004;
+  const a = S.AGENTS.production;
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="audit-card">
+      <div class="ah">
+        <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+        <div class="nm">${a.name}</div>
+        <span class="dim">场景 · 配音 · 合成</span>
+        <span class="summary ok">3 步全过 · 总耗 6 分 12 秒</span>
+      </div>
+      ${steps.map(st => `
+        <div class="audit-row ${st.state === 'done' ? 'ok' : 'warn'}">
+          <span class="ic-cell">${S.ic('check', 11)}</span>
+          <div class="desc"><b>Step ${st.n} · ${st.name}</b><div style="font-size:11.5px;color:var(--ink-3);margin-top:2px;">${st.desc}</div></div>
+          <span class="sev-tag" style="font-family:var(--mono);">${st.dur} · ${st.cost}</span>
+        </div>`).join('')}
+      <div class="actions">
+        <button class="btn primary" onclick="showCanvas('sample');">查看样片</button>
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:var(--ink-3);line-height:1.6;">
+      底层引擎在模板层已固定(MVP 期不切换),制作组只负责调度三步并交付样片。代理人在好保 App 体验时看不到引擎名,只看到成片。
+    </div>`;
+}
+
+function renderQA() {
+  setCanvasMeta('质检师 · 技术终审 + 50 条压测', '上架前的最后一关');
+  const spec = S.QA_SPEC_TPL_004;
+  const stab = S.QA_STABILITY_TPL_004;
+  const a = S.AGENTS.qa;
+  document.getElementById('canvas-body').innerHTML = `
+
+    <!-- 5 维度技术规格 -->
+    <div class="audit-card">
+      <div class="ah">
+        <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+        <div class="nm">${a.name}</div>
+        <span class="dim">技术规格 5 维度</span>
+        <span class="summary warn">4 过 · 1 提醒</span>
+      </div>
+      ${spec.map(s => `
+        <div class="audit-row ${s.sev}">
+          <span class="ic-cell">${s.sev === 'ok' ? S.ic('check', 11) : '!'}</span>
+          <div class="desc"><b>${s.dim}</b> · 规格 ${s.spec} · 实测 <b style="font-family:var(--mono);">${s.result}</b>
+            ${s.revise ? `<div class="revise"><del>${s.revise.from}</del><span class="arr">→</span><ins>${s.revise.to}</ins></div>` : ''}
+          </div>
+          <span class="sev-tag">${s.sev === 'ok' ? '通过' : '提醒'}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- 50 条压测概览 -->
+    <div class="qa-summary">
+      <div class="qcell ok"><div class="num">${stab.pass}</div><div class="lbl">通过 · ${(stab.pass / stab.total * 100).toFixed(0)}%</div></div>
+      <div class="qcell warn"><div class="num">${stab.warn}</div><div class="lbl">提醒</div></div>
+      <div class="qcell fail"><div class="num">${stab.fail}</div><div class="lbl">失败</div></div>
+    </div>
+
+    <div style="margin-bottom:8px;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:0.4px;text-transform:uppercase;font-weight:700;">
+      50 条压测案例 · 同模板换不同代理人 / 场景并发
+    </div>
+    <div class="qa-grid">
+      ${stab.cases.map(c => `
+        <div class="qa-cell ${c.state === 'ok' ? '' : c.state}" title="#${c.id} ${c.label || ''} ${c.issue || ''}">
+          <span class="num">${c.id}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- 异常案例明细 -->
+    <div class="qa-issue-list">
+      <div style="font-size:11px;color:var(--ink-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:0.4px;font-weight:700;margin-bottom:6px;">
+        异常案例(共 3 例)
+      </div>
+      ${stab.cases.filter(c => c.state !== 'ok').map(c => `
+        <div class="qa-issue-row ${c.state}">
+          <span class="qid">#${String(c.id).padStart(2, '0')}</span>
+          <span class="label">${c.label}</span>
+          <span class="issue">${c.issue}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- 5 项指标 -->
+    <div class="qa-metrics">
+      ${stab.metrics.map(m => `
+        <div class="qa-metric-row">
+          <span class="mname">${m.name}</span>
+          <span class="mval" style="color:${m.sev === 'ok' ? 'var(--green)' : 'var(--gold)'};">${m.value}</span>
+          <span class="mbase">基线 ${m.baseline}</span>
+          <span class="sev-tag ${m.sev === 'ok' ? '' : 'warn'}" style="background:${m.sev === 'ok' ? 'var(--green-bg)' : 'var(--gold-bg)'};color:${m.sev === 'ok' ? 'var(--green)' : 'var(--gold)'};font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;">${m.sev === 'ok' ? '达标' : '边缘'}</span>
+        </div>`).join('')}
+    </div>
+
+    <!-- 结论 -->
+    <div class="qa-conclusion">
+      <b>质检师结论:</b> ${stab.conclusion}
+    </div>
+
+    <div style="display:flex;gap:8px;">
+      <button class="btn primary" onclick="showCanvas('publish');">进入上架确认</button>
+      <button class="btn" onclick="S.toast('已请求二压版本(画质损失 < 3%)');">先二压再上架</button>
+    </div>`;
+}
+
+function renderSample() {
+  setCanvasMeta('制作组 · Step 3 · 合成完成', 'TPL-004 老年人推沙发 · 9:16 竖版');
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="big-player">
+      <div class="corner-meta">
+        <span>9:16</span><span>15.0s</span>
+      </div>
+      <div class="play"></div>
+      <div class="dur">00:00 / 00:15</div>
+    </div>
+    <div class="player-meta-row" style="justify-content:center;">
+      <span class="ok">Step 1 场景图 ✓</span>
+      <span class="ok">Step 2 配音 ✓</span>
+      <span class="ok">Step 3 合成 ✓</span>
+    </div>
+    <div style="font-size:13px;color:var(--ink-2);line-height:1.65;background:var(--paper-2);padding:12px 14px;border-radius:10px;margin-bottom:14px;">
+      <b>样片描述</b>:平台默认"老年示例形象"(占位代理人)在客厅,年轻人推沙发推不动,老年示例轻推沙发飞出窗外,镜头转向主角说出台词,字幕同步。<br>
+      <span style="color:var(--ink-3);font-size:11.5px;">⚠️ 这里的代理人是验收用占位形象,上架后代理人在好保 App 端会自己 try-on 替换为本人脸+声音;质检阶段会用 50 组不同代理人 / 场景做并发压测。</span>
+    </div>`;
+}
+
+function renderSampleReview() {
+  setCanvasMeta('样片再审 · 三角色联审', '编导 / 合规 / 业务 · 共 2 处微调');
+  const groups = S.SAMPLE_REVIEW_TPL_004;
+  document.getElementById('canvas-body').innerHTML = `
+    <div style="font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-bottom:14px;">
+      脚本过审 ≠ 样片过审。画面 / 字幕 / 口播 / 封面都可能引入新风险,本节点由编导(视觉网感) + 合规(字幕口播红线) + 业务(画面事实)三方独立联审。
+    </div>
+    ${groups.map(g => {
+      const a = S.AGENTS[g.agent];
+      const warns = g.items.filter(i => i.sev === 'warn').length;
+      return `<div class="audit-card">
+        <div class="ah">
+          <div class="ava"><img src="${a.ava}" alt="${a.name}"></div>
+          <div class="nm">${a.name}</div>
+          <span class="dim">${g.dim}</span>
+          <span class="summary ${warns ? 'warn' : 'ok'}">${warns ? warns + ' 处微调' : '全过'}</span>
+        </div>
+        ${g.items.map(it => `
+          <div class="audit-row ${it.sev}">
+            <span class="ic-cell">${it.sev === 'ok' ? S.ic('check', 11) : '!'}</span>
+            <div class="desc">${it.rule}</div>
+            <span class="sev-tag">${it.sev === 'ok' ? '通过' : '微调'}</span>
+          </div>`).join('')}
+      </div>`;
+    }).join('')}
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn primary" onclick="S.toast('采纳微调 · 重生中');setTimeout(()=>showCanvas('publish'), 800);">采纳全部微调并重生</button>
+      <button class="btn">保留原片直接上架</button>
+    </div>`;
+}
+
+function renderPublish() {
+  setCanvasMeta('上架到好保', '需求激发模板库 · TPL-004');
+  document.getElementById('canvas-body').innerHTML = `
+    <div class="publish-card">
+      <h3>准备上架 · 老年人推沙发(v2 已通过样片再审)</h3>
+      <div class="desc">上架后,代理人在好保 App 「需求激发」模板库可见,可一键替换主角形象/声音生成自己的短视频。</div>
+      <div class="checklist">
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>编导 · 15s 内容偏好</b><span class="meta">6 项全过 · 已修订 2 处</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>合规 · 行业监管硬红线</b><span class="meta">5 大类全过 · 已改写 1 处</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>业务 · 产品事实匹配</b><span class="meta">安心久久年金 v3.1 · 4 项全过</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>制作组 · 三步流水</b><span class="meta">场景 / 配音 / 合成 · 总耗 6 分 12 秒</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>样片再审 · 内容三方</b><span class="meta">编导 / 合规 / 业务 · 已修订 2 处</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>质检 · 技术规格 5 维度</b><span class="meta">4 项达标 · 1 项提醒(文件大小)</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>质检 · 50 条稳定性压测</b><span class="meta">47/50 通过 · 94% 上架适配率</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>内容 hash</b><span class="meta">a3f2c81e...8b91</span></div>
+        <div class="ck-row"><span class="ck-ic">${S.ic('check', 10)}</span><b>审计留痕</b><span class="meta">改写 diff × 3 · 审核版本 v2 · 压测报告 v1</span></div>
+      </div>
+      <div class="note">
+        上架后:本批次还有 <b style="color:var(--ink-2);">B 飘车上坡</b> / <b style="color:var(--ink-2);">C 巨人弹簧床</b> 两条同主题模板可用同样流程批量跑。
+      </div>
+      <div class="actions">
+        <button class="btn primary gold" onclick="finalPublish()">确认上架</button>
+        <button class="btn">暂缓</button>
+      </div>
+    </div>`;
+}
+
+function finalPublish() {
+  S.toast('TPL-004 老年人推沙发 已上架到好保 · 需求激发');
+  const a = ANCHORS.find(x => x.id === 'publish');
+  if (a) a.state = 'published';
+  renderAnchors();
+}
+
+function batchRun() {
+  S.toast('B + C 已并发跑起来,复用 A 的所有决策');
+  document.querySelectorAll('#batch-stack .thumb').forEach((t, i) => {
+    if (i > 0) t.style.opacity = '1';
+  });
+}
+
+function batchSwitch(v) {
+  S.toast(`切到方向 ${v},加载对应对话历史 · (demo)`);
+}
+
+function pickVariant(id) {
+  S.HOOK_VARIANTS_TPL_004.forEach(v => v.selected = v.id === id);
+  renderHookVariants();
+  S.toast(`已切换到方向 ${id}`);
+}
+
+function pickCast(idx) {
+  document.querySelectorAll('.cast-card').forEach((c, i) => c.classList.toggle('picked', i === idx));
+}
+
+// 暴露
+window.showCanvas = showCanvas;
+window.batchRun = batchRun;
+window.batchSwitch = batchSwitch;
+window.pickVariant = pickVariant;
+window.pickCast = pickCast;
+window.finalPublish = finalPublish;
+window.pickOption = pickOption;
+window.restartFlow = restartFlow;
+window.goToWelcome = goToWelcome;
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderAnchors();
+  // 入口:播放 welcome beat
+  playBeat('welcome');
+
+  // compose 输入框 · 任何输入都直接转入 welcome 后的"需求激发"主线
+  const ta = document.querySelector('.compose textarea');
+  document.getElementById('btn-send').addEventListener('click', () => {
+    const text = ta.value.trim();
+    if (!text) return;
+    appendEl(elUser(text, '刚刚'));
+    ta.value = '';
+    // Demo:任何自由输入都引导到主线
+    setTimeout(() => {
+      appendEl(elSys('💡 Demo 主线先走"需求激发 · 养老金压力",自由输入功能后续接入'));
+      setTimeout(() => playBeat('pick-need-topic'), 800);
+    }, 400);
+  });
+});
+</script>
+
+</body>
+</html>

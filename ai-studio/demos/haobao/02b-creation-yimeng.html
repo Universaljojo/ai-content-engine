@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>好保 · 沉浸创作</title>
+<link rel="stylesheet" href="_shared.css?v=v4-fix">
+<style>
+  /* 全屏深色舞台 */
+  .phone.yimeng{background:radial-gradient(ellipse 80% 60% at 50% 35%, #1A1A2E 0%, #0F0F1A 60%, #050510 100%) !important;color:#fff;min-height:100vh}
+  .phone.yimeng .statusbar{color:#fff !important}
+
+  /* 顶部条 */
+  .ym-appbar{display:flex;align-items:center;padding:8px 18px 6px;position:relative}
+  .ym-appbar .ym-close{font-size:22px;color:#fff;background:none;border:none;cursor:pointer;width:32px;text-align:left;padding:6px 0;font-family:inherit}
+  .ym-appbar .ym-title{flex:1;text-align:center}
+  .ym-appbar .ym-title .ym-t-main{font-size:15.5px;font-weight:600;color:#fff;letter-spacing:0.2px;line-height:1.2}
+  .ym-appbar .ym-title .ym-t-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px}
+  .ym-appbar .ym-trophy{position:absolute;right:14px;top:8px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.18);padding:5px 11px;border-radius:50px;font-size:11px;color:#fff;display:inline-flex;align-items:center;gap:4px;font-weight:500}
+  .ym-appbar .ym-trophy .ym-red-dot{width:6px;height:6px;background:#FCD34D;border-radius:50%;animation:pulse-dot 1.4s infinite;box-shadow:0 0 6px #FCD34D}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+
+  /* 中央舞台 */
+  .ym-stage{position:relative;height:280px;display:flex;align-items:center;justify-content:center;margin-top:4px}
+  .ym-bokeh{position:absolute;inset:0;pointer-events:none}
+  .ym-bokeh::before, .ym-bokeh::after{content:"";position:absolute;border-radius:50%;background:radial-gradient(circle, rgba(252,211,77,0.18) 0%, transparent 70%);filter:blur(20px)}
+  .ym-bokeh::before{width:160px;height:160px;top:30%;left:15%;animation:bokeh-float 8s ease-in-out infinite}
+  .ym-bokeh::after{width:120px;height:120px;top:55%;right:18%;background:radial-gradient(circle, rgba(30,58,138,0.35) 0%, transparent 70%);animation:bokeh-float 10s ease-in-out infinite reverse}
+  @keyframes bokeh-float{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-15px)}}
+
+  /* 代理人形象大圆 - C 位 */
+  .ym-avatar-wrap{position:relative;z-index:2;text-align:center}
+  .ym-avatar{width:108px;height:108px;border-radius:50%;background:linear-gradient(135deg,#FCD34D 0%,#FBA827 60%,#D97706 100%);color:#5B3A00;font-size:46px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,0.18);box-shadow:0 0 0 8px rgba(252,211,77,0.08),0 12px 40px rgba(252,211,77,0.3),inset 0 -10px 20px rgba(91,58,0,0.2);position:relative;animation:avatar-glow 3.5s ease-in-out infinite}
+  @keyframes avatar-glow{0%,100%{box-shadow:0 0 0 8px rgba(252,211,77,0.08),0 12px 40px rgba(252,211,77,0.3),inset 0 -10px 20px rgba(91,58,0,0.2)}50%{box-shadow:0 0 0 12px rgba(252,211,77,0.12),0 16px 50px rgba(252,211,77,0.45),inset 0 -10px 20px rgba(91,58,0,0.2)}}
+  .ym-avatar-check{position:absolute;bottom:4px;right:4px;width:26px;height:26px;background:#10B981;color:#fff;border-radius:50%;font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;border:2.5px solid #0F0F1A;z-index:3}
+  .ym-name{margin-top:14px;font-size:15px;font-weight:700;color:#fff;letter-spacing:0.4px}
+  .ym-meta{font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px;letter-spacing:0.4px}
+
+  /* Demo 示例入口 */
+  .ym-demo-hint{margin:18px 16px 10px;padding:9px 14px;background:rgba(252,211,77,0.08);border:0.5px dashed rgba(252,211,77,0.35);border-radius:12px;display:flex;align-items:center;gap:8px;font-size:11.5px;color:rgba(252,211,77,0.85);cursor:pointer;letter-spacing:0.2px;transition:all 0.15s}
+  .ym-demo-hint:active{transform:scale(0.99);background:rgba(252,211,77,0.12)}
+  .ym-demo-hint .ymdh-icon{font-size:12px}
+  .ym-demo-hint .ymdh-arrow{margin-left:auto;color:rgba(252,211,77,0.5);font-size:13px}
+
+  /* 输入框区 */
+  .ym-input-area{margin:6px 16px 0;background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:0.5px solid rgba(255,255,255,0.12);border-radius:18px;padding:16px 16px 12px;transition:all 0.18s}
+  .ym-input-area:focus-within{border-color:rgba(252,211,77,0.5);background:rgba(255,255,255,0.08)}
+  .ym-input-area textarea{width:100%;min-height:80px;max-height:200px;border:none;outline:none;resize:none;font-size:15px;line-height:1.6;color:#fff;font-family:inherit;background:transparent;letter-spacing:0.2px;padding:0;caret-color:#FCD34D}
+  .ym-input-area textarea::placeholder{color:rgba(255,255,255,0.4);font-size:15px;line-height:1.6}
+  .ym-input-tools{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:0.5px solid rgba(255,255,255,0.08);margin-top:8px}
+  .ym-tool{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.12);padding:6px 11px;border-radius:50px;color:rgba(255,255,255,0.75);font-size:11.5px;cursor:pointer;font-family:inherit;letter-spacing:0.2px;transition:all 0.15s}
+  .ym-tool:active{transform:scale(0.95);background:rgba(255,255,255,0.1)}
+  .ym-tool .ym-tool-icon{font-size:13px}
+  .ym-input-count{margin-left:auto;font-size:10.5px;color:rgba(255,255,255,0.4);font-variant-numeric:tabular-nums;letter-spacing:0.3px}
+
+  /* 生成按钮 */
+  .ym-submit{padding:18px 16px 14px}
+  .ym-submit .ym-btn{width:100%;height:54px;background:linear-gradient(135deg,#FCD34D 0%,#FBA827 100%);color:#3C2700;font-size:16px;font-weight:700;border:none;border-radius:16px;letter-spacing:0.5px;cursor:pointer;box-shadow:0 8px 24px rgba(252,211,77,0.35);display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;transition:all 0.15s}
+  .ym-submit .ym-btn:disabled{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3);box-shadow:none;cursor:not-allowed}
+  .ym-submit .ym-btn:not(:disabled):active{transform:scale(0.98)}
+  .ym-submit .ym-hint{text-align:center;font-size:10.5px;color:rgba(255,255,255,0.45);margin-top:10px;letter-spacing:0.3px;line-height:1.5}
+  .ym-submit .ym-hint b{color:rgba(252,211,77,0.85);font-weight:600}
+
+  /* Loading */
+  .ym-loading{padding:80px 24px;text-align:center;display:none}
+  .ym-loading.show{display:block}
+  .ym-loading .yl-spin{width:48px;height:48px;border:3px solid rgba(255,255,255,0.1);border-top-color:#FCD34D;border-radius:50%;animation:spin 0.9s linear infinite;margin:0 auto 22px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ym-loading .yl-text{font-size:14px;color:#fff;font-weight:500;letter-spacing:0.3px;line-height:1.55}
+  .ym-loading .yl-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:6px;line-height:1.5}
+
+  /* 切回浅色 */
+  .ym-back-light{margin:6px 16px 18px;padding:10px 14px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;gap:8px;font-size:11.5px;color:rgba(255,255,255,0.55);cursor:pointer;letter-spacing:0.2px}
+  .ym-back-light:active{background:rgba(255,255,255,0.06)}
+  .ym-back-light .ym-bl-arrow{margin-left:auto;color:rgba(255,255,255,0.4)}
+</style>
+</head>
+<body>
+<div class="phone v4 yimeng">
+
+  <div class="statusbar">
+    <span class="time">9:41</span>
+    <span class="icons">●●●● 5G ⚡</span>
+  </div>
+
+  <div class="ym-appbar">
+    <button class="ym-close" onclick="location='02b-creation-input.html'">✕</button>
+    <div class="ym-title">
+      <div class="ym-t-main">自由创作</div>
+      <div class="ym-t-sub">15s 出镜片 <span style="opacity:0.6">▾</span></div>
+    </div>
+    <span class="ym-trophy">
+      <span class="ym-red-dot"></span>
+      <span>合规终审</span>
+    </span>
+  </div>
+
+  <div id="form-view">
+
+    <!-- 舞台 -->
+    <div class="ym-stage">
+      <div class="ym-bokeh"></div>
+      <div class="ym-avatar-wrap">
+        <div style="position:relative;display:inline-block">
+          <div class="ym-avatar">释<div class="ym-avatar-check">✓</div></div>
+        </div>
+        <div class="ym-name">释磊 出镜</div>
+        <div class="ym-meta">已绑定形象 + 声音 · 9:16 出镜片</div>
+      </div>
+    </div>
+
+    <!-- Demo 示例入口 -->
+    <div class="ym-demo-hint" onclick="fillDemo()">
+      <span class="ymdh-icon">✦</span>
+      <span>第一次体验?点这里填入一段示例,跑一遍完整流程</span>
+      <span class="ymdh-arrow">›</span>
+    </div>
+
+    <!-- 输入区 -->
+    <div class="ym-input-area">
+      <textarea id="ym-input" placeholder="想录什么样的视频?这里直接说…"></textarea>
+      <div class="ym-input-tools">
+        <span class="ym-input-count" id="ym-count" style="margin-left:0">0 字</span>
+        <span style="margin-left:auto;font-size:10.5px;color:rgba(255,255,255,0.3);letter-spacing:0.3px">⌘ + ↵ 提交</span>
+      </div>
+    </div>
+
+    <!-- 提交 -->
+    <div class="ym-submit">
+      <button class="ym-btn" id="ym-submit-btn" disabled onclick="submitYimeng()">
+        <span>✦ 生成</span>
+      </button>
+      <div class="ym-hint">提交后走 <b>合规终审</b> · 通过即出 15s 出镜片</div>
+    </div>
+
+    <!-- 切回浅色 -->
+    <div class="ym-back-light" onclick="location='02b-creation-input.html'">
+      <span>☀</span>
+      <span>想要简洁版?切回浅色界面</span>
+      <span class="ym-bl-arrow">›</span>
+    </div>
+
+    <!-- Loading -->
+    <div class="ym-loading" id="ym-loading">
+      <div class="yl-spin"></div>
+      <div class="yl-text" id="yl-text">正在阅读你的想法…</div>
+      <div class="yl-sub" id="yl-sub">14 部法规 + 5 平台规则 检测中</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const ta = document.getElementById('ym-input');
+const btn = document.getElementById('ym-submit-btn');
+const countEl = document.getElementById('ym-count');
+
+setTimeout(() => ta.focus(), 200);
+
+ta.addEventListener('input', () => {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+  const len = ta.value.trim().length;
+  btn.disabled = len < 5;
+  countEl.textContent = len + ' 字';
+});
+
+ta.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !btn.disabled) {
+    e.preventDefault();
+    submitYimeng();
+  }
+});
+
+// Demo 用:一键预填示例脚本(贴近代理人真实表达,且 02c 能精准命中 3 处风险)
+const DEMO_SCRIPT = `我看了个段子说,买保险就像谈恋爱,现在不上心,等出事了再后悔来不及。
+
+年金险一年存 5 万,30 年后保证赚 200 万,我们公司这款比 XX 公司好太多了,稳赚不赔。`;
+
+function fillDemo(){
+  ta.value = DEMO_SCRIPT;
+  ta.dispatchEvent(new Event('input'));
+  ta.focus();
+  setTimeout(() => ta.setSelectionRange(DEMO_SCRIPT.length, DEMO_SCRIPT.length), 50);
+  // 隐藏 demo 提示卡(已用过)
+  document.querySelector('.ym-demo-hint').style.display = 'none';
+}
+
+function submitYimeng(){
+  const text = ta.value.trim();
+  if (text.length < 5) return;
+  localStorage.setItem('creation-input', text);
+  // 跳到主入口的雷达预检过场(单点维护) — 6 秒过场后会跳 02c
+  location.href = '02b-creation-input.html?show_scan=1';
+}
+</script>
+
+</body>
+</html>

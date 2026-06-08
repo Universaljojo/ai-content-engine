@@ -131,3 +131,22 @@
 !sales-sunrise/qr/*.jpg
 !sales-sunrise/qr/*.png
 !sales-sunrise/*.pdf
+
+# Allow ai-studio deck (2026-06) — publish subset only, NOT the .pptx/company-assets
+!ai-studio/
+!ai-studio/index.html
+!ai-studio/videos/
+!ai-studio/videos/*.mp4
+!ai-studio/posters/
+!ai-studio/posters/*.jpg
+!ai-studio/qr/
+!ai-studio/qr/*.jpg
+!ai-studio/qr/*.png
+!ai-studio/demos/
+!ai-studio/demos/**/
+!ai-studio/demos/**/*.html
+!ai-studio/demos/**/*.css
+!ai-studio/demos/**/*.js
+!ai-studio/demos/**/*.png
+!ai-studio/demos/**/*.svg
+!ai-studio/demos/**/*.jpg
